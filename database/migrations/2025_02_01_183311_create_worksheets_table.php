@@ -24,7 +24,7 @@ return new class extends Migration
             $table->enum("declaration_mode", ["email", "phone", "personal", "onsite"]);
             $table->string("error_description");
             $table->string("comment");
-            $table->string("condition");
+            $table->boolean("final")->default(false);
 
             $table->unsignedBigInteger("coworker_id")->nullable();
             $table->foreign("coworker_id")->references("id")->on("users")->onDelete("cascade");
