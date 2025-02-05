@@ -14,5 +14,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('layouts.menu');
+    return view('layouts.menu', ["urls" => [
+        ['name' => 'Főoldal', 'url' => '/'],
+        ['name' => 'Munkalapok', 'url' => '/'],
+    ]]);
 });

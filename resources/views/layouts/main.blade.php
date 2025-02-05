@@ -9,16 +9,22 @@
 </head>
 
 <body>
+    <header>
+        <h1>@yield('header1')</h1>
 
-    @include('layouts.navbar', ['menuItems' => $menuItems ?? []])
+        @include('layouts.navbar', ['menuItems' => $menuItems ?? []])
+    </header>
 
-    <h1>@yield("header1")</h1>
+    <main>
+        <div class="container">
+            @yield('content')
+        </div>
+    </main>
 
-    <div class="container">
-        @yield('content')
-    </div>
-
-    <script src="{{ asset('js/app.js') }}"></script>
+    <footer>
+        footer
+        <script src="{{ asset('js/app.js') }}"></script>
+    </footer>
 </body>
 
 </html>
