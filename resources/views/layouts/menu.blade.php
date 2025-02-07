@@ -5,5 +5,10 @@
 @section('header1', "Főoldal")
 
 @section('content')
-    <p>TEST</p>
+    @guest
+        @include('components.login')
+    @endguest
+    @auth
+
+    @endauth
 @endsection
