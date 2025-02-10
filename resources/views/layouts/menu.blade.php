@@ -9,6 +9,6 @@
         @include('components.login')
     @endguest
     @auth
-
+        @include('tickets.tickets')
     @endauth
 @endsection
