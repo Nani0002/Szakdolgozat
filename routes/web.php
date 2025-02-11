@@ -30,4 +30,8 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
     Route::get('user', [UserController::class, 'show'])->name('user');
+
+    Route::get('register', [UserController::class, 'create']);
+
+    Route::post('register', [UserController::class, 'store'])->name('register');
 });

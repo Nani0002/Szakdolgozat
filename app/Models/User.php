@@ -44,7 +44,33 @@ class User extends Authenticatable
         'password' => 'hashed'
     ];
 
+
+    /**
+     * Returns if user has admin privilige.
+     */
     public function isAdmin(): Bool {
         return $this->role === 'admin';
+    }
+
+    /**
+     * Returns navbar urls depending on whether a user is logged in or not.
+     */
+    public static function getNavUrls($auth) : array{
+        $navUrls = [['name' => 'Főoldal', 'url' => route('home')]];
+        if($auth === true){
+            array_push($navUrls, ['name' => 'Munkalapok', 'url' => route('worksheet.index')]);
+        }
+        return $navUrls;
+    }
+
+    /**
+     * Returns user controll navbar urls depending on the users priviliges.
+     */
+    public function getUserUrls(): array{
+        $userUrls = [["name" => 'Profilom', 'url' => route('user')]];
+        if($this->isAdmin()){
+            array_push($userUrls, ['name' => 'Munkatárs felvétele', 'url' => '/register']);
+        }
+        return $userUrls;
     }
 }

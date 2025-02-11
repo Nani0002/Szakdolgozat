@@ -2,7 +2,7 @@
     <div class="col-xl-6 offset-xl-3 shadow p-5 py-4 rounded-4 bg-light col-md-8 offset-md-2">
         <div class="row mb-4 fs-5 fw-bold">Bejelentkezés</div>
         <div class="row">
-            <form action="{{route('login')}}" method="POST">
+            <form action="{{ route('login') }}" method="POST">
                 @csrf
                 <div class="mb-3 form-floating">
                     <input type="email" name="email" id="email" value="{{ old('email') }}" class="form-control"
