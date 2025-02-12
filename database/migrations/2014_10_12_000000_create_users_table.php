@@ -18,6 +18,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum("role", ["admin", "liable", "coworker"]);
+            $table->string("imagename")->default('default_user.png');
+            $table->string("imagename_hash")->default('default_user.png');
             $table->rememberToken();
             $table->timestamps();
         });

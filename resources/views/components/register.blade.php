@@ -35,7 +35,7 @@
                         class="form-control" placeholder="Jelszó mégegyszer">
                     <label for="password_confirmation">Jelszó mégegyszer</label>
                 </div>
-                
+
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch" id="role" name="role" {{old('role') == 'on' ? 'checked' : ''}}>
                     <label class="form-check-label" for="role">Felelősnek állítható</label>

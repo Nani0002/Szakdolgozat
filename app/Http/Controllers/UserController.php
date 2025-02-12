@@ -61,10 +61,14 @@ class UserController extends Controller
     public function show()
     {
         if (Auth::user()) {
-            return view('user.user', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls()]);
+            return view('user.user', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "profile" => Auth::user()]);
         }
         return redirect(route('home'));
     }
 
     public function update(Request $request) {}
+
+    public function newPassword(Request $request) {
+
+    }
 }

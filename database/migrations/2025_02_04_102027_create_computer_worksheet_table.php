@@ -21,8 +21,8 @@ return new class extends Migration
 
             $table->string("password")->nullable();
             $table->string("condition")->nullable();
-            $table->string("imagename");
-            $table->string("imagename_hash");
+            $table->string("imagename")->nullable();
+            $table->string("imagename_hash")->nullable();
             $table->string("addons")->nullable();
 
             $table->timestamps();

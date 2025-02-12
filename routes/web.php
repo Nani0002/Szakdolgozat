@@ -34,4 +34,6 @@ Route::middleware('auth')->group(function () {
     Route::get('register', [UserController::class, 'create']);
 
     Route::post('register', [UserController::class, 'store'])->name('register');
+
+    Route::post('new_password', [UserController::class, 'newPassword'])->name('new_password');
 });

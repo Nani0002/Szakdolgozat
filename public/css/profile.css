@@ -1,0 +1,26 @@
+.profile-img{
+    width: 75px;
+    height: 75px;
+    object-fit: cover;
+}
+
+.profile-name{
+    height: 75px;
+    font-size: 30px;
+    align-content: center;
+    text-align: right;
+}
+
+.img-div{
+    position: relative;
+}
+
+.plus-btn{
+    position: absolute;
+    top: 60%;
+    left: 60%;
+    z-index: 10;
+
+    font-size: 30px;
+    cursor: pointer;
+}
