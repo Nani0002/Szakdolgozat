@@ -9,13 +9,15 @@
         <div class="col-xl-10 offset-xl-1 shadow p-5 py-4 rounded-4 bg-light col-md-12">
             <div class="row">
                 <div class="col-1 img-div">
-                    <img src='{{ Storage::url('images/' . $profile->imagename_hash) }}' class="profile-img">
-                    <button class="btn btn-light rounded-circle plus-btn"><b>+</b></button>
+                    <img src='{{ Storage::url('images/' . $profile->imagename_hash) }}' class="profile-img" id="profile-img"
+                        data-image-update-url="{{ route('user.new_image') }}" data-csrf-token="{{ csrf_token() }}">
+                    <input type="file" id="imageUpload" class="d-none" accept="image/*">
+                    <button class="btn btn-light rounded-circle plus-btn border-dark border-2" id="changeImageBtn"><b>+</b></button>
                 </div>
                 <div class="col-11 profile-name ps-5">{{ $profile->name }}</div>
             </div>
             <div class="row mt-5">
-                <form action="{{ route('new_password') }}" method="post">
+                <form action="{{ route('user.new_password') }}" method="post">
                     @csrf
                     @error('password')
                         <span class="text-danger fw-light">{{ $errors->get('password')[0] }}</span>
@@ -44,4 +46,9 @@
 
 @push('css')
     <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
+@endpush
+
+@push('js')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ asset('js/profile.js') }}"></script>
 @endpush

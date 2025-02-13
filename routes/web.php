@@ -35,5 +35,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('register', [UserController::class, 'store'])->name('register');
 
-    Route::post('new_password', [UserController::class, 'newPassword'])->name('new_password');
+    Route::post('new_password', [UserController::class, 'newPassword'])->name('user.new_password');
+
+    Route::post('user/update-image', [UserController::class, 'setImage'])->name('user.new_image');
 });
