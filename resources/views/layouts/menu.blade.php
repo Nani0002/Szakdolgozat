@@ -5,14 +5,18 @@
 
 @section('content')
     @guest
-        @include('components.login')
+        <div class="container">
+            @include('components.login')
+        </div>
     @endguest
 
     @auth
         @if (request()->is('/'))
             @include('tickets.tickets')
         @elseif(request()->is('register'))
-            @include('components.register')
+            <div class="container">
+                @include('components.register')
+            </div>
         @else
             <p>Nem található tartalom.</p>
         @endif

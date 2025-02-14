@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,7 @@ class UserController extends Controller
     public function home()
     {
         if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "tickets" => [], "userUrls" => Auth::user()->getUserUrls()]);
+            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "tickets" => Ticket::allSorted(), "userUrls" => Auth::user()->getUserUrls(), "ticketTypes" => Ticket::getStatuses()]);
         } else {
             return view('layouts.menu', ["navUrls" => User::getNavUrls(false)]);
         }

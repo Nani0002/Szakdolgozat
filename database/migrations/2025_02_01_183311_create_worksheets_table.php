@@ -39,7 +39,7 @@ return new class extends Migration
             $table->unsignedBigInteger("outsourcing_id")->nullable();
             $table->foreign("outsourcing_id")->references("id")->on("outsourcings")->onDelete("cascade");
 
-            $table->enum("current_step", ["started", "distributed", "ongoing", "price_offered", "waiting", "to_invoice", "closed"]);
+            $table->enum("current_step", ["open", "started", "ongoing", "price_offered", "waiting", "to_invoice", "closed"]);
 
             $table->timestamps();
             $table->softDeletes();
