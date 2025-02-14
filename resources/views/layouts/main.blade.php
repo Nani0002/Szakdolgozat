@@ -16,7 +16,7 @@
     <header class="bg-light pt-3">
         <h1>@yield('header1')</h1>
 
-        @include('layouts.navbar', ['menuItems' => $menuItems ?? []])
+        @include('components.navbar')
     </header>
 
     <main>
