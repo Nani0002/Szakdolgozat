@@ -2,7 +2,7 @@
     <div class="ticket-frame bg-light rounded-5">
         @isset($ticketTypes)
             @foreach ($ticketTypes as $ticketType)
-                <div class="ticket-column" id="ticket-column-{{$ticketType}}">
+                <div class="ticket-column" id="ticket-column-{{ $ticketType }}">
                     @switch($ticketType)
                         @case('open')
                             <h5><span class="badge rounded-pill text-bg-primary ticket-pill">Felvéve</span></h5>
@@ -32,20 +32,34 @@
                             <h5><span class="badge rounded-pill text-bg-danger ticket-pill">Lezárva</span></h5>
                         @break
                     @endswitch
-                    <div class="ticket-container accordion" id="ticket-container-{{$ticketType}}">
+                    <div class="ticket-container accordion" id="ticket-container-{{ $ticketType }}">
                         @foreach ($tickets[$ticketType] as $ticket)
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapse{{$ticket->id}}" aria-expanded="true" aria-controls="collapse{{$ticket->id}}">
-                                        {{$ticket->title}}
+                                        data-bs-target="#collapse{{ $ticket->id }}" aria-expanded="true"
+                                        aria-controls="collapse{{ $ticket->id }}">
+                                        {{ $ticket->title }}
                                     </button>
                                 </h2>
-                                <div id="collapse{{$ticket->id}}" class="accordion-collapse collapse"
-                                    data-bs-parent="#ticket-container-{{$ticketType}}">
+                                <div id="collapse{{ $ticket->id }}" class="accordion-collapse collapse"
+                                    data-bs-parent="#ticket-container-{{ $ticketType }}">
                                     <div class="accordion-body">
-                                        {{$ticket->text}}
+                                        {{ $ticket->text }}
                                     </div>
+                                    @if ($ticketType != 'closed')
+                                        <form action="{{ route('ticket.close', ['ticket' => $ticket->id]) }}" method="POST">
+                                            @csrf
+                                            @method('patch')
+                                            <input type="submit" value="Lezárás" class="btn btn-danger ms-3 mb-3">
+                                        </form>
+                                    @else
+                                        <form action="{{ route('ticket.destroy', ['ticket' => $ticket->id]) }}" method="POST">
+                                            @csrf
+                                            @method('delete')
+                                            <input type="submit" value="Törlés" class="btn btn-danger ms-3 mb-3">
+                                        </form>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach

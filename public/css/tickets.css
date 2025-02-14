@@ -39,6 +39,7 @@
     width: 100%;
     margin-bottom: 70px;
     margin-top: 25px;
+    padding-right: 2px;
 }
 
 .ticket-container::-webkit-scrollbar {
