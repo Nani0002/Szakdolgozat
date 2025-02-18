@@ -44,7 +44,5 @@ Route::middleware('auth')->group(function () {
 
     Route::patch('ticket/close/{ticket}', [TicketController::class, 'close'])->name('ticket.close');
 
-    Route::post('ticket/status/{ticket}/{status}', [TicketController::class, 'status'])->name('ticket.status');
-
-    Route::post('ticket/move/{ticket}/{slot}', [TicketController::class, 'move'])->name('ticket.move');
+    Route::post('ticket/status', [TicketController::class, 'move'])->name('ticket.move');
 });

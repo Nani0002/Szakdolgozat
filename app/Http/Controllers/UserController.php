@@ -17,7 +17,7 @@ class UserController extends Controller
     public function home()
     {
         if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "tickets" => Ticket::allSorted(), "userUrls" => Auth::user()->getUserUrls(), "ticketTypes" => Ticket::getStatuses()]);
+            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "tickets" => Auth::user()->sortedTickets(), "userUrls" => Auth::user()->getUserUrls(), "ticketTypes" => Ticket::getStatuses()]);
         } else {
             return view('layouts.menu', ["navUrls" => User::getNavUrls(false)]);
         }
@@ -83,7 +83,7 @@ class UserController extends Controller
 
             $user->password = $request['password'];
 
-            $user->update();
+            $user->save();
 
             return response()->json(["message" => "Sikeres módosítás!"]);
         }

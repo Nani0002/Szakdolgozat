@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Ticket extends Model
 {
@@ -30,19 +31,27 @@ class Ticket extends Model
         'slot_number' => 'integer',
     ];
 
-    public static function getStatuses(){
+    public static function getStatuses()
+    {
         return ["open", "started", "ongoing", "price_offered", "waiting", "to_invoice", "closed"];
     }
 
-    public static function singleType($type){
-        return Ticket::all()->where('status', $type );
+    public static function singleType($type, $user)
+    {
+        return Ticket::where('status', $type)->orderBy('slot_number', 'asc')->get();
     }
 
-    public static function allSorted(){
+    public static function allSorted($user)
+    {
         $tickets = [];
         foreach (Ticket::getStatuses() as $value) {
-            $tickets[$value] = Ticket::singleType($value);
+            $tickets[$value] = Ticket::singleType($value, $user);
         }
         return $tickets;
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class);
     }
 }

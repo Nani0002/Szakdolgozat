@@ -1,5 +1,6 @@
 @isset($tickets)
-    <div class="ticket-frame bg-light rounded-5">
+    <div class="ticket-frame bg-light rounded-5" data-update-url="{{ route('ticket.move') }}"
+        data-csrf-token="{{ csrf_token() }}" id="ticket-frame">
         @isset($ticketTypes)
             @foreach ($ticketTypes as $ticketType)
                 <div class="ticket-column" id="ticket-column-{{ $ticketType }}">
@@ -32,9 +33,11 @@
                             <h5><span class="badge rounded-pill text-bg-danger ticket-pill">Lezárva</span></h5>
                         @break
                     @endswitch
-                    <div class="ticket-container accordion" id="ticket-container-{{ $ticketType }}">
+                    <div class="ticket-container accordion" id="ticket-container-{{ $ticketType }}" ondrop="drop(event)"
+                        ondragover="allowDrop(event)">
                         @foreach ($tickets[$ticketType] as $ticket)
-                            <div class="accordion-item">
+                            <div class="accordion-item" draggable="true" ondragstart="drag(event)"
+                                id="accordion-{{ $ticket->id }}" data-slot="{{ $ticket->slot_number }}">
                                 <h2 class="accordion-header">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#collapse{{ $ticket->id }}" aria-expanded="true"
@@ -72,4 +75,9 @@
 
 @push('css')
     <link rel="stylesheet" href="{{ asset('css/tickets.css') }}">
+@endpush
+
+@push('js')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ asset('js/ticket.js') }}"></script>
 @endpush
