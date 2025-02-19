@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -99,7 +101,7 @@ class User extends Authenticatable
         return $tickets;
     }
 
-    public function ticketsByStatus($status) : array{
+    public function ticketsByStatus($status) : Collection{
         return $this->tickets()->where("status", $status)->orderBy('slot_number', 'asc')->get();
     }
 }
