@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorksheetController;
@@ -45,4 +47,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('ticket/close/{ticket}', [TicketController::class, 'close'])->name('ticket.close');
 
     Route::post('ticket/status', [TicketController::class, 'move'])->name('ticket.move');
+
+    Route::resource('customer', CustomerController::class);
+
+    Route::resource('company', CompanyController::class);
 });
