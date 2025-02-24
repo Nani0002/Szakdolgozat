@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ticket_user', function (Blueprint $table) {
+        Schema::create('usersettings', function (Blueprint $table) {
             $table->id();
 
             $table->unsignedBigInteger("user_id");
             $table->foreign("user_id")->references("id")->on("users")->onDelete("cascade");
-            $table->unsignedBigInteger("ticket_id");
-            $table->foreign("ticket_id")->references("id")->on("tickets")->onDelete("cascade");
+            $table->string("setting_type");
+            $table->string("value");
 
             $table->timestamps();
             $table->softDeletes();
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ticket_user');
+        Schema::dropIfExists('usersettings');
     }
 };

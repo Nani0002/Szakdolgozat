@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorksheetController;
 use Illuminate\Support\Facades\Route;
@@ -38,4 +39,10 @@ Route::middleware('auth')->group(function () {
     Route::post('new_password', [UserController::class, 'newPassword'])->name('user.new_password');
 
     Route::post('user/update-image', [UserController::class, 'setImage'])->name('user.new_image');
+
+    Route::resource('ticket', TicketController::class);
+
+    Route::patch('ticket/close/{ticket}', [TicketController::class, 'close'])->name('ticket.close');
+
+    Route::post('ticket/status', [TicketController::class, 'move'])->name('ticket.move');
 });
