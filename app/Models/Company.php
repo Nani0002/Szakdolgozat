@@ -29,4 +29,13 @@ class Company extends Model
     {
         return $this->hasMany(Customer::class);
     }
+
+    public static function sortedCompanies()
+    {
+        $companies = ["partner" => [], "customer" => []];
+        foreach (Company::all() as $company) {
+            $companies[$company->type][] = $company;
+        }
+        return $companies;
+    }
 }

@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CompanyController extends Controller
 {
@@ -11,7 +14,11 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        //
+        if (Auth::check()) {
+            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "tickets" => Auth::user()->sortedTickets(), "userUrls" => Auth::user()->getUserUrls(), "companies" => Company::sortedCompanies()]);
+        } else {
+            return view('layouts.menu', ["navUrls" => User::getNavUrls(false)]);
+        }
     }
 
     /**

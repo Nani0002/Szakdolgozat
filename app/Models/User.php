@@ -66,7 +66,7 @@ class User extends Authenticatable
     {
         $navUrls = [['name' => 'Főoldal', 'url' => route('home')]];
         if ($auth === true) {
-            array_push($navUrls, ['name' => 'Munkalapok', 'url' => route('worksheet.index')]);
+            array_push($navUrls, ['name' => 'Munkalapok', 'url' => route('worksheet.index')], ['name' => 'Ügyfelek', 'url' => route('company.index')]);
         }
         return $navUrls;
     }
