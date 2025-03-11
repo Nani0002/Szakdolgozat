@@ -1,32 +1,76 @@
 window.addEventListener("load", init, false);
 
+let editMode = false;
+
 function init() {
     document
         .querySelector("#modal-send")
         .addEventListener("click", formCheck, false);
+
     const newCustomerBTNs = document.querySelectorAll(".new-customer-btn");
     for (let i = 0; i < newCustomerBTNs.length; i++) {
-        newCustomerBTNs[i].addEventListener("click", updateModal, false);
+        newCustomerBTNs[i].addEventListener("click", storeModal, false);
+    }
+
+    const editCustomerBTNs = document.querySelectorAll(".edit-customer-btn");
+    for (let i = 0; i < editCustomerBTNs.length; i++) {
+        editCustomerBTNs[i].addEventListener("click", updateModal, false);
     }
 }
 
-function updateModal(e) {
+function storeModal(e) {
     const companyId = e.target.id.split("-")[2];
     document.querySelector("#form-company").value = companyId;
+    document.querySelector("#modal-send").innerHTML = "Hozzáadás";
+    document.querySelector("#name").value = "";
+    document.querySelector("#email").value = "";
+    document.querySelector("#phone").value = "";
+
+    editMode = false;
 }
 
-function formCheck(e) {
+function updateModal(e) {
+    console.log("AAAAAAA");
+
+    const customerId = e.target.id.split("-")[2];
+    const companyId = e.target.id.split("-")[3];
+    document.querySelector("#form-company").value = companyId;
+    document.querySelector("#name").value = document
+        .querySelector(`#customer-name-${customerId}`)
+        .innerHTML.trimStart();
+    document.querySelector("#email").value = document
+        .querySelector(`#customer-email-${customerId}`)
+        .innerHTML.trimStart();
+    document.querySelector("#phone").value = document
+        .querySelector(`#customer-phone-${customerId}`)
+        .innerHTML.trimStart();
+    document.querySelector("#modal-send").innerHTML = "Szerkesztés";
+    document.querySelector("#form-customer").value = customerId;
+
+    editMode = true;
+}
+
+function formCheck() {
     const name = document.querySelector("#name").value;
     const email = document.querySelector("#email").value;
     const phone = document.querySelector("#phone").value;
-    const company = document.querySelector("#form-company").value;
-    const modal = $("#modal-body")
-    const url = modal.data("request-url");
+    const id = editMode
+        ? document.querySelector("#form-customer").value
+        : document.querySelector("#form-company").value;
+
+    const modal = $("#modal-body");
+    const url = editMode
+        ? `${modal.data("request-url")}/${id}`
+        : modal.data("request-url");
     const csrfToken = modal.data("csrf-token");
 
     let formData = new FormData();
     formData.append("_token", csrfToken);
-    formData.append("company", company);
+    if (editMode) {
+        formData.append("_method", "put");
+    }
+
+    formData.append("id", id);
     formData.append("name", name);
     formData.append("email", email);
     formData.append("phone", phone);
@@ -39,9 +83,14 @@ function formCheck(e) {
         contentType: false,
         success: function (response) {
             if (response.success) {
-                console.log(response);
-
                 $("#customer-modal").modal("hide");
+                if (editMode) {
+                    document.querySelector(`#customer-name-${id}`).innerHTML = name;
+                    document.querySelector(`#customer-email-${id}`).innerHTML = email;
+                    document.querySelector(`#customer-phone-${id}`).innerHTML = phone;
+                } else {
+
+                }
             } else {
                 alert(response);
             }
@@ -55,6 +104,4 @@ function formCheck(e) {
             }
         },
     });
-
-
 }

@@ -1,0 +1,54 @@
+.form-frame{
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding-left: 50px;
+    padding-right: 50px;
+    min-height: 0;
+    width: 35%;
+    margin: auto;
+    margin-top: 3em;
+    margin-bottom: 3em;
+    overflow: hidden;
+}
+
+.form-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    min-height: 0;
+    max-height: 100%;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.form-container {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    max-height: 100%;
+    width: 100%;
+    margin-bottom: 70px;
+    margin-top: 25px;
+    padding-right: 2px;
+}
+
+.form-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.form-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}

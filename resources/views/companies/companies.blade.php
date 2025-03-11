@@ -6,8 +6,10 @@
                     <h1 class="modal-title fs-5" id="customer-modal-label">Új ügyfél felvétele</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="modal-body" data-request-url="{{ route('customer.store') }}" data-csrf-token="{{ csrf_token() }}">
+                <div class="modal-body" id="modal-body" data-request-url="{{ route('customer.store') }}"
+                    data-csrf-token="{{ csrf_token() }}">
                     <input type="hidden" name="company" id="form-company">
+                    <input type="hidden" name="company" id="form-customer">
                     <div class="mb-3">
                         <label for="name" class="form-label">Név</label>
                         <input type="text" class="form-control" id="name" name="name">
@@ -36,6 +38,10 @@
                             <span class="badge rounded-pill text-bg-primary company-pill">
                                 {{ $key == 'partner' ? 'Partnerek' : 'Ügyfelek' }}
                             </span>
+                            <a class="btn badge rounded-pill text-bg-primary company-pill"
+                                href="{{ route('company.create', ['type' => $key]) }}">
+                                ➕
+                            </a>
                         </h5>
                         <div class="company-card-container">
                             @foreach ($companies[$key] as $company)
@@ -71,23 +77,43 @@
                                                         class="accordion-collapse collapse"
                                                         data-bs-parent="#accordion-{{ $company->id }}">
                                                         <div class="accordion-body">
-                                                            <table class="table table-striped">
-                                                                @foreach ($company->customers as $customer)
-                                                                    <tr>
-                                                                        <td>{{ $customer->name }}</td>
-                                                                        <td>{{ $customer->mobile }}</td>
-                                                                        <td>{{ $customer->email }}</td>
-                                                                    </tr>
-                                                                @endforeach
-                                                                <tr>
-                                                                    <td colspan="3">
-                                                                        <button class="btn btn-success new-customer-btn"
+                                                            @foreach ($company->customers as $customer)
+                                                                <div class="row">
+                                                                    <div class="col-8">
+                                                                        <b
+                                                                            id="customer-name-{{ $customer->id }}">{{ $customer->name }}</b>
+                                                                    </div>
+                                                                    <div class="col-2"><button
+                                                                            class="btn btn-success edit-customer-btn"
                                                                             data-bs-toggle="modal"
                                                                             data-bs-target="#customer-modal"
-                                                                            id="new-customer-{{ $company->id }}">➕</button>
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
+                                                                            id="edit-customer-{{ $customer->id }}-{{ $company->id }}">📝</button>
+                                                                    </div>
+                                                                    <div class="col-2">
+                                                                        <form
+                                                                            action="{{ route('customer.destroy', $customer->id) }}"
+                                                                            method="post">
+                                                                            @csrf
+                                                                            @method('delete')
+                                                                            <input type="submit"
+                                                                                class="btn btn-danger edit-customer-btn"
+                                                                                value="✖️">
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-xl-5 col-12"
+                                                                        id="customer-phone-{{ $customer->id }}">
+                                                                        {{ $customer->mobile }}</div>
+                                                                    <div class="col-xl-7 col-12"
+                                                                        id="customer-email-{{ $customer->id }}">
+                                                                        {{ $customer->email }}</div>
+                                                                </div>
+                                                                <hr>
+                                                            @endforeach
+                                                            <button class="btn btn-success new-customer-btn"
+                                                                data-bs-toggle="modal" data-bs-target="#customer-modal"
+                                                                id="new-customer-{{ $company->id }}">➕</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -96,11 +122,8 @@
                                     @endif
                                     <div class="row py-2">
                                         <div class="col-6">
-                                            <form action="{{ route('company.update', $company->id) }}" method="post">
-                                                @csrf
-                                                @method('put')
-                                                <button class="btn btn-success">Szerkesztés</button>
-                                            </form>
+                                            <a class="btn btn-success"
+                                                href="{{ route('company.edit', $company->id) }}">Szerkesztés</a>
                                         </div>
                                         <div class="col-6">
                                             <form action="{{ route('company.destroy', $company->id) }}" method="post">

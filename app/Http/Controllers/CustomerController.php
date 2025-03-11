@@ -33,7 +33,7 @@ class CustomerController extends Controller
         $customer->name = $request["name"];
         $customer->email = $request["email"];
         $customer->mobile = $request["phone"];
-        $customer->company_id = $request["company"];
+        $customer->company_id = $request["id"];
 
         $customer->save();
 
@@ -63,7 +63,16 @@ class CustomerController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $customer = Customer::find($id);
+        $customer->name = $request["name"];
+        $customer->email = $request["email"];
+        $customer->mobile = $request["phone"];
+
+        $customer->save();
+
+        return response()->json([
+            'success' => true,
+        ]);
     }
 
     /**
@@ -71,6 +80,8 @@ class CustomerController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $customer = Customer::find($id);
+        $customer->delete();
+        return redirect(route('company.index'));
     }
 }
