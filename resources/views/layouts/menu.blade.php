@@ -1,7 +1,21 @@
 @extends('layouts.main')
 
-@section('title', request()->is('register') ? 'Munkatárs felvétele' : 'Főoldal')
-@section('header1', request()->is('register') ? 'Munkatárs felvétele' : 'Főoldal')
+@php
+    $titles = [
+        'register' => 'Munkatárs felvétele',
+        'company' => 'Ügyfelek',
+        'company/create' => 'Ügyfél felvétele',
+    ];
+
+    if (request()->is('company/*/edit')) {
+        $title = 'Ügyfél szerkesztése';
+    } else {
+        $title = $titles[request()->path()] ?? 'Főoldal';
+    }
+@endphp
+
+@section('header1', $title)
+@section('title', $title)
 
 @section('content')
     @guest
@@ -17,6 +31,12 @@
             <div class="container">
                 @include('components.register')
             </div>
+        @elseif(request()->is('company'))
+            <div class="container">
+                @include('companies.companies')
+            </div>
+        @elseif(request()->is('company/create') || request()->is('company/*/edit'))
+            @include('companies.company_form')
         @else
             <p>Nem található tartalom.</p>
         @endif

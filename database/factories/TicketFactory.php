@@ -16,11 +16,11 @@ class TicketFactory extends Factory
      */
     public function definition(): array
     {
-        $status = fake()->randomElement(["open", "started", "ongoing", "price_offered", "waiting", "to_invoice", "closed"]);
+        //$status = fake()->randomElement(["open", "started", "ongoing", "price_offered", "waiting", "to_invoice", "closed"]);
         return [
             "title" => fake()->text(50),
             "text" => fake()->text(200),
-            "status" => $status,
+            "status" => fake()->randomElement(["open", "started", "ongoing", "price_offered", "waiting", "to_invoice", "closed"]),
             "slot_number" => 0,
         ];
     }
