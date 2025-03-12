@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Worksheet;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class WorksheetController extends Controller
 {
@@ -11,7 +14,11 @@ class WorksheetController extends Controller
      */
     public function index()
     {
-        //
+        if (Auth::check()) {
+            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "worksheets" => Worksheet::all(), "worksheetTypes" => Worksheet::getTypes()]);
+        } else {
+            return redirect(route('home'));
+        }
     }
 
     /**

@@ -26,10 +26,11 @@ return new class extends Migration
             $table->string("comment");
             $table->boolean("final")->default(false);
 
-            $table->unsignedBigInteger("coworker_id")->nullable();
-            $table->foreign("coworker_id")->references("id")->on("users")->onDelete("cascade");
             $table->unsignedBigInteger("liable_id")->nullable();
             $table->foreign("liable_id")->references("id")->on("users")->onDelete("cascade");
+            $table->unsignedBigInteger("coworker_id")->nullable();
+            $table->foreign("coworker_id")->references("id")->on("users")->onDelete("cascade");
+
 
             $table->date("work_start");
             $table->date("work_end")->nullable();

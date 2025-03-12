@@ -5,6 +5,7 @@
         'register' => 'Munkatárs felvétele',
         'company' => 'Ügyfelek',
         'company/create' => 'Ügyfél felvétele',
+        'worksheet' => 'Munkalapok',
     ];
 
     if (request()->is('company/*/edit')) {
@@ -37,6 +38,8 @@
             </div>
         @elseif(request()->is('company/create') || request()->is('company/*/edit'))
             @include('companies.company_form')
+        @elseif(request()->is('worksheet'))
+            @include('worksheets.worksheets')
         @else
             <p>Nem található tartalom.</p>
         @endif

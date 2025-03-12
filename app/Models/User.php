@@ -104,4 +104,9 @@ class User extends Authenticatable
     public function ticketsByStatus($status) : Collection{
         return $this->tickets()->where("status", $status)->orderBy('slot_number', 'asc')->get();
     }
+
+    public function worksheets(): HasMany
+    {
+        return $this->hasMany(Worksheet::class);
+    }
 }
