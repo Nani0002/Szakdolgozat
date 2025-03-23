@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Worksheet extends Model
 {
@@ -29,6 +30,7 @@ class Worksheet extends Model
         'worktme',
         'work_description',
         'current_step',
+        'slot_number',
     ];
 
     /**
@@ -57,6 +59,16 @@ class Worksheet extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function computers(): BelongsToMany
+    {
+        return $this->belongsToMany(Computer::class);
+    }
+
+    public function outsourcing(): BelongsTo
+    {
+        return $this->belongsTo(Outsourcing::class);
     }
 
     public static function getTypes()

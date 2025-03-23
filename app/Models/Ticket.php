@@ -36,7 +36,8 @@ class Ticket extends Model
         return ["open", "started", "ongoing", "price_offered", "waiting", "to_invoice", "closed"];
     }
 
-    public static function singleType($type, $user)
+    /*
+    public static function singleType($type)
     {
         return Ticket::where('status', $type)->orderBy('slot_number', 'asc')->get();
     }
@@ -49,6 +50,7 @@ class Ticket extends Model
         }
         return $tickets;
     }
+    */
 
     public function users(): BelongsToMany
     {

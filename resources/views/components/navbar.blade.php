@@ -7,6 +7,8 @@
 
     @isset($userUrls)
         <ul class="navbar-nav ms-auto pe-3">
+            @stack('nav-search')
+
             @foreach ($userUrls as $item)
                 <li class="nav-item"><a href="{{ $item['url'] }}">{{ $item['name'] }}</a></li>
             @endforeach
@@ -18,5 +20,6 @@
             </li>
         </ul>
     @endisset
+
 
 </nav>

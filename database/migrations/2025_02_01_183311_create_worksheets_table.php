@@ -42,6 +42,8 @@ return new class extends Migration
 
             $table->enum("current_step", ["open", "started", "ongoing", "price_offered", "waiting", "to_invoice", "closed"]);
 
+            $table->integer("slot_number");
+
             $table->timestamps();
             $table->softDeletes();
         });

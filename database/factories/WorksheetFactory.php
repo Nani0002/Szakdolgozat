@@ -30,6 +30,7 @@ class WorksheetFactory extends Factory
             'worktme' => fake()->numberBetween(1,10),
             'work_description' => fake()->text(300),
             'current_step' => fake()->randomElement(["open", "started", "ongoing", "price_offered", "waiting", "to_invoice", "closed"]),
+            'slot_number' => 0,
         ];
     }
 }

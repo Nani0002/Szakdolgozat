@@ -99,6 +99,8 @@ class TicketController extends Controller
 
             return response()->json([
                 'success' => true,
+                'old' => Auth::user()->ticketsByStatus($oldStatus),
+                'new' => Auth::user()->ticketsByStatus($newStatus)
             ]);
         } else {
             return response()->json(['success' => false, 'message' => 'Could not find ticket with id of ' . $id]);

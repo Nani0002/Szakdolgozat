@@ -93,7 +93,8 @@ class User extends Authenticatable
         return $this->hasMany(Usersetting::class);
     }
 
-    public function sortedTickets() : array {
+    public function sortedTickets(): array
+    {
         $tickets = [];
         foreach (Ticket::getStatuses() as $status) {
             $tickets[$status] = $this->tickets()->where("status", $status)->orderBy('slot_number', 'asc')->get();
@@ -101,12 +102,41 @@ class User extends Authenticatable
         return $tickets;
     }
 
-    public function ticketsByStatus($status) : Collection{
+    public function ticketsByStatus($status): Collection
+    {
         return $this->tickets()->where("status", $status)->orderBy('slot_number', 'asc')->get();
     }
 
-    public function worksheets(): HasMany
+    public function sortedWorksheets(): array
     {
-        return $this->hasMany(Worksheet::class);
+        $worksheets = [];
+        foreach (Worksheet::getTypes() as $type) {
+            $liable = $this->liableWorksheets()->where('current_step', $type)->get();
+            $coworker = $this->coworkerWorksheets()->where('current_step', $type)->get();
+
+            $merged = $liable->merge($coworker);
+            $sorted = $merged->sortBy('slot_number')->values();
+
+            $worksheets[$type] = $sorted;
+        }
+        return $worksheets;
+    }
+
+    public function worksheetsByStep($step): Collection
+    {
+        $liable = $this->liableWorksheets()->where('current_step', $step)->get();
+        $coworker = $this->coworkerWorksheets()->where('current_step', $step)->get();
+        $merged = $liable->merge($coworker);
+        return $merged->sortBy('slot_number')->values();
+    }
+
+    public function coworkerWorksheets(): HasMany
+    {
+        return $this->hasMany(Worksheet::class, "coworker_id");
+    }
+
+    public function liableWorksheets(): HasMany
+    {
+        return $this->hasMany(Worksheet::class, "liable_id");
     }
 }
