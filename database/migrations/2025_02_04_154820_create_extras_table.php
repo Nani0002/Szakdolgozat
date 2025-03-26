@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('extras', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger("computer_id")->nullable();
-            $table->foreign("computer_id")->references("id")->on("computers")->onDelete("cascade");
+            $table->unsignedBigInteger("worksheet_id")->nullable();
+            $table->foreign("worksheet_id")->references("id")->on("worksheets")->onDelete("cascade");
 
             $table->string("manufacturer");
             $table->string("type");
-            $table->string("serial_number");
+            $table->string("serial_number")->unique();
 
             $table->timestamps();
             $table->softDeletes();

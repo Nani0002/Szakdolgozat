@@ -62,11 +62,18 @@ class User extends Authenticatable
     /**
      * Returns navbar urls depending on whether a user is logged in or not.
      */
-    public static function getNavUrls($auth): array
+    public static function getNavUrls($auth, $routes = []): array
     {
         $navUrls = [['name' => 'Főoldal', 'url' => route('home')]];
         if ($auth === true) {
             array_push($navUrls, ['name' => 'Munkalapok', 'url' => route('worksheet.index')], ['name' => 'Ügyfelek', 'url' => route('company.index')]);
+            foreach ($routes as $route) {
+                switch ($route['type']) {
+                    case 'create':
+                        array_push($navUrls, ['name' => "Új {$route['text']}", 'url' => $route['url']]);
+                        break;
+                }
+            }
         }
         return $navUrls;
     }
@@ -74,9 +81,13 @@ class User extends Authenticatable
     /**
      * Returns user controll navbar urls depending on the users priviliges.
      */
-    public function getUserUrls(): array
+    public function getUserUrls($search = false): array
     {
-        $userUrls = [["name" => 'Profilom', 'url' => route('user')]];
+        $userUrls = [];
+        if ($search) {
+            array_push($userUrls, ['name' => 'search', 'url' => route('worksheet.search')]);
+        }
+        array_push($userUrls, ["name" => 'Profilom', 'url' => route('user')]);
         if ($this->isAdmin()) {
             array_push($userUrls, ['name' => 'Munkatárs felvétele', 'url' => '/register']);
         }

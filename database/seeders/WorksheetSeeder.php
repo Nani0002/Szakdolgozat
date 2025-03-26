@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
 use App\Models\Customer;
 use App\Models\Outsourcing;
 use App\Models\User;
@@ -24,7 +25,9 @@ class WorksheetSeeder extends Seeder
             ]);
         }
 
-        $outsourcings = Outsourcing::factory(3)->create();
+        foreach (Company::where('type', 'partner')->get() as $company) {
+            $outsourcings = Outsourcing::factory(2)->for($company)->create();
+        }
 
         $outsourced = Worksheet::where("current_step", "waiting")->get();
 

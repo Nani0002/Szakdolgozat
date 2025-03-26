@@ -57,8 +57,8 @@
                             <span class="text-danger fw-light">Irányítószám megadása kötelező!</span>
                         @enderror
                         <div class="form-floating mb-3">
-                            <input class="form-control" id="post_code" name="post_code" type="text" placeholder="Irányítószám"
-                                value="{{ old('post_code', $company->post_code ?? '') }}" />
+                            <input class="form-control" id="post_code" name="post_code" type="text"
+                                placeholder="Irányítószám" value="{{ old('post_code', $company->post_code ?? '') }}" />
                             <label for="post_code">Irányítószám</label>
                         </div>
 
@@ -88,8 +88,8 @@
                             <span class="text-danger fw-light">Céges telefonszám megadása kötelező!</span>
                         @enderror
                         <div class="form-floating mb-3">
-                            <input class="form-control" id="phone" name="phone" type="text" placeholder="Telefonszám"
-                                value="{{ old('phone', $company->phone ?? '') }}" />
+                            <input class="form-control" id="phone" name="phone" type="text"
+                                placeholder="Telefonszám" value="{{ old('phone', $company->phone ?? '') }}" />
                             <label for="phone">Telefonszám</label>
                         </div>
 
@@ -97,12 +97,18 @@
                             <span class="text-danger fw-light">Céges email cím megadása kötelező!</span>
                         @enderror
                         <div class="form-floating mb-3">
-                            <input class="form-control" id="email" name="email" type="email" placeholder="Email cím"
-                                value="{{ old('email', $company->email ?? '') }}" />
+                            <input class="form-control" id="email" name="email" type="email"
+                                placeholder="Email cím" value="{{ old('email', $company->email ?? '') }}" />
                             <label for="email">Email cím</label>
                         </div>
                         <div class="d-grid">
-                            <button class="btn btn-primary btn-lg" type="submit">Submit</button>
+                            <button class="btn btn-primary btn-lg" type="submit">
+                                @if (isset($company))
+                                    Szerkesztés
+                                @else
+                                    Létrehozás
+                                @endif
+                            </button>
                         </div>
                     </form>
                 </div>

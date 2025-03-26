@@ -20,6 +20,6 @@ class DatabaseSeeder extends Seeder
         User::factory(5)->create(["role" => "coworker"]);
         User::factory(2)->create(["role" => "liable"]);
 
-        $this->call([TicketSeeder::class, CompanySeeder::class, CustomerSeeder::class, WorksheetSeeder::class]);
+        $this->call([TicketSeeder::class, CompanySeeder::class, CustomerSeeder::class, WorksheetSeeder::class, ComputerSeeder::class, ExtraSeeder::class]);
     }
 }

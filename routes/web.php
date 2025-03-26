@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\ComputerController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
@@ -57,4 +58,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('customer', CustomerController::class);
 
     Route::resource('company', CompanyController::class);
+
+    Route::resource('computer', ComputerController::class);
 });

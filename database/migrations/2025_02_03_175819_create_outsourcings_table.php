@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
 
             $table->date("entry_time");
-            $table->string("outsourced_number");
+            $table->string("outsourced_number")->unique();
             $table->double("outsourced_price");
             $table->double("our_price");
             $table->enum("finished", ["ongoing", "finished", "brought"]);

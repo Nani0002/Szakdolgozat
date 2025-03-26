@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Worksheet extends Model
 {
@@ -27,7 +28,7 @@ class Worksheet extends Model
         'final',
         'work_start',
         'work_end',
-        'worktme',
+        'work_time',
         'work_description',
         'current_step',
         'slot_number',
@@ -63,12 +64,17 @@ class Worksheet extends Model
 
     public function computers(): BelongsToMany
     {
-        return $this->belongsToMany(Computer::class);
+        return $this->belongsToMany(Computer::class)->withPivot('password', 'condition', 'imagename', 'imagename_hash')->withTimestamps();
     }
 
     public function outsourcing(): BelongsTo
     {
         return $this->belongsTo(Outsourcing::class);
+    }
+
+    public function extras(): HasMany
+    {
+        return $this->hasMany(Extra::class);
     }
 
     public static function getTypes()

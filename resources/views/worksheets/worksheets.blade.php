@@ -36,7 +36,7 @@
                     ondrop="drop(event)" ondragover="allowDrop(event)">
                     @foreach ($worksheets[$worksheetType] as $worksheet)
                         <div class="accordion-item" draggable="true" ondragstart="drag(event)"
-                            id="accordion-{{ $worksheet->id }}"
+                            id="accordion-{{ $worksheet->id }}" data-slot="{{ $worksheet->slot_number }}"
                             data-delete-url={{ route('worksheet.destroy', ['worksheet' => $worksheet->id]) }}
                             data-close-url={{ route('worksheet.close', ['worksheet' => $worksheet->id]) }}>
                             <h2 class="accordion-header">
@@ -59,16 +59,13 @@
                                         {{ $worksheet->error_description }}
                                     </div>
                                     @if (isset($worksheet->computers) && count($worksheet->computers) > 0)
-                                        <div class="fw-bold">Számítógépek:</div>
-                                        @foreach ($worksheet->computers as $computer)
-                                            AAA
-                                        @endforeach
+                                        <div class="fw-bold">Számítógépek: {{count($worksheet->computers)}} db</div>
                                     @endif
                                     @isset($worksheet->outsourcing)
                                         <div class="fw-bold mt-2">Külsős munka</div>
                                     @endisset
                                     <div class="row mt-2">
-                                        <div class="col-6">
+                                        <div class="col-5">
                                             <a href="{{ route('worksheet.show', $worksheet->id) }}"
                                                 class="btn btn-info">Részletek</a>
                                         </div>
@@ -111,12 +108,4 @@
 @push('js')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/dragdrop.js') }}"></script>
-@endpush
-
-@push('nav-search')
-    <form class="d-flex" action="{{ route('worksheet.search') }}" method="GET">
-        <input class="form-control me-2" type="search" id="search" name="id" placeholder="Keresés"
-            aria-label="Keresés">
-        <button class="btn btn-outline-success" type="submit">🔍</button>
-    </form>
 @endpush

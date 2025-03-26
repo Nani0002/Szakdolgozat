@@ -78,29 +78,39 @@ class TicketController extends Controller
         $newTicket = Ticket::findOrFail($id);
 
         if ($newTicket) {
-            $oldStatus = $newTicket->status;
-            foreach (Auth::user()->ticketsByStatus($oldStatus) as $ticket) {
-                if ($ticket->id != $id && $ticket->slot_number > $newTicket->slot_number) {
-                    $ticket->slot_number = $ticket->slot_number - 1;
+            if ($newTicket->status == $newStatus) {
+                $tickets = Auth::user()->ticketsByStatus($newStatus)->sortBy('slot_number')->values();
+
+                $filtered = $tickets->reject(fn($ticket) => $ticket->id == $newTicket->id)->values();
+
+                $filtered->splice($newSlot, 0, [$newTicket]);
+
+                foreach ($filtered as $index => $ticket) {
+                    $ticket->slot_number = $index;
                     $ticket->save();
                 }
-            }
-
-            foreach (Auth::user()->ticketsByStatus($newStatus) as $ticket) {
-                if ($ticket->id != $id && $ticket->slot_number >= $newSlot) {
-                    $ticket->slot_number = $ticket->slot_number + 1;
-                    $ticket->save();
+            } else {
+                $oldStatus = $newTicket->status;
+                foreach (Auth::user()->ticketsByStatus($oldStatus) as $ticket) {
+                    if ($ticket->id != $id && $ticket->slot_number > $newTicket->slot_number) {
+                        $ticket->slot_number = $ticket->slot_number - 1;
+                        $ticket->save();
+                    }
                 }
+
+                foreach (Auth::user()->ticketsByStatus($newStatus) as $ticket) {
+                    if ($ticket->id != $id && $ticket->slot_number >= $newSlot) {
+                        $ticket->slot_number = $ticket->slot_number + 1;
+                        $ticket->save();
+                    }
+                }
+
+                $newTicket->status = $newStatus;
+                $newTicket->slot_number = $newSlot;
+                $newTicket->save();
             }
-
-            $newTicket->status = $newStatus;
-            $newTicket->slot_number = $newSlot;
-            $newTicket->save();
-
             return response()->json([
                 'success' => true,
-                'old' => Auth::user()->ticketsByStatus($oldStatus),
-                'new' => Auth::user()->ticketsByStatus($newStatus)
             ]);
         } else {
             return response()->json(['success' => false, 'message' => 'Could not find ticket with id of ' . $id]);

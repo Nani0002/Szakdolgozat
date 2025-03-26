@@ -24,11 +24,14 @@ class Computer extends Model
 
     public function worksheets(): BelongsToMany
     {
-        return $this->belongsToMany(Worksheet::class);
+        return $this->belongsToMany(Worksheet::class)->withPivot('password', 'condition', 'imagename', 'imagename_hash')->withTimestamps();
     }
 
-    public function outsourcings() : HasMany
+    public function latestInfo(): ?Worksheet
     {
-        return $this->hasMany(Outsourcing::class);
+        return $this->worksheets()
+            ->withPivot('created_at', 'password', 'condition', 'imagename', 'imagename_hash')
+            ->orderBy('pivot_created_at', 'desc')
+            ->first();
     }
 }

@@ -24,6 +24,15 @@ class Outsourcing extends Model
         "finished",
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'entry_time' => 'datetime',
+    ];
+
     public function worksheets(): HasMany
     {
         return $this->hasMany(Worksheet::class);

@@ -14,7 +14,7 @@ class CustomerSeeder extends Seeder
      */
     public function run(): void
     {
-        $companies = Company::all();
+        $companies = Company::where('type', 'customer')->get();
         foreach ($companies as $company) {
             Customer::factory(3)->for($company)->create();
         }
