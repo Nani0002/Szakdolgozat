@@ -343,11 +343,17 @@
                                     <input id="entry_time_hour" class="form-control" type="time"
                                         name="entry_time_hour" value="{{ $entry_time }}" />
                                 </div>
+                                @php
+                                    $selected_finished = old(
+                                        'finished',
+                                        $worksheet->outsourcing->finished ?? '',
+                                    );
+                                @endphp
                                 <div class="form-floating">
                                     <select class="form-select" id="finished" name="finished">
-                                        <option value="ongoing">Munka alatt</option>
-                                        <option value="finished">Elkészült</option>
-                                        <option value="brought">Elhozva</option>
+                                        <option value="ongoing" {{ $selected_finished === 'ongoing' ? 'selected' : '' }}>Munka alatt</option>
+                                        <option value="finished" {{ $selected_finished === 'finished' ? 'selected' : '' }}>Elkészült</option>
+                                        <option value="brought" {{ $selected_finished === 'brought' ? 'selected' : '' }}>Elhozva</option>
                                     </select>
                                     <label for="finished">Külső státusz</label>
                                 </div>
