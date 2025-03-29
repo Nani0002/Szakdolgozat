@@ -12,7 +12,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3">
                             <input class="form-control" id="sheet_number" name="sheet_number" type="text"
-                                placeholder="Típus" value="{{ old('sheet_number', $worksheet->sheet_number ?? '') }}" />
+                                placeholder="Típus" value="{{ old('sheet_number', $worksheet->sheet_number ?? '') }}" @disabled(isset($worksheet))/>
                             <label for="sheet_number">Munkalapszám</label>
                         </div>
                         <div class="input-group mb-3">
@@ -205,7 +205,7 @@
                             @php
                                 $selected_company_id = old('company_id', $worksheet->customer->company_id ?? 1);
                             @endphp
-                            <select class="form-select" id="company_id" name="company_id">
+                            <select class="form-select" id="company_id" name="company_id" data-update-url="{{route("company.customers")}}">
                                 @foreach ($companies->where('type', 'customer') as $company)
                                     <option value="{{ $company->id }}" id="company-id-{{ $company->id }}"
                                         {{ $selected_company_id == $company->id ? 'selected' : '' }}>
@@ -297,90 +297,94 @@
                         </div>
                     </div>
                 </div>
-                @if (!isset($worksheet) || isset($worksheet->outsourcing))
-                    <div class="row">
-                        <div class="row border-top pt-3">
-                            <div class="col-12">
-                                <div class="form-check form-switch fs-4 mb-3">
-                                    <input class="form-check-input" type="checkbox" role="switch"
-                                        id="outsourcing-switch" name="outsourcing" checked>
-                                    <label class="form-check-label" for="outsourcing">Külső szervízeltetés</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row" id='outsourcing-row'>
-                            <div class="col-6">
-                                <div class="form-floating mb-3">
-                                    <select class="form-select" id="partner_id" name="partner_id">
-                                        @foreach ($companies->where('type', 'partner') as $company)
-                                            <option value="{{ $company->id }}" id="company-id-{{ $company->id }}">
-                                                {{ $company->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    <label for="partner_id">Partner cég</label>
-                                </div>
-                                @php
-                                    $entry_date = old(
-                                        'entry_time',
-                                        isset($worksheet->outsourcing) && $worksheet->outsourcing->entry_time
-                                            ? $worksheet->outsourcing->entry_time->format('Y-m-d')
-                                            : '',
-                                    );
-                                    $entry_time = old(
-                                        'entry_time_hour',
-                                        isset($worksheet->outsourcing) && $worksheet->outsourcing->entry_time
-                                            ? $worksheet->outsourcing->entry_time->format('H:i')
-                                            : '',
-                                    );
-                                @endphp
-
-                                <div class="input-group mb-3">
-                                    <label for="entry_time" class="input-group-text w-30">Beviteli idő</label>
-                                    <button class="btn btn-outline-secondary time-btn" type="button"
-                                        id="entry_time-btn">Most</button>
-                                    <input id="entry_time" class="form-control" type="date" name="entry_time"
-                                        value="{{ $entry_date }}" />
-                                    <input id="entry_time_hour" class="form-control" type="time"
-                                        name="entry_time_hour" value="{{ $entry_time }}" />
-                                </div>
-                                @php
-                                    $selected_finished = old(
-                                        'finished',
-                                        $worksheet->outsourcing->finished ?? '',
-                                    );
-                                @endphp
-                                <div class="form-floating">
-                                    <select class="form-select" id="finished" name="finished">
-                                        <option value="ongoing" {{ $selected_finished === 'ongoing' ? 'selected' : '' }}>Munka alatt</option>
-                                        <option value="finished" {{ $selected_finished === 'finished' ? 'selected' : '' }}>Elkészült</option>
-                                        <option value="brought" {{ $selected_finished === 'brought' ? 'selected' : '' }}>Elhozva</option>
-                                    </select>
-                                    <label for="finished">Külső státusz</label>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-floating mb-3">
-                                    <input class="form-control" id="outsourced_number" name="outsourced_number"
-                                        type="text" placeholder="Külső munkalapszám"
-                                        value="{{ old('outsourced_number', $worksheet->outsourcing->outsourced_number ?? '') }}" />
-                                    <label for="outsourced_number">Külső munkalapszám</label>
-                                </div>
-                                <div class="form-floating mb-3">
-                                    <input class="form-control" id="outsourced_price" name="outsourced_price"
-                                        type="number" placeholder="Vállalt árajánlat"
-                                        value="{{ old('outsourced_price', $worksheet->outsourcing->outsourced_price ?? '') }}" />
-                                    <label for="outsourced_price">Vállalt árajánlat</label>
-                                </div>
-                                <div class="form-floating mb-3">
-                                    <input class="form-control" id="our_price" name="our_price" type="number"
-                                        placeholder="Saját árajánlat"
-                                        value="{{ old('our_price', $worksheet->outsourcing->our_price ?? '') }}" />
-                                    <label for="our_price">Saját árajánlat</label>
-                                </div>
-                            </div>
+                <div class="row border-top pt-3">
+                    <div class="col-12">
+                        @php
+                            $isOutsourcingChecked = old(
+                                'outsourcing',
+                                !isset($worksheet) || isset($worksheet->outsourcing),
+                            );
+                        @endphp
+                        <div class="form-check form-switch fs-4 mb-3">
+                            <input type="hidden" name="outsourcing" value="0">
+                            <input type="checkbox" class="form-check-input" role="switch" name="outsourcing"
+                                id="outsourcing-switch" value="1" {{ $isOutsourcingChecked ? 'checked' : '' }}
+                                @disabled(isset($worksheet->outsourcing))>
+                            <label for="outsourcing-switch" class="form-check-label">Külső szervízeltetés</label>
                         </div>
                     </div>
-                @endif
+                </div>
+                <div class="row" id='outsourcing-row'>
+                    <div class="col-6">
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="partner_id" name="partner_id">
+                                @foreach ($companies->where('type', 'partner') as $company)
+                                    <option value="{{ $company->id }}" id="company-id-{{ $company->id }}">
+                                        {{ $company->name }}</option>
+                                @endforeach
+                            </select>
+                            <label for="partner_id">Partner cég</label>
+                        </div>
+                        @php
+                            $entry_date = old(
+                                'entry_time',
+                                isset($worksheet->outsourcing) && $worksheet->outsourcing->entry_time
+                                    ? $worksheet->outsourcing->entry_time->format('Y-m-d')
+                                    : '',
+                            );
+                            $entry_time = old(
+                                'entry_time_hour',
+                                isset($worksheet->outsourcing) && $worksheet->outsourcing->entry_time
+                                    ? $worksheet->outsourcing->entry_time->format('H:i')
+                                    : '',
+                            );
+                        @endphp
+
+                        <div class="input-group mb-3">
+                            <label for="entry_time" class="input-group-text w-30">Beviteli idő</label>
+                            <button class="btn btn-outline-secondary time-btn" type="button"
+                                id="entry_time-btn">Most</button>
+                            <input id="entry_time" class="form-control" type="date" name="entry_time"
+                                value="{{ $entry_date }}" />
+                            <input id="entry_time_hour" class="form-control" type="time" name="entry_time_hour"
+                                value="{{ $entry_time }}" />
+                        </div>
+                        @php
+                            $selected_finished = old('finished', $worksheet->outsourcing->finished ?? '');
+                        @endphp
+                        <div class="form-floating">
+                            <select class="form-select" id="finished" name="finished">
+                                <option value="ongoing" {{ $selected_finished === 'ongoing' ? 'selected' : '' }}>
+                                    Munka alatt</option>
+                                <option value="finished" {{ $selected_finished === 'finished' ? 'selected' : '' }}>
+                                    Elkészült</option>
+                                <option value="brought" {{ $selected_finished === 'brought' ? 'selected' : '' }}>
+                                    Elhozva</option>
+                            </select>
+                            <label for="finished">Külső státusz</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="outsourced_number" name="outsourced_number"
+                                type="text" placeholder="Külső munkalapszám" @disabled(isset($worksheet->outsourcing))
+                                value="{{ old('outsourced_number', $worksheet->outsourcing->outsourced_number ?? '') }}" />
+                            <label for="outsourced_number">Külső munkalapszám</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="outsourced_price" name="outsourced_price" type="number"
+                                placeholder="Vállalt árajánlat"
+                                value="{{ old('outsourced_price', $worksheet->outsourcing->outsourced_price ?? '') }}" />
+                            <label for="outsourced_price">Vállalt árajánlat</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="our_price" name="our_price" type="number"
+                                placeholder="Saját árajánlat"
+                                value="{{ old('our_price', $worksheet->outsourcing->our_price ?? '') }}" />
+                            <label for="our_price">Saját árajánlat</label>
+                        </div>
+                    </div>
+                </div>
                 @if ($errors->any())
                     <div class="alert alert-danger">
                         <ul>
@@ -391,7 +395,7 @@
                     </div>
                 @endif
                 <div class="row mx-1 mt-5">
-                    <button class="btn btn-primary btn-lg" type="submit">
+                    <button class="btn btn-primary btn-lg" type="submit" id="submit-btn">
                         @if (isset($worksheet))
                             Szerkesztés
                         @else
@@ -415,5 +419,6 @@
 @endpush
 
 @push('js')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/worksheet_form.js') }}"></script>
 @endpush

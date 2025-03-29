@@ -108,7 +108,6 @@ function move(id, newStatus, newSlot) {
         contentType: false,
         success: function (response) {
             if (response.success) {
-                console.log(response);
             } else {
                 alert(response);
             }

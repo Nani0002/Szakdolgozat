@@ -57,6 +57,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('customer', CustomerController::class);
 
+    Route::get('company/customers', [CompanyController::class, 'getCustomers'])->name('company.customers');
+
     Route::resource('company', CompanyController::class);
 
     Route::resource('computer', ComputerController::class);

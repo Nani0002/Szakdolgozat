@@ -120,4 +120,19 @@ class CompanyController extends Controller
 
         return redirect(route('company.index'));
     }
+
+    public function getCustomers(Request $request)
+    {
+        $id = $request->query('id');
+        $company = Company::find($id);
+
+        if ($company) {
+            return response()->json([
+                "success" => true,
+                "customers" => $company->customers()->get()
+            ]);
+        }
+
+        return response()->json(["success" => false]);
+    }
 }
