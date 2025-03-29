@@ -5,14 +5,14 @@ function allowDrop(e) {
 }
 
 function drag(e) {
-    originalParent = e.target.closest(".ticket-container");
+    originalParent = e.target.closest(".dragdrop-container");
     e.dataTransfer.setData("text", e.target.id);
 }
 
 function drop(e) {
     e.preventDefault();
     const data = e.dataTransfer.getData("text");
-    const container = e.target.closest(".ticket-container");
+    const container = e.target.closest(".dragdrop-container");
     if (
         e.target.closest(".accordion-item") === null ||
         e.target.closest(".accordion-item").id !==
@@ -34,16 +34,17 @@ function drop(e) {
             i++;
         });
         let slot = 0;
-        let ticket = document.getElementById(data);
+        let moved = document.getElementById(data);
+
         if (container == e.target) {
             //Last place
-            container.appendChild(ticket);
+            container.appendChild(moved);
         } else {
             //Middle
             slot = e.target.closest(".accordion-item").dataset.slot;
             [...container.children].forEach((element) => {
                 if (element.dataset.slot == slot) {
-                    container.insertBefore(ticket, element);
+                    container.insertBefore(moved, element);
                 }
             });
         }
@@ -64,7 +65,24 @@ function drop(e) {
             i++;
         });
 
-        move(ticket.id.split('-')[1], container.id.split('-')[2], ticket.dataset.slot);
+        const movedId = moved.id.split("-")[1];
+        const movedSlot = container.id.split("-")[2]
+
+        let closeForm = document.querySelector(`#close-form-${movedId}`);
+        let closeBTN = document.querySelector(`#close-btn-${movedId}`);
+
+        if (movedSlot == "closed") {
+            closeBTN.value = "Törlés"
+            closeForm.action = moved.dataset.deleteUrl
+            closeForm.children[1].value = "delete"
+        }
+        else{
+            closeBTN.value = "Lezárás"
+            closeForm.action = moved.dataset.closeUrl
+            closeForm.children[1].value = "patch"
+        }
+
+        move(movedId, movedSlot, moved.dataset.slot);
     } else {
         //Same place, do nothing
         return;
@@ -72,7 +90,7 @@ function drop(e) {
 }
 
 function move(id, newStatus, newSlot) {
-    const frame = $("#ticket-frame");
+    const frame = $("#dragdrop-frame");
     const updateUrl = frame.data("update-url");
     const csrfToken = frame.data("csrf-token");
 
@@ -90,7 +108,6 @@ function move(id, newStatus, newSlot) {
         contentType: false,
         success: function (response) {
             if (response.success) {
-                console.log(response);
             } else {
                 alert(response);
             }

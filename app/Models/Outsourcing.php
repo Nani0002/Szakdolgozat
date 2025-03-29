@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Customer extends Model
+class Outsourcing extends Model
 {
     use HasFactory;
 
@@ -17,18 +17,29 @@ class Customer extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'mobile',
-        'email',
+        "entry_time",
+        "outsourced_number",
+        "outsourced_price",
+        "our_price",
+        "finished",
     ];
 
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class);
-    }
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'entry_time' => 'datetime',
+    ];
 
     public function worksheets(): HasMany
     {
         return $this->hasMany(Worksheet::class);
+    }
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
     }
 }

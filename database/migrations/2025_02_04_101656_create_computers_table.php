@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string("manufacturer");
             $table->string("type");
-            $table->string("serial_number");
+            $table->string("serial_number")->unique();
             $table->timestamps();
             $table->softDeletes();
         });

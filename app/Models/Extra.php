@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Customer extends Model
+class Extra extends Model
 {
     use HasFactory;
 
@@ -17,18 +16,12 @@ class Customer extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'mobile',
-        'email',
+        'manufacturer',
+        'type',
+        'serial_number',
     ];
 
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class);
-    }
-
-    public function worksheets(): HasMany
-    {
-        return $this->hasMany(Worksheet::class);
+    public function worksheet() : BelongsTo {
+        return $this->belongsTo(Worksheet::class);
     }
 }

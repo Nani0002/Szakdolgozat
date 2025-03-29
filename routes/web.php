@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\ComputerController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
@@ -28,6 +29,12 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('worksheet/search/', [WorksheetController::class, "search"])->name("worksheet.search");
+
+    Route::patch('worksheet/close/{worksheet}', [WorksheetController::class, 'close'])->name('worksheet.close');
+
+    Route::post('worksheet/status', [WorksheetController::class, 'move'])->name('worksheet.move');
+
     Route::resource('worksheet', WorksheetController::class);
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
@@ -50,5 +57,9 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('customer', CustomerController::class);
 
+    Route::get('company/customers', [CompanyController::class, 'getCustomers'])->name('company.customers');
+
     Route::resource('company', CompanyController::class);
+
+    Route::resource('computer', ComputerController::class);
 });

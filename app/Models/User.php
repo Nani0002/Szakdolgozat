@@ -62,11 +62,18 @@ class User extends Authenticatable
     /**
      * Returns navbar urls depending on whether a user is logged in or not.
      */
-    public static function getNavUrls($auth): array
+    public static function getNavUrls($auth, $routes = []): array
     {
         $navUrls = [['name' => 'Főoldal', 'url' => route('home')]];
         if ($auth === true) {
             array_push($navUrls, ['name' => 'Munkalapok', 'url' => route('worksheet.index')], ['name' => 'Ügyfelek', 'url' => route('company.index')]);
+            foreach ($routes as $route) {
+                switch ($route['type']) {
+                    case 'create':
+                        array_push($navUrls, ['name' => "Új {$route['text']}", 'url' => $route['url']]);
+                        break;
+                }
+            }
         }
         return $navUrls;
     }
@@ -74,9 +81,13 @@ class User extends Authenticatable
     /**
      * Returns user controll navbar urls depending on the users priviliges.
      */
-    public function getUserUrls(): array
+    public function getUserUrls($search = false): array
     {
-        $userUrls = [["name" => 'Profilom', 'url' => route('user')]];
+        $userUrls = [];
+        if ($search) {
+            array_push($userUrls, ['name' => 'search', 'url' => route('worksheet.search')]);
+        }
+        array_push($userUrls, ["name" => 'Profilom', 'url' => route('user')]);
         if ($this->isAdmin()) {
             array_push($userUrls, ['name' => 'Munkatárs felvétele', 'url' => '/register']);
         }
@@ -93,7 +104,8 @@ class User extends Authenticatable
         return $this->hasMany(Usersetting::class);
     }
 
-    public function sortedTickets() : array {
+    public function sortedTickets(): array
+    {
         $tickets = [];
         foreach (Ticket::getStatuses() as $status) {
             $tickets[$status] = $this->tickets()->where("status", $status)->orderBy('slot_number', 'asc')->get();
@@ -101,7 +113,41 @@ class User extends Authenticatable
         return $tickets;
     }
 
-    public function ticketsByStatus($status) : Collection{
+    public function ticketsByStatus($status): Collection
+    {
         return $this->tickets()->where("status", $status)->orderBy('slot_number', 'asc')->get();
+    }
+
+    public function sortedWorksheets(): array
+    {
+        $worksheets = [];
+        foreach (Worksheet::getTypes() as $type) {
+            $liable = $this->liableWorksheets()->where('current_step', $type)->get();
+            $coworker = $this->coworkerWorksheets()->where('current_step', $type)->get();
+
+            $merged = $liable->merge($coworker);
+            $sorted = $merged->sortBy('slot_number')->values();
+
+            $worksheets[$type] = $sorted;
+        }
+        return $worksheets;
+    }
+
+    public function worksheetsByStep($step): Collection
+    {
+        $liable = $this->liableWorksheets()->where('current_step', $step)->get();
+        $coworker = $this->coworkerWorksheets()->where('current_step', $step)->get();
+        $merged = $liable->merge($coworker);
+        return $merged->sortBy('slot_number')->values();
+    }
+
+    public function coworkerWorksheets(): HasMany
+    {
+        return $this->hasMany(Worksheet::class, "coworker_id");
+    }
+
+    public function liableWorksheets(): HasMany
+    {
+        return $this->hasMany(Worksheet::class, "liable_id");
     }
 }
