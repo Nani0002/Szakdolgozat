@@ -66,6 +66,14 @@
             <div class="col-6">
                 <img src="{{ Storage::url('images/' . $latest->pivot->imagename_hash) }}"
                     alt="{{ $latest->pivot->imagename }}" class="img-fluid img-thumbnail">
+                <div class="d-flex">
+                    <a href="{{ route('computer.edit', $computer->id) }}" class="btn btn-success mt-3 ms-auto">📝</a>
+                    <form action="{{ route('computer.destroy', $computer->id) }}" method="post">
+                        @csrf
+                        @method('delete')
+                        <input type="submit" class="btn btn-danger edit-customer-btn mt-3 ms-4" value="✖️">
+                    </form>
+                </div>
             </div>
         </div>
         <div class="form-container container-fluid">

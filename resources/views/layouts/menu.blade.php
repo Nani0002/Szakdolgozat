@@ -8,6 +8,8 @@
         'worksheet' => 'Munkalapok',
         'worksheet/search' => 'Munkalapok',
         'worksheet/create' => 'Munkalap felvétele',
+        'computer/create' => 'Számítógép felvétele',
+        'extra/create' => 'Alkatrész felvétele',
     ];
 
     if (request()->is('company/*/edit')) {
@@ -20,8 +22,16 @@
         $title = 'Munkalap szerkesztése';
     } elseif (request()->is('worksheet/*')) {
         $title = 'Munkalap ' . $worksheet->sheet_number;
-    }  elseif (request()->is('computer/*')) {
+    } elseif (request()->is('computer/create')) {
+        $title = $titles['computer/create'];
+    } elseif (request()->is('computer/*/edit')) {
+        $title = 'Számítógép szerkesztése';
+    } elseif (request()->is('computer/*')) {
         $title = 'Számítógép ' . $computer->serial_number;
+    } elseif (request()->is('extra/create')) {
+        $title = $titles['extra/create'];
+    } elseif (request()->is('extra/*/edit')) {
+        $title = 'Alkatrész szerkesztése';
     } else {
         $title = $titles[request()->path()] ?? 'Főoldal';
     }
@@ -59,6 +69,8 @@
             @include('worksheets.search')
         @elseif(request()->is('worksheet/*'))
             @include('worksheets.worksheet')
+        @elseif(request()->is('computer/create') || request()->is('computer/*/edit') || request()->is('extra/create') || request()->is('extra/*/edit'))
+            @include('computers.computer_form')
         @elseif(request()->is('computer/*'))
             @include('computers.computer')
         @elseif(request()->is('worksheet/create') || request()->is('worksheet/*/edit'))

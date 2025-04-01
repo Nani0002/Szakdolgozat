@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ComputerController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ExtraController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorksheetController;
@@ -61,5 +62,11 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('company', CompanyController::class);
 
+    Route::get('computer/select/{worksheet}', [ComputerController::class, "select"])->name('computer.select');
+
+    Route::post('computer/attach/{worksheet}', [ComputerController::class, "attach"])->name('computer.attach');
+
     Route::resource('computer', ComputerController::class);
+
+    Route::resource('extra', ExtraController::class);
 });
