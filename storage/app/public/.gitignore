@@ -1,2 +1,5 @@
 *
 !.gitignore
+!images/
+!images/default_computer.jpg
+!images/default_user.png
