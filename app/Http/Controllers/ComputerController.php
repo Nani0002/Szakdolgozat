@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\Worksheet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 
@@ -102,12 +104,12 @@ class ComputerController extends Controller
         }
     }
 
-    public function attach(Request $request, string $worksheet)
+    public function attach(Request $request, string $worksheet_id)
     {
         if (Auth::check()) {
-            $ws = Worksheet::findOrFail($worksheet);
+            $worksheet = Worksheet::findOrFail($worksheet_id);
             $computer = Computer::findOrFail($request["computer_id"]);
-            if (!$ws || !$computer) {
+            if (!$worksheet || !$computer) {
                 return response()->json([
                     "success" => false,
                 ]);
@@ -122,25 +124,79 @@ class ComputerController extends Controller
                 $request->file('imagefile')->storeAs('public/images', $hashedName);
             }
 
-            $ws->computers()->attach($computer->id, [
+            $worksheet->computers()->attach($computer->id, [
                 "password" => $request["password"],
                 "condition" => $request["condition"],
                 "imagename" => $originalName,
                 "imagename_hash" => $hashedName,
             ]);
 
-            $computer = $ws->computers()->where('computers.id', $computer->id)->first();
+            $computer = $worksheet->computers()->where('computers.id', $computer->id)->first();
 
-            $key = $ws->computers()->count() - 1;
+            $key = $worksheet->computers()->count() - 1;
+
 
             return response()->json([
                 "success" => true,
-                "html" => view('computers._card', compact('computer', 'key'))->render(),
+                "html" => view('computers._card', compact('computer', 'key', 'worksheet'))->render(),
             ]);
         } else {
             return response()->json([
                 "success" => false,
             ]);
         }
+    }
+
+    public function detach(string $worksheet, string $computer)
+    {
+        $ws = Worksheet::findOrFail($worksheet);
+
+        $ws->computers()->detach($computer);
+
+        return redirect(route('worksheet.show', $ws));
+    }
+
+    public function get(string $pivot, string $computer)
+    {
+        $comp = Computer::findOrFail($computer);
+        $piv = DB::table('computer_worksheet')->where('id', $pivot)->first();
+
+        return response()->json([
+            "success" => true,
+            "pivot" => $piv,
+            "computer" => $comp->only(['id', 'manufacturer', 'type', 'serial_number']),
+        ]);
+    }
+
+    public function refresh(Request $request)
+    {
+        $originalName = "default_computer.jpg";
+        $hashedName = "default_computer.jpg";
+        if ($request->hasFile('imagefile')) {
+            $pivot = DB::table('computer_worksheet')->where('id', $request["pivot_id"])->first();
+
+            $originalName = $request->file('imagefile')->getClientOriginalName();
+            $hashedName = Str::random(40) . '.' . $request->file('imagefile')->getClientOriginalExtension();
+
+            if ($pivot->imagename_hash != "default_computer.jpg" && $pivot->imagename_hash  != "default_user.png") {
+                Storage::delete('public/images/' . $pivot->imagename_hash);
+            }
+
+            $request->file('imagefile')->storeAs('public/images', $hashedName);
+        }
+
+        DB::table('computer_worksheet')
+            ->where('id', $request['pivot_id'])
+            ->update([
+                'condition' => $request['condition'],
+                'password' => $request['password'],
+                'imagename' => $originalName,
+                'imagename_hash' => $hashedName,
+            ]);
+
+        return response()->json([
+            "success" => true,
+            "html" => null,
+        ]);
     }
 }

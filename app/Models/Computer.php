@@ -23,13 +23,14 @@ class Computer extends Model
 
     public function worksheets(): BelongsToMany
     {
-        return $this->belongsToMany(Worksheet::class)->withPivot('password', 'condition', 'imagename', 'imagename_hash')->withTimestamps();
+        return $this->belongsToMany(Worksheet::class)->withPivot('password', 'condition', 'imagename', 'imagename_hash', 'id')->withTimestamps();
     }
 
     public function latestInfo(): ?Worksheet
     {
+        dd("AAA");
         return $this->worksheets()
-            ->withPivot('created_at', 'password', 'condition', 'imagename', 'imagename_hash')
+            ->withPivot('created_at', 'password', 'condition', 'imagename', 'imagename_hash', 'id')
             ->orderBy('pivot_created_at', 'desc')
             ->first();
     }
@@ -49,6 +50,7 @@ class Computer extends Model
             'condition' => $latest->pivot->condition,
             'imagename' => $latest->pivot->imagename,
             'imagename_hash' => $latest->pivot->imagename_hash,
+            'id' => $latest->pivot->id,
         ];
     }
 }

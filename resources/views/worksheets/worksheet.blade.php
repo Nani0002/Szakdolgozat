@@ -362,6 +362,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" id="attach-btn"
                     data-attach-url="{{ route('computer.attach', $worksheet->id) }}"
+                    data-refresh-url="{{ route('computer.refresh') }}"
                     data-csrf-token="{{ csrf_token() }}">Kiválasztás</button>
             </div>
         </div>

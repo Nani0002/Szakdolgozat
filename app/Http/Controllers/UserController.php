@@ -97,7 +97,7 @@ class UserController extends Controller
 
             $user = Auth::user();
 
-            if ($user->imagename_hash != "default_user.png") {
+            if ($user->imagename_hash != "default_user.png" && $user->imagename_hash != "default_computer.jpg") {
                 Storage::delete('public/images/' . $user->imagename_hash);
             }
 

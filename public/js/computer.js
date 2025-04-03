@@ -2,6 +2,10 @@ window.addEventListener("load", init, false);
 
 let computers = [];
 
+let pivot = "";
+
+let editmode = false;
+
 function init() {
     document
         .querySelector("#select-computer")
@@ -26,9 +30,13 @@ function init() {
     document
         .querySelector("#attach-btn")
         .addEventListener("click", attach, false);
+
+    const refreshBtns = document.querySelectorAll(".get-btn");
+    refreshBtns.forEach((e) => e.addEventListener("click", get, false));
 }
 
 function getComputers(e) {
+    editmode = false;
     const updateUrl = e.target.dataset.getUrl;
 
     $.ajax({
@@ -107,7 +115,13 @@ function updateImage() {
 }
 
 function attach(e) {
-    const url = e.target.dataset.attachUrl;
+    let url = "";
+    let formData = new FormData();
+    if (editmode) {
+        url = e.target.dataset.refreshUrl;
+        formData.append("_method", "put");
+        formData.append("pivot_id", pivot.id);
+    } else url = e.target.dataset.attachUrl;
     const csrfToken = e.target.dataset.csrfToken;
 
     const computer_id = document.querySelector("#computer_id").value;
@@ -115,7 +129,6 @@ function attach(e) {
     const condition = document.querySelector("#condition").value;
     const imagename = document.querySelector("#imagefile").files[0];
 
-    let formData = new FormData();
     formData.append("_token", csrfToken);
     formData.append("computer_id", computer_id);
     formData.append("password", password);
@@ -132,9 +145,58 @@ function attach(e) {
             if (response.success) {
                 const $container = $("#computer-container");
                 const $newCard = $(response.html);
+                if (!editmode)
+                    $newCard.insertBefore($container.children().eq(-1));
+                else
+                    console.log(response);
 
-                $newCard.insertBefore($container.children().eq(-1));
                 $("#select-modal").modal("hide");
+            } else {
+                alert("No customers found.");
+            }
+        },
+        error: function (xhr) {
+            let response = JSON.parse(xhr.responseText || "{}");
+            if (xhr.status === 401 && response.redirect) {
+                window.location.href = response.redirect;
+            } else {
+                alert(
+                    "An error occurred: " + (response.error || xhr.statusText)
+                );
+            }
+        },
+    });
+}
+
+function get(e) {
+    editmode = true;
+    const url = e.target.dataset.getUrl;
+
+    $.ajax({
+        url: url,
+        type: "GET",
+        success: function (response) {
+            if (response.success) {
+                const select = document.querySelector("#computer_id");
+                pivot = response.pivot;
+                let computer = response.computer;
+                select.innerHTML = "";
+
+                let child = document.createElement("option");
+                child.value = computer.id;
+                child.innerHTML = computer.serial_number;
+                select.appendChild(child);
+
+                document.querySelector("#static-manufacturer").innerHTML =
+                    computer.manufacturer;
+                document.querySelector("#static-type").innerHTML =
+                    computer.type;
+
+                document.querySelector("#condition").value = pivot.condition;
+                document.querySelector("#password").value = pivot.password;
+                document.querySelector("#prewiew").src =
+                    "/storage/images/" + pivot.imagename_hash;
+                document.querySelector("#prewiew").alt = pivot.imagename;
             } else {
                 alert("No customers found.");
             }

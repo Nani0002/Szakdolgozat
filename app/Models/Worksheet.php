@@ -64,7 +64,7 @@ class Worksheet extends Model
 
     public function computers(): BelongsToMany
     {
-        return $this->belongsToMany(Computer::class)->withPivot('password', 'condition', 'imagename', 'imagename_hash')->withTimestamps();
+        return $this->belongsToMany(Computer::class)->withPivot('password', 'condition', 'imagename', 'imagename_hash', 'id')->withTimestamps();
     }
 
     public function outsourcing(): BelongsTo

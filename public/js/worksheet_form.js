@@ -5,8 +5,8 @@ let latestPrintDate = "";
 let latestPrintTime = "";
 
 function init() {
-    const timeBTNs = document.querySelectorAll(".time-btn");
-    timeBTNs.forEach((e) => {
+    const timeBtns = document.querySelectorAll(".time-btn");
+    timeBtns.forEach((e) => {
         if (e.id == "liable-btn" || e.id == "coworker-btn") {
             e.addEventListener("click", setMe, false);
         } else {
