@@ -31,7 +31,7 @@
                 <a href="{{ route('computer.edit', $computer->id) }}" class="btn btn-success mt-3">Szerkesztés</a>
                 <button
                     data-get-url="{{ route('computer.get', ['pivot' => $computer->pivot->id, 'computer' => $computer->id]) }}"
-                    id="get-{{ $computer->pivot->id }}" type="button"
+                    id="get-{{ $key }}" type="button"
                     class="btn btn-success mt-3 get-btn" data-bs-toggle="modal"
                     data-bs-target="#select-modal">Frissítés</button>
                 <form action="{{ route('computer.detach', [$worksheet->id, $computer->id]) }}" method="post">

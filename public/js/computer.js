@@ -3,6 +3,7 @@ window.addEventListener("load", init, false);
 let computers = [];
 
 let pivot = "";
+let key = 0;
 
 let editmode = false;
 
@@ -121,6 +122,7 @@ function attach(e) {
         url = e.target.dataset.refreshUrl;
         formData.append("_method", "put");
         formData.append("pivot_id", pivot.id);
+        formData.append("key", key);
     } else url = e.target.dataset.attachUrl;
     const csrfToken = e.target.dataset.csrfToken;
 
@@ -147,9 +149,11 @@ function attach(e) {
                 const $newCard = $(response.html);
                 if (!editmode)
                     $newCard.insertBefore($container.children().eq(-1));
-                else
-                    console.log(response);
+                else{
+                    $container.children().eq(key).replaceWith($newCard);
+                }
 
+                $("#attach-btn").blur();
                 $("#select-modal").modal("hide");
             } else {
                 alert("No customers found.");
@@ -170,6 +174,7 @@ function attach(e) {
 
 function get(e) {
     editmode = true;
+    key = e.target.id.split('-')[1];
     const url = e.target.dataset.getUrl;
 
     $.ajax({

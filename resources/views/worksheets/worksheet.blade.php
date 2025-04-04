@@ -291,27 +291,27 @@
             </div>
             <div class="row border-top my-2">
                 <div class="col-12">
-                    @if (isset($worksheet->computers) && count($worksheet->computers))
-                        <div class="fs-5 my-2 fw-bold">
-                            Beadott számítógép@php echo count($worksheet->computers) > 1 ? 'ek:' : ':' @endphp
-                        </div>
-                        <div class="row row-cols-3 g-4" id="computer-container">
+                    <div class="fs-5 my-2 fw-bold">
+                        Beadott számítógép@php echo count($worksheet->computers) > 1 ? 'ek:' : ':' @endphp
+                    </div>
+                    <div class="row row-cols-3 g-4" id="computer-container">
+                        @if (isset($worksheet->computers) && count($worksheet->computers))
                             @foreach ($worksheet->computers as $key => $computer)
                                 @include('computers._card', ['computer' => $computer, 'key' => $key])
                             @endforeach
-                            <div class="col">
-                                <div class="card h-75 d-flex flex-column p-3">
-                                    <a id="add-computer" href="{{ route('computer.create') }}"
-                                        class="h-100 d-flex">+</a>
-                                </div>
-                                <div class="card h-25 d-flex flex-column p-3">
-                                    <button id="select-computer" class="h-100 d-flex" data-bs-toggle="modal"
-                                        data-bs-target="#select-modal"
-                                        data-get-url={{ route('computer.select', $worksheet->id) }}>Kiválasztás</button>
-                                </div>
+                        @endif
+                        <div class="col">
+                            <div class="card h-75 d-flex flex-column p-3">
+                                <a id="add-computer" href="{{ route('computer.create') }}"
+                                    class="h-100 d-flex">+</a>
+                            </div>
+                            <div class="card h-25 d-flex flex-column p-3">
+                                <button id="select-computer" class="h-100 d-flex" data-bs-toggle="modal"
+                                    data-bs-target="#select-modal"
+                                    data-get-url={{ route('computer.select', $worksheet->id) }}>Kiválasztás</button>
                             </div>
                         </div>
-                    @endif
+                    </div>
                 </div>
             </div>
             <div class="row mt-3">

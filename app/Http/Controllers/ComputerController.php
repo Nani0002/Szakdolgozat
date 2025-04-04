@@ -170,10 +170,11 @@ class ComputerController extends Controller
 
     public function refresh(Request $request)
     {
+        $pivot = DB::table('computer_worksheet')->where('id', $request["pivot_id"])->first();
+
         $originalName = "default_computer.jpg";
         $hashedName = "default_computer.jpg";
         if ($request->hasFile('imagefile')) {
-            $pivot = DB::table('computer_worksheet')->where('id', $request["pivot_id"])->first();
 
             $originalName = $request->file('imagefile')->getClientOriginalName();
             $hashedName = Str::random(40) . '.' . $request->file('imagefile')->getClientOriginalExtension();
@@ -192,11 +193,28 @@ class ComputerController extends Controller
                 'password' => $request['password'],
                 'imagename' => $originalName,
                 'imagename_hash' => $hashedName,
+                'updated_at' => now(),
             ]);
+
+        $computer = Computer::findOrFail($pivot->computer_id);
+        $computer->pivot = (object) [
+            'id' => $pivot->id,
+            'imagename' => $originalName,
+            'imagename_hash' => $hashedName,
+            'condition' => $request['condition'],
+            'password' => $request['password'],
+            'worksheet_id' => $pivot->worksheet_id,
+            'computer_id' => $pivot->computer_id,
+            'created_at' => $pivot->created_at,
+            'updated_at' => now(),
+        ];
+
+        $key = $request["key"];
+        $worksheet = Worksheet::findOrFail($pivot->worksheet_id);
 
         return response()->json([
             "success" => true,
-            "html" => null,
+            "html" => view('computers._card', compact('computer', 'key', 'worksheet'))->render(),
         ]);
     }
 }
