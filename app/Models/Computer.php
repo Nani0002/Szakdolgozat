@@ -26,6 +26,26 @@ class Computer extends Model
         return $this->belongsToMany(Worksheet::class)->withPivot('password', 'condition', 'imagename', 'imagename_hash', 'id')->withTimestamps();
     }
 
+    public function extras(): BelongsToMany
+    {
+        return $this->belongsToMany(Extra::class)->withPivot('worksheet_id')->withTimestamps();
+    }
+
+    public function extrasWithWorksheet()
+    {
+        return $this->belongsToMany(Extra::class, 'computer_extra')
+            ->withPivot('worksheet_id')
+            ->with('worksheet')
+            ->withTimestamps();
+    }
+
+    public function extrasForWorksheet($worksheetId)
+    {
+        return $this->extras()
+            ->wherePivot('worksheet_id', $worksheetId)
+            ->get();
+    }
+
     public function latestInfo(): ?Worksheet
     {
         return $this->worksheets()

@@ -8,7 +8,7 @@
                 @elseif(request()->is('computer/*/edit'))
                     {{ route('computer.update', $computer->id) }}
                 @elseif(request()->is('extra/create'))
-                    {{ route('extra.strore') }}
+                    {{ route('extra.store') }}
                 @else
                     {{ route('extra.update', $extra->id) }} @endif
             "
@@ -19,6 +19,22 @@
                 @isset($extra)
                     @method('put')
                 @endisset
+                @if(request()->is('extra/*/edit') || request()->is('extra/create'))
+                <div class="form-floating mb-3">
+                    <select  class="form-select" name="worksheet" id="worksheet" disabled>
+                        <option value="{{$connected_worksheet->id}}">{{$connected_worksheet->sheet_number}}</option>
+                    </select>
+                    <label for="worksheet_id">Csatolt munkalap</label>
+                    <input type="hidden" name="worksheet_id" value="{{$connected_worksheet->id}}">
+                </div>
+                <div class="form-floating mb-3">
+                    <select  class="form-select" name="computer" id="computer" disabled>
+                        <option value="{{$connected_computer->id}}">{{$connected_computer->serial_number}}</option>
+                    </select>
+                    <label for="computer_id">Csatolt számítógép</label>
+                    <input type="hidden" name="computer_id" value="{{$connected_computer->id}}">
+                </div>
+                @endif
                 @csrf
                 <div class="form-floating mb-3">
                     <input class="form-control" id="manufacturer" name="manufacturer" type="text" placeholder="Gyártó"

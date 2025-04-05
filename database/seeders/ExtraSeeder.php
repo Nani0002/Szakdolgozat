@@ -6,6 +6,7 @@ use App\Models\Extra;
 use App\Models\Worksheet;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class ExtraSeeder extends Seeder
 {
@@ -14,8 +15,27 @@ class ExtraSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach (Worksheet::all() as $worksheet) {
-            Extra::factory(rand(0, 3))->for($worksheet)->create();
+        foreach (Worksheet::with('computers')->get() as $worksheet) {
+            $computers = $worksheet->computers;
+
+            if ($computers->isEmpty()) {
+                continue;
+            }
+
+            foreach ($computers as $computer) {
+                $extras = Extra::factory(rand(0, 3))->create();
+
+                foreach ($extras as $extra) {
+                    DB::table('computer_extra')->insert([
+                        'computer_id' => $computer->id,
+                        'extra_id' => $extra->id,
+                        'worksheet_id' => $worksheet->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
         }
+
     }
 }

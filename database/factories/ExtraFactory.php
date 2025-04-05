@@ -19,7 +19,7 @@ class ExtraFactory extends Factory
         return [
             'manufacturer' => fake()->company(),
             'type' => fake()->text(15),
-            'serial_number' => fake()->numberBetween(),
+            'serial_number' => fake()->unique()->uuid(),
         ];
     }
 }

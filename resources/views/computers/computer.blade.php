@@ -31,7 +31,7 @@
                         Jelszó:
                     </div>
                     <div class="col-6">
-                        {{ $latest->pivot->password ?? "Friss eszköz" }}
+                        {{ $latest->pivot->password ?? 'Friss eszköz' }}
                     </div>
                 </div>
                 <div class="row">
@@ -39,7 +39,7 @@
                         Állapot:
                     </div>
                     <div class="col-6">
-                        {{ $latest->pivot->condition ?? "Friss eszköz"}}
+                        {{ $latest->pivot->condition ?? 'Friss eszköz' }}
                     </div>
                 </div>
                 <div class="row border-top mt-2">
@@ -49,26 +49,26 @@
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        {{ $latest->customer->name ?? "Friss eszköz"}}
+                        {{ $latest->customer->name ?? 'Friss eszköz' }}
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        {{ $latest->customer->mobile ?? "Friss eszköz"}}
+                        {{ $latest->customer->mobile ?? 'Friss eszköz' }}
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        {{ $latest->customer->email ?? "Friss eszköz"}}
+                        {{ $latest->customer->email ?? 'Friss eszköz' }}
                     </div>
                 </div>
             </div>
             <div class="col-6">
                 @php
-                    $url = isset($latest->pivot) ? $latest->pivot->imagename_hash : "default_computer.jpg";
+                    $url = isset($latest->pivot) ? $latest->pivot->imagename_hash : 'default_computer.jpg';
                 @endphp
                 <img src="{{ Storage::url('images/' . $url) }}"
-                    alt="{{ $latest->pivot->imagename ?? "default_computer.jpg"}}" class="img-fluid img-thumbnail">
+                    alt="{{ $latest->pivot->imagename ?? 'default_computer.jpg' }}" class="img-fluid img-thumbnail">
                 <div class="d-flex">
                     <a href="{{ route('computer.edit', $computer->id) }}" class="btn btn-success mt-3 ms-auto">📝</a>
                     <form action="{{ route('computer.destroy', $computer->id) }}" method="post">
@@ -89,12 +89,16 @@
                     <div class="row mt-2">
                         <div class="col-3 d-flex flex-column"><a href="{{ route('worksheet.show', $worksheet->id) }}"
                                 class="btn btn-info mt-auto">Részletek</a></div>
-                        @if (isset($worksheet->extras) && count($worksheet->extras))
+                        @php
+                            $extras = $computer->extrasForWorksheet($worksheet->id);
+                        @endphp
+
+                        @if ($extras->isNotEmpty())
                             <div class="col-9">
                                 <div class="row">
                                     <div class="col-12 fw-bold">Beszerelt extrák:</div>
                                 </div>
-                                @foreach ($worksheet->extras as $extra)
+                                @foreach ($extras as $extra)
                                     <div class="row border-top">
                                         <div class="col-4 fw-bold">Sorozatszám:</div>
                                         <div class="col-8">{{ $extra->serial_number }}</div>
@@ -105,7 +109,14 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-4 fw-bold">Típus:</div>
-                                        <div class="col-8">{{ $extra->type }}</div>
+                                        <div class="col-6">{{ $extra->type }}</div>
+                                        <div class="col-2">
+                                            <form action="{{ route('extra.destroy', $extra->id) }}" method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <input type="submit" value="✖️" class="btn btn-danger mt-2 mb-1">
+                                            </form>
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>

@@ -72,9 +72,16 @@ class Worksheet extends Model
         return $this->belongsTo(Outsourcing::class);
     }
 
-    public function extras(): HasMany
+    public function extras()
     {
-        return $this->hasMany(Extra::class);
+        return $this->hasManyThrough(
+            Extra::class,
+            'computer_extra',
+            'worksheet_id',
+            'id',
+            'id',
+            'extra_id'
+        );
     }
 
     public static function getTypes()
