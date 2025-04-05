@@ -88,19 +88,20 @@ function getComputers(e) {
 
 function update(e) {
     const val = e.target.value;
+    const computer = computers.find((e) => e.id == val);
 
     document.querySelector("#static-manufacturer").innerHTML =
-        computers[val]["manufacturer"];
-    document.querySelector("#static-type").innerHTML = computers[val]["type"];
+        computer["manufacturer"];
+    document.querySelector("#static-type").innerHTML = computer["type"];
     document.querySelector("#condition").value =
-        computers[val]["latest_info_pivot"]["condition"];
+        computer.latest_info_pivot?.condition ?? "";
     document.querySelector("#password").value =
-        computers[val]["latest_info_pivot"]["password"];
+        computer.latest_info_pivot?.password ?? "";
     document.querySelector("#prewiew").src =
         "/storage/images/" +
-        computers[val]["latest_info_pivot"]["imagename_hash"];
+        (computer.latest_info_pivot?.imagename_hash ?? "default_computer.jpg");
     document.querySelector("#prewiew").alt =
-        computers[val]["latest_info_pivot"]["imagename"];
+        computer.latest_info_pivot?.imagename ?? "default_computer.jpg";
 }
 
 function updateImage() {
@@ -124,6 +125,7 @@ function attach(e) {
         formData.append("pivot_id", pivot.id);
         formData.append("key", key);
     } else url = e.target.dataset.attachUrl;
+
     const csrfToken = e.target.dataset.csrfToken;
 
     const computer_id = document.querySelector("#computer_id").value;
@@ -149,9 +151,14 @@ function attach(e) {
                 const $newCard = $(response.html);
                 if (!editmode)
                     $newCard.insertBefore($container.children().eq(-1));
-                else{
+                else {
                     $container.children().eq(key).replaceWith($newCard);
                 }
+
+                const refreshBtns = document.querySelectorAll(".get-btn");
+                refreshBtns.forEach((e) =>
+                    e.addEventListener("click", get, false)
+                );
 
                 $("#attach-btn").blur();
                 $("#select-modal").modal("hide");
@@ -174,7 +181,7 @@ function attach(e) {
 
 function get(e) {
     editmode = true;
-    key = e.target.id.split('-')[1];
+    key = e.target.id.split("-")[1];
     const url = e.target.dataset.getUrl;
 
     $.ajax({

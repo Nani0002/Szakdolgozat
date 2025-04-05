@@ -39,7 +39,20 @@ class ComputerController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            "manufacturer" => "string|required",
+            "type" => "string|required",
+            "serial_number" => "string|required|unique:computers,serial_number",
+        ]);
+
+        $computer = new Computer();
+        $computer->manufacturer = $request["manufacturer"];
+        $computer->type = $request["type"];
+        $computer->serial_number = $request["serial_number"];
+
+        $computer->save();
+
+        return redirect(route('computer.show', $computer->id));
     }
 
     /**
@@ -73,7 +86,18 @@ class ComputerController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            "manufacturer" => "string|required",
+            "type" => "string|required",
+        ]);
+
+        $computer = Computer::findOrFail($id);
+        $computer->manufacturer = $request["manufacturer"];
+        $computer->type = $request["type"];
+
+        $computer->save();
+
+        return redirect(route('computer.show', $computer->id));
     }
 
     /**
@@ -171,7 +195,6 @@ class ComputerController extends Controller
     public function refresh(Request $request)
     {
         $pivot = DB::table('computer_worksheet')->where('id', $request["pivot_id"])->first();
-
         $originalName = "default_computer.jpg";
         $hashedName = "default_computer.jpg";
         if ($request->hasFile('imagefile')) {

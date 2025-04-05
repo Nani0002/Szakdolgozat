@@ -28,7 +28,6 @@ class Computer extends Model
 
     public function latestInfo(): ?Worksheet
     {
-        dd("AAA");
         return $this->worksheets()
             ->withPivot('created_at', 'password', 'condition', 'imagename', 'imagename_hash', 'id')
             ->orderBy('pivot_created_at', 'desc')

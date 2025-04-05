@@ -6,19 +6,20 @@
                 action="
                 @if (request()->is('computer/create')) {{ route('computer.store') }}
                 @elseif(request()->is('computer/*/edit'))
-                    {{ route('company.update', $computer->id) }}
+                    {{ route('computer.update', $computer->id) }}
                 @elseif(request()->is('extra/create'))
                     {{ route('extra.strore') }}
                 @else
                     {{ route('extra.update', $extra->id) }} @endif
             "
                 method="POST">
-                @isset($worksheet)
+                @isset($computer)
                     @method('put')
                 @endisset
                 @isset($extra)
                     @method('put')
                 @endisset
+                @csrf
                 <div class="form-floating mb-3">
                     <input class="form-control" id="manufacturer" name="manufacturer" type="text" placeholder="Gyártó"
                         value="{{ old('manufacturer', $computer->manufacturer ?? ($extra->manufacturer ?? '')) }}" />
@@ -47,6 +48,15 @@
                         </button>
                     </div>
                 </div>
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
             </form>
         </div>
     </div>

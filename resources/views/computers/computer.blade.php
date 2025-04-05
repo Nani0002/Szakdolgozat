@@ -31,7 +31,7 @@
                         Jelszó:
                     </div>
                     <div class="col-6">
-                        {{ $latest->pivot->password }}
+                        {{ $latest->pivot->password ?? "Friss eszköz" }}
                     </div>
                 </div>
                 <div class="row">
@@ -39,7 +39,7 @@
                         Állapot:
                     </div>
                     <div class="col-6">
-                        {{ $latest->pivot->condition }}
+                        {{ $latest->pivot->condition ?? "Friss eszköz"}}
                     </div>
                 </div>
                 <div class="row border-top mt-2">
@@ -49,23 +49,26 @@
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        {{ $latest->customer->name }}
+                        {{ $latest->customer->name ?? "Friss eszköz"}}
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        {{ $latest->customer->mobile }}
+                        {{ $latest->customer->mobile ?? "Friss eszköz"}}
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        {{ $latest->customer->email }}
+                        {{ $latest->customer->email ?? "Friss eszköz"}}
                     </div>
                 </div>
             </div>
             <div class="col-6">
-                <img src="{{ Storage::url('images/' . $latest->pivot->imagename_hash) }}"
-                    alt="{{ $latest->pivot->imagename }}" class="img-fluid img-thumbnail">
+                @php
+                    $url = isset($latest->pivot) ? $latest->pivot->imagename_hash : "default_computer.jpg";
+                @endphp
+                <img src="{{ Storage::url('images/' . $url) }}"
+                    alt="{{ $latest->pivot->imagename ?? "default_computer.jpg"}}" class="img-fluid img-thumbnail">
                 <div class="d-flex">
                     <a href="{{ route('computer.edit', $computer->id) }}" class="btn btn-success mt-3 ms-auto">📝</a>
                     <form action="{{ route('computer.destroy', $computer->id) }}" method="post">
