@@ -12,7 +12,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3">
                             <input class="form-control" id="sheet_number" name="sheet_number" type="text"
-                                placeholder="Típus" value="{{ old('sheet_number', $worksheet->sheet_number ?? '') }}" @disabled(isset($worksheet))/>
+                                placeholder="Munkalapszám" value="{{ old('sheet_number', $worksheet->sheet_number ?? '') }}" @disabled(isset($worksheet))/>
                             <label for="sheet_number">Munkalapszám</label>
                         </div>
                         <div class="input-group mb-3">

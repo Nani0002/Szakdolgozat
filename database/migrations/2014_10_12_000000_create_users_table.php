@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string("imagename_hash")->default('default_user.png');
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

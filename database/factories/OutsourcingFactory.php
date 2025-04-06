@@ -19,7 +19,7 @@ class OutsourcingFactory extends Factory
         $price = fake()->numberBetween();
         return [
             "entry_time" => fake()->date(),
-            "outsourced_number" => fake()->numberBetween(),
+            "outsourced_number" => fake()->unique()->uuid(),
             "outsourced_price" => $price,
             "our_price" => $price * 1.2,
             "finished" => fake()->randomElement(["ongoing", "finished", "brought"]),

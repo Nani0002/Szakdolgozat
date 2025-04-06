@@ -291,59 +291,90 @@
             </div>
             <div class="row border-top my-2">
                 <div class="col-12">
-                    @if (isset($worksheet->computers) && count($worksheet->computers))
-                        <div class="fs-5 my-2 fw-bold">
-                            Beadott számítógép@php echo count($worksheet->computers) > 1 ? 'ek:' : ':' @endphp
-                        </div>
-                        <div class="row row-cols-3 g-4">
+                    <div class="fs-5 my-2 fw-bold">
+                        Beadott számítógép@php echo count($worksheet->computers) > 1 ? 'ek:' : ':' @endphp
+                    </div>
+                    <div class="row row-cols-3 g-4" id="computer-container">
+                        @if (isset($worksheet->computers) && count($worksheet->computers))
                             @foreach ($worksheet->computers as $key => $computer)
-                                <div class="col">
-                                    <div class="card h-100 d-flex flex-column">
-                                        @isset($computer->pivot->imagename)
-                                            <img src="{{ Storage::url('images/' . $computer->pivot->imagename_hash) }}"
-                                                class="card-img-top" alt="{{ $computer->pivot->imagename }}">
-                                        @endisset
-                                        <div class="card-body d-flex flex-column">
-                                            <h5 class="card-title">Számítógép {{ $key + 1 }}:</h5>
-                                            <div class="card-text row">
-                                                <div class="col-6 fw-bold">Gyártó:</div>
-                                                <div class="col-6">{{ $computer->manufacturer }}</div>
-                                            </div>
-                                            <div class="card-text row">
-                                                <div class="col-6 fw-bold">Típus:</div>
-                                                <div class="col-6">{{ $computer->type }}</div>
-                                            </div>
-                                            <div class="card-text row">
-                                                <div class="col-6 fw-bold">Sorozatzám:</div>
-                                                <div class="col-6">{{ $computer->serial_number }}</div>
-                                            </div>
-                                            <div class="card-text row">
-                                                <div class="col-6 fw-bold">Állapot:</div>
-                                                <div class="col-6">{{ $computer->pivot->condition }}</div>
-                                            </div>
-                                            <div class="card-text row">
-                                                <div class="col-6 fw-bold">Jelszó:</div>
-                                                <div class="col-6">{{ $computer->pivot->password }}</div>
-                                            </div>
-                                            <div class="mt-auto"><a
-                                                    href="{{ route('computer.show', $computer->id) }}"
-                                                    class="btn btn-info mt-3">Részletek</a></div>
-                                        </div>
-                                    </div>
-                                </div>
+                                @include('computers._card', ['computer' => $computer, 'key' => $key])
                             @endforeach
+                        @endif
+                        <div class="col">
+                            <div class="card h-75 d-flex flex-column p-3">
+                                <a id="add-computer" href="{{ route('computer.create') }}"
+                                    class="h-100 d-flex">+</a>
+                            </div>
+                            <div class="card h-25 d-flex flex-column p-3">
+                                <button id="select-computer" class="h-100 d-flex" data-bs-toggle="modal"
+                                    data-bs-target="#select-modal"
+                                    data-get-url={{ route('computer.select', $worksheet->id) }}>Kiválasztás</button>
+                            </div>
                         </div>
-                    @endif
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <a href="{{route('worksheet.edit', $worksheet->id)}}" class="btn btn-success">Szerkesztés</a>
+            <div class="row mt-3">
+                <a href="{{ route('worksheet.edit', $worksheet->id) }}" class="btn btn-success">Szerkesztés</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="select-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-floating">
+                    <select class="form-select" id="computer_id" name="computer_id"></select>
+                    <label for="computer_id">Számítógép sorozatszám</label>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-2 fw-bold">Gyártó:</div>
+                    <div class="col-10" id="static-manufacturer"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-2 fw-bold">Típus:</div>
+                    <div class="col-10" id="static-type"></div>
+                </div>
+                <div class="form-floating mt-2">
+                    <input class="form-control" id="condition" name="condition" type="text"
+                        placeholder="Állapot" />
+                    <label for="condition">Állapot</label>
+                </div>
+                <div class="form-floating mt-2">
+                    <input class="form-control" id="password" name="password" type="text"
+                        placeholder="Jelszó" />
+                    <label for="password">Jelszó</label>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6 offset-3 position-relative">
+                        <img src="" alt="Preview" class="img-fluid" id="prewiew">
+                        <input type="file" id="imagefile" class="d-none" accept="image/*">
+                        <button class="btn btn-light rounded-circle plus-btn border-dark border-2"
+                            id="changeImageBtn"><b>+</b></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="attach-btn"
+                    data-attach-url="{{ route('computer.attach', $worksheet->id) }}"
+                    data-refresh-url="{{ route('computer.refresh') }}"
+                    data-csrf-token="{{ csrf_token() }}">Kiválasztás</button>
             </div>
         </div>
     </div>
 </div>
 
-
 @push('css')
     <link rel="stylesheet" href="{{ asset('css/wideform.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/worksheet.css') }}">
+@endpush
+
+@push('js')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ asset('js/computer.js') }}"></script>
 @endpush

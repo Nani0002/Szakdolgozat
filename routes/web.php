@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ComputerController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ExtraController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorksheetController;
@@ -29,7 +30,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('worksheet/search/', [WorksheetController::class, "search"])->name("worksheet.search");
+    Route::get('worksheet/search/', [WorksheetController::class, 'search'])->name('worksheet.search');
 
     Route::patch('worksheet/close/{worksheet}', [WorksheetController::class, 'close'])->name('worksheet.close');
 
@@ -61,5 +62,17 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('company', CompanyController::class);
 
+    Route::get('computer/select/{worksheet}', [ComputerController::class, 'select'])->name('computer.select');
+
+    Route::post('computer/attach/{worksheet}', [ComputerController::class, 'attach'])->name('computer.attach');
+
+    Route::delete('computer/detach/{worksheet}/{computer}', [ComputerController::class, 'detach'])->name('computer.detach');
+
+    Route::put('computer/refresh', [ComputerController::class, 'refresh'])->name('computer.refresh');
+
+    Route::get('computer/get/{pivot}/{computer}', [ComputerController::class, 'get'])->name('computer.get');
+
     Route::resource('computer', ComputerController::class);
+
+    Route::resource('extra', ExtraController::class);
 });

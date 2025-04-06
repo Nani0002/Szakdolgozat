@@ -17,7 +17,7 @@ class WorksheetFactory extends Factory
     public function definition(): array
     {
         return [
-            'sheet_number' => fake()->numberBetween(),
+            'sheet_number' => fake()->unique()->uuid(),
             'sheet_type' => fake()->randomElement(["maintanance", "paid", "warranty"]),
             'print_date' => fake()->date(),
             'declaration_time' => fake()->date(),

@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Worksheet extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -64,7 +65,7 @@ class Worksheet extends Model
 
     public function computers(): BelongsToMany
     {
-        return $this->belongsToMany(Computer::class)->withPivot('password', 'condition', 'imagename', 'imagename_hash')->withTimestamps();
+        return $this->belongsToMany(Computer::class)->withPivot('password', 'condition', 'imagename', 'imagename_hash', 'id')->withTimestamps();
     }
 
     public function outsourcing(): BelongsTo
@@ -72,9 +73,16 @@ class Worksheet extends Model
         return $this->belongsTo(Outsourcing::class);
     }
 
-    public function extras(): HasMany
+    public function extras()
     {
-        return $this->hasMany(Extra::class);
+        return $this->hasManyThrough(
+            Extra::class,
+            'computer_extra',
+            'worksheet_id',
+            'id',
+            'id',
+            'extra_id'
+        );
     }
 
     public static function getTypes()
