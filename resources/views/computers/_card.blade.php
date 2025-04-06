@@ -29,15 +29,27 @@
             <h5 class="card-title mt-2">Beszerelt alkatrészek:</h5>
             <div class="list-group">
                 @foreach ($computer->extras()->wherePivot('worksheet_id', $worksheet->id)->get() as $extra)
-                    <a href="{{route('extra.edit', ["extra" => $extra->id, "worksheet" => $worksheet->id, "computer" => $computer->id])}}" class="list-group-item list-group-item-action">
+                    <a href="{{ route('extra.edit', ['extra' => $extra->id, 'worksheet' => $worksheet->id, 'computer' => $computer->id]) }}"
+                        class="list-group-item list-group-item-action">
                         <div class="row">
                             <div class="col-6">{{ $extra->manufacturer }}</div>
                             <div class="col-6">{{ $extra->type }}</div>
                         </div>
-                        <div class="row"><div class="col-12">{{ $extra->serial_number }}</div></div>
+                        <div class="row border-top mt-1 pt-1">
+                            <div class="col-8">{{ $extra->serial_number }}</div>
+                            <div class="col-4">
+                                <form action="{{ route('extra.destroy', $extra->id) }}"
+                                    method="post">
+                                    @csrf
+                                    @method('delete')
+                                    <input type="submit" value="✖️" class="btn btn-danger mt-3">
+                                </form>
+                            </div>
+                        </div>
                     </a>
                 @endforeach
-                <a href="{{route('extra.create', ["worksheet" => $worksheet->id, "computer" => $computer->id])}}" class="list-group-item list-group-item-action">Hozzáadás</a>
+                <a href="{{ route('extra.create', ['worksheet' => $worksheet->id, 'computer' => $computer->id]) }}"
+                    class="list-group-item list-group-item-action">Hozzáadás</a>
             </div>
             <div class="mt-auto d-flex justify-content-between">
                 <a href="{{ route('computer.show', $computer->id) }}" class="btn btn-info mt-3">Részletek</a>

@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Computer extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -20,6 +21,14 @@ class Computer extends Model
         'type',
         'serial_number',
     ];
+
+    public static function booted() {
+        static::deleting(function ($computer){
+            $computer->extras()->each(function($extra){
+                $extra->delete();
+            });
+        });
+    }
 
     public function worksheets(): BelongsToMany
     {

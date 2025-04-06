@@ -108,6 +108,7 @@ class ExtraController extends Controller
         $extra = Extra::findOrFail($id);
 
         $computer_id = $extra->computer[0]->id;
+        $extra->computer()->detach();
         $extra->delete();
 
         return redirect(route('computer.show', $computer_id));
