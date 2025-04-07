@@ -100,11 +100,6 @@ class User extends Authenticatable
         return $this->belongsToMany(Ticket::class);
     }
 
-    public function usersettings(): HasMany
-    {
-        return $this->hasMany(Usersetting::class);
-    }
-
     public function sortedTickets(): array
     {
         $tickets = [];
@@ -150,5 +145,9 @@ class User extends Authenticatable
     public function liableWorksheets(): HasMany
     {
         return $this->hasMany(Worksheet::class, "liable_id");
+    }
+
+    public function comments() {
+        return $this->hasMany(Comment::class);
     }
 }

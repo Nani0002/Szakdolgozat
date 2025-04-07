@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TicketController extends Controller
 {
@@ -14,31 +15,28 @@ class TicketController extends Controller
      */
     public function create()
     {
-        //
+        if (Auth::check()) {
+            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "user_id" => Auth::id(), "users" => User::all(), "ticketTypes" => Ticket::getStatuses()]);
+        } else {
+            return redirect(route('home'));
+        }
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        //
-    }
+    public function store(Request $request) {}
 
     /**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        if (Auth::check()) {
+            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "user_id" => Auth::id(), "ticket" => Ticket::findOrFail($id), "users" => User::all(), "ticketTypes" => Ticket::getStatuses()]);
+        } else {
+            return redirect(route('home'));
+        }
     }
 
     /**
@@ -115,5 +113,28 @@ class TicketController extends Controller
         } else {
             return response()->json(['success' => false, 'message' => 'Could not find ticket with id of ' . $id]);
         }
+    }
+
+    public function comment(Request $request, string $ticket) {
+        $validated = $request->validate(["content" => "required|string"]);
+
+        $tic = Ticket::findOrFail($ticket);
+        $tic->comments()->create([
+            'user_id' => Auth::id(),
+            'content' => $validated["content"]
+        ]);
+
+        return redirect(route('ticket.show', $ticket));
+    }
+
+    public function edit(Request $request, string $comment, string $ticket)
+    {
+        DB::table('comments')
+            ->where('id', $comment)
+            ->update([
+                'content' => $request['content'],
+            ]);
+
+        return redirect(route('ticket.show', $ticket));
     }
 }
