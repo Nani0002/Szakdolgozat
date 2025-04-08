@@ -95,6 +95,9 @@
                             </div>
                         </div>
                     @endforeach
+                    <div class="accordion-item p-3">
+                        <a href="{{route('worksheet.create', ["current_step" => $worksheetType])}}" draggable="false" class="d-flex plus-btn">+</a>
+                    </div>
                 </div>
             </div>
         @endforeach

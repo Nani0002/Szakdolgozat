@@ -24,7 +24,7 @@
                         </div>
                         <div class="col-6">
                             @php
-                                $selected_status = old('status', $ticket->status ?? '');
+                                $selected_status = old('status', $ticket->status ?? $status);
                             @endphp
 
                             <div class="form-floating mb-3">
@@ -97,30 +97,40 @@
                                     src="{{ Storage::url('images/' . $comment->user->imagename_hash) }}"
                                     alt="{{ $comment->user->imagename }}" class="img-fluid rounded w-50"></div>
                             <div class="col-2 fw-bold d-flex align-items-center">{{ $comment->user->name }}</div>
-                            <div class="col-3 d-flex align-items-center">{{ $comment->created_at }}</div>
+                            <div class="col-3 d-flex align-items-center">{{ $comment->date() }}</div>
                         </div>
                         @if ($comment->user_id == $user_id)
-                            <form action="{{route('comment.edit', ["comment" =>$comment->id, "ticket" => $ticket->id])}}" method="post">
-                                @csrf
-                                @method('put')
-                                <div class="row border-bottom pb-2">
-                                    <div class="col-10 offset-1">
+                            <div class="row border-bottom pb-2">
+                                <div class="col-10 offset-1">
+                                    <form
+                                        action="{{ route('comment.edit', ['comment' => $comment->id, 'ticket' => $ticket->id]) }}"
+                                        method="post" id="edit-comment-{{ $comment->id }}-form">
+                                        @csrf
+                                        @method('put')
                                         <textarea class="form-control" id="content" name="content" type="text">{{ $comment->content }}</textarea>
-                                    </div>
-                                    <div class="col-1">
-                                        <div class="row">
-                                            <input type="submit" value="📝" class="btn btn-info">
-                                        </div>
-                                    </div>
+                                    </form>
                                 </div>
-                            </form>
+                                <div class="col-1">
+                                    <div class="row">
+                                        <button class="btn btn-info edit-comment-btn"
+                                            id="edit-comment-{{ $comment->id }}-btn">📝</button>
+                                    </div>
+                                    <form action="{{ route('comment.delete', $comment->id) }}" method="post">
+                                        <div class="row mt-1">
+                                            @method('delete')
+                                            @csrf
+                                            <input type="submit" value="✖️" class="btn btn-danger">
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         @else
                             <div class="row border-bottom pb-2">
                                 <div class="col-11 offset-1">{{ $comment->content }}</div>
                             </div>
                         @endif
                     @endforeach
-                    <form action="{{route('comment.create', ["ticket" => $ticket->id])}}" method="post">
+                    <form action="{{ route('comment.create', ['ticket' => $ticket->id]) }}" method="post">
                         <div class="row pt-2">
                             @csrf
                             <div class="col-11">

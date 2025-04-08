@@ -54,6 +54,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('comment/{ticket}/comment', [TicketController::class, 'comment'])->name('comment.create');
 
+    Route::delete('comment/{comment}', [TicketController::class, 'uncomment'])->name('comment.delete');
+
     Route::resource('ticket', TicketController::class);
 
     Route::patch('ticket/close/{ticket}', [TicketController::class, 'close'])->name('ticket.close');

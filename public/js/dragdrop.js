@@ -38,7 +38,10 @@ function drop(e) {
 
         if (container == e.target) {
             //Last place
-            container.appendChild(moved);
+            container.insertBefore(
+                moved,
+                container.children[container.children.length - 1]
+            );
         } else {
             //Middle
             slot = e.target.closest(".accordion-item").dataset.slot;
@@ -66,20 +69,19 @@ function drop(e) {
         });
 
         const movedId = moved.id.split("-")[1];
-        const movedSlot = container.id.split("-")[2]
+        const movedSlot = container.id.split("-")[2];
 
         let closeForm = document.querySelector(`#close-form-${movedId}`);
         let closeBTN = document.querySelector(`#close-btn-${movedId}`);
 
         if (movedSlot == "closed") {
-            closeBTN.value = "Törlés"
-            closeForm.action = moved.dataset.deleteUrl
-            closeForm.children[1].value = "delete"
-        }
-        else{
-            closeBTN.value = "Lezárás"
-            closeForm.action = moved.dataset.closeUrl
-            closeForm.children[1].value = "patch"
+            closeBTN.value = "Törlés";
+            closeForm.action = moved.dataset.deleteUrl;
+            closeForm.children[1].value = "delete";
+        } else {
+            closeBTN.value = "Lezárás";
+            closeForm.action = moved.dataset.closeUrl;
+            closeForm.children[1].value = "patch";
         }
 
         move(movedId, movedSlot, moved.dataset.slot);

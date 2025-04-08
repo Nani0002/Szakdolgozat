@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Comment;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -13,10 +14,15 @@ class TicketController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "user_id" => Auth::id(), "users" => User::all(), "ticketTypes" => Ticket::getStatuses()]);
+            return view('layouts.menu', [
+                "navUrls" => User::getNavUrls(true),
+                "userUrls" => Auth::user()->getUserUrls(),
+                "user_id" => Auth::id(), "users" => User::all(),
+                "ticketTypes" => Ticket::getStatuses(),
+                "status" => isset($request["status"]) ? $request["status"] : ""]);
         } else {
             return redirect(route('home'));
         }
@@ -25,7 +31,27 @@ class TicketController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {}
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            "title" => "required|string",
+            "text" => "required|string",
+            "status" => "required|string",
+            "users" => "required|array"
+        ]);
+        $user_id = Auth::id();
+        $ticket = new Ticket();
+        $ticket["title"] = $validated["title"];
+        $ticket["text"] = $validated["text"];
+        $ticket["status"] = $validated["status"];
+        $ticket["slot_number"] = Ticket::getLastSlot($validated["status"], $user_id) + 1;
+
+        $ticket->save();
+
+        $ticket->users()->attach($validated['users']);
+
+        return redirect(route('ticket.show', $ticket->id));
+    }
 
     /**
      * Display the specified resource.
@@ -44,7 +70,24 @@ class TicketController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            "title" => "required|string",
+            "text" => "required|string",
+            "status" => "required|string",
+            "users" => "required|array"
+        ]);
+
+        $ticket = Ticket::findOrFail($id);
+
+        $ticket["title"] = $validated["title"];
+        $ticket["text"] = $validated["text"];
+        $ticket["status"] = $validated["status"];
+
+        $ticket->save();
+
+        $ticket->users()->sync($validated['users']);
+
+        return redirect(route('ticket.show', $ticket->id));
     }
 
     /**
@@ -115,7 +158,8 @@ class TicketController extends Controller
         }
     }
 
-    public function comment(Request $request, string $ticket) {
+    public function comment(Request $request, string $ticket)
+    {
         $validated = $request->validate(["content" => "required|string"]);
 
         $tic = Ticket::findOrFail($ticket);
@@ -134,6 +178,15 @@ class TicketController extends Controller
             ->update([
                 'content' => $request['content'],
             ]);
+
+        return redirect(route('ticket.show', $ticket));
+    }
+
+    public function uncomment(string $comment) {
+        $comment = Comment::findOrFail($comment);
+        $ticket = $comment->ticket_id;
+
+        $comment->delete();
 
         return redirect(route('ticket.show', $ticket));
     }

@@ -37,12 +37,23 @@ class Ticket extends Model
         return ["open", "started", "ongoing", "price_offered", "waiting", "to_invoice", "closed"];
     }
 
+    public static function getLastSlot(string $status, int $userId): int
+    {
+        return Ticket::where('status', $status)
+            ->whereHas('users', function ($query) use ($userId) {
+                $query->where('users.id', $userId);
+            })
+            ->orderByDesc('slot_number')
+            ->pluck('slot_number')->first();
+    }
+
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
     }
 
-    public function comments() {
+    public function comments()
+    {
         return $this->hasMany(Comment::class);
     }
 }

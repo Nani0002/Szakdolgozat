@@ -51,27 +51,38 @@
                                     data-bs-parent="#ticket-container-{{ $ticketType }}">
                                     <div class="accordion-body">
                                         {{ $ticket->text }}
+                                        <div class="row mt-3">
+                                            <div class="col-5">
+                                                <a href="{{ route('ticket.show', $ticket->id) }}"
+                                                    class="btn btn-info">Részletek</a>
+                                            </div>
+                                            <div class="col-6">
+                                                @if ($ticketType != 'closed')
+                                                    <form action="{{ route('ticket.close', ['ticket' => $ticket->id]) }}"
+                                                        method="POST" id="close-form-{{ $ticket->id }}">
+                                                        @csrf
+                                                        @method('patch')
+                                                        <input type="submit" value="Lezárás" class="btn btn-danger ms-3 mb-3"
+                                                            id="close-btn-{{ $ticket->id }}">
+                                                    </form>
+                                                @else
+                                                    <form action="{{ route('ticket.destroy', ['ticket' => $ticket->id]) }}"
+                                                        method="POST" id="close-form-{{ $ticket->id }}">
+                                                        @csrf
+                                                        @method('delete')
+                                                        <input type="submit" value="Törlés" class="btn btn-danger ms-3 mb-3"
+                                                            id="close-btn-{{ $ticket->id }}">
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
-                                    @if ($ticketType != 'closed')
-                                        <form action="{{ route('ticket.close', ['ticket' => $ticket->id]) }}" method="POST"
-                                            id="close-form-{{$ticket->id}}">
-                                            @csrf
-                                            @method('patch')
-                                            <input type="submit" value="Lezárás" class="btn btn-danger ms-3 mb-3"
-                                                id="close-btn-{{$ticket->id}}">
-                                        </form>
-                                    @else
-                                        <form action="{{ route('ticket.destroy', ['ticket' => $ticket->id]) }}" method="POST"
-                                            id="close-form-{{$ticket->id}}">
-                                            @csrf
-                                            @method('delete')
-                                            <input type="submit" value="Törlés" class="btn btn-danger ms-3 mb-3"
-                                                id="close-btn-{{$ticket->id}}">
-                                        </form>
-                                    @endif
                                 </div>
                             </div>
                         @endforeach
+                        <div class="accordion-item p-3">
+                            <a href="{{route('ticket.create', ["status" => $ticketType])}}" draggable="false" class="d-flex plus-btn">+</a>
+                        </div>
                     </div>
                 </div>
             @endforeach

@@ -56,3 +56,15 @@ main {
     flex-direction: column;
     min-height: 0;
 }
+
+.plus-btn {
+    border: 3px dashed darkgray;
+    border-radius: 3px;
+    font-size: 50px;
+    text-decoration: none;
+    color: darkgray;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-family: 'Calibri-light';
+}
