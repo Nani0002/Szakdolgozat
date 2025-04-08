@@ -26,11 +26,6 @@ function init() {
     document
         .querySelector("#company_id")
         .addEventListener("change", setCustomers, false);
-
-    document.querySelector("#submit-btn").addEventListener("click", () => {
-        if(printWorksheet)
-            print()
-    }, false)
 }
 
 function setNow(e) {
@@ -78,11 +73,9 @@ function printOnSend(e) {
             .getMinutes()
             .toString()
             .padStart(2, "0")}`;
-        printWorksheet = true;
     } else {
         dateInput.value = latestPrintDate
         timeInput.value = latestPrintTime
-        printWorksheet = false
     }
 }
 

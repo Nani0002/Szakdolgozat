@@ -71,6 +71,7 @@
                         </div>
                         <div class="col-6 fs-5">
                             {{ $worksheet->print_date }}
+                            <button id="print-btn" class="btn btn-info" data-preview-url={{route('worksheet.print', $worksheet->id)}}>🖨️</button>
                         </div>
                     </div>
                     <div class="row">
@@ -377,4 +378,5 @@
 @push('js')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/computer.js') }}"></script>
+    <script src="{{ asset('js/print.js') }}"></script>
 @endpush

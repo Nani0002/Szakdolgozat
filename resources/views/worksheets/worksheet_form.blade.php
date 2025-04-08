@@ -3,16 +3,17 @@
         <div class="fs-2 mb-1 fw-bold">{{ isset($worksheet) ? 'Munkalap szerkesztése' : 'Munkalap létrehozása' }}</div>
         <div class="form-container page container">
             <form action="{{ isset($worksheet) ? route('worksheet.update', $worksheet->id) : route('worksheet.store') }}"
-                method="post" class="container" data-user-id="{{ $loggedIn }}" id="form">
-                @csrf
-                @isset($worksheet)
-                    @method('put')
-                @endisset
+                method="post" class="container" data-user-id="{{ $loggedIn }}" id="form"
+                data-method="{{ isset($worksheet) ? 'put' : 'post' }}" data-csrf-token="{{ csrf_token() }}"
+                data-preview-base-url="{{ route('worksheet.print', ['worksheet' => 'PLACEHOLDER_ID']) }}"
+                data-show-url-base="{{ route('worksheet.show', ['worksheet' => 'PLACEHOLDER_ID']) }}">
                 <div class="row">
                     <div class="col-6">
                         <div class="form-floating mb-3">
                             <input class="form-control" id="sheet_number" name="sheet_number" type="text"
-                                placeholder="Munkalapszám" value="{{ old('sheet_number', $worksheet->sheet_number ?? '') }}" @disabled(isset($worksheet))/>
+                                placeholder="Munkalapszám"
+                                value="{{ old('sheet_number', $worksheet->sheet_number ?? '') }}"
+                                @disabled(isset($worksheet)) />
                             <label for="sheet_number">Munkalapszám</label>
                         </div>
                         <div class="input-group mb-3">
@@ -205,7 +206,8 @@
                             @php
                                 $selected_company_id = old('company_id', $worksheet->customer->company_id ?? 1);
                             @endphp
-                            <select class="form-select" id="company_id" name="company_id" data-update-url="{{route("company.customers")}}">
+                            <select class="form-select" id="company_id" name="company_id"
+                                data-update-url="{{ route('company.customers') }}">
                                 @foreach ($companies->where('type', 'customer') as $company)
                                     <option value="{{ $company->id }}" id="company-id-{{ $company->id }}"
                                         {{ $selected_company_id == $company->id ? 'selected' : '' }}>
@@ -395,7 +397,7 @@
                     </div>
                 @endif
                 <div class="row mx-1 mt-5">
-                    <button class="btn btn-primary btn-lg" type="submit" id="submit-btn">
+                    <button class="btn btn-primary btn-lg" type="submit">
                         @if (isset($worksheet))
                             Szerkesztés
                         @else
@@ -421,4 +423,5 @@
 @push('js')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/worksheet_form.js') }}"></script>
+    <script src="{{ asset('js/print.js') }}"></script>
 @endpush

@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string("condition")->nullable();
             $table->string("imagename")->nullable();
             $table->string("imagename_hash")->nullable();
-            $table->string("addons")->nullable();
 
             $table->timestamps();
             $table->softDeletes();

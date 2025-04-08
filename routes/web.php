@@ -36,6 +36,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('worksheet/status', [WorksheetController::class, 'move'])->name('worksheet.move');
 
+    Route::get('worksheet/{worksheet}/print', [WorksheetController::class, 'getPrintPage'])->name('worksheet.print');
+
     Route::resource('worksheet', WorksheetController::class);
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
