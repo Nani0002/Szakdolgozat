@@ -34,7 +34,7 @@
                                 <label for="declaration_mode">Munkalap típusa</label>
                             </div>
                             @php
-                                $selected_current_step = old('current_step', $worksheet->current_step ?? '');
+                                $selected_current_step = old('current_step', $worksheet->current_step ?? $current_step);
                             @endphp
 
                             <div class="form-floating">

@@ -27,7 +27,7 @@ class WorksheetController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         if (Auth::check()) {
             return view('layouts.menu', [
@@ -37,6 +37,7 @@ class WorksheetController extends Controller
                 "users" => User::all(),
                 "loggedIn" => Auth::user()->id,
                 "companies" => Company::all(),
+                "current_step" => isset($request["current_step"]) ? $request["current_step"] : ""
             ]);
         } else {
             return redirect(route('home'));
@@ -286,7 +287,7 @@ class WorksheetController extends Controller
         $ws["work_time"] = $request["work_time"];
         $ws["error_description"] = $request["error_description"];
 
-        if(isset($ws->outsourcing)){
+        if (isset($ws->outsourcing)) {
             $outsourcing = Outsourcing::findOrFail($ws["outsourcing_id"]);
 
             $date = $request['entry_time'];
@@ -300,8 +301,7 @@ class WorksheetController extends Controller
             $outsourcing["company_id"] = $request["partner_id"];
 
             $outsourcing->save();
-        }
-        else if ($isOutourced == true) {
+        } else if ($isOutourced == true) {
             $outsourcing = new Outsourcing();
             $date = $request['entry_time'];
             $time = $request['entry_time_hour'];
@@ -320,68 +320,6 @@ class WorksheetController extends Controller
         $ws->save();
 
         return (redirect(route('worksheet.show', $ws->id)));
-        /*$validated = $request->validate([
-            "sheet_number" => "required",
-            "sheet_type" => "required|in:maintanance,paid,warranty",
-            "current_step" => "required|in:open,started,ongoing,price_offered,waiting,to_invoice,closed",
-            "declaration_mode" => "required|in:email,phone,personal,onsite",
-            "declaration_time" => "required|date",
-            "declaration_time_hour" => "required|date_format:H:i",
-            "print_date" => "nullable|date",
-            "print_date_hour" => "nullable|date_format:H:i",
-            "liable_id" => "required|integer",
-            "coworker_id" => "required|integer",
-            "customer_id" => "required|integer",
-            "work_start" => "nullable|date",
-            "work_start_hour" => "nullable|date_format:H:i",
-            "work_end" => "nullable|date",
-            "work_end_hour" => "nullable|date_format:H:i",
-            "work_time" => "nullable|integer",
-            "error_description" => "required",
-        ]);
-
-        $ws = Worksheet::findOrFail($id);
-        $ws["sheet_number"] = $request["sheet_number"];
-        $ws["sheet_type"] = $request["sheet_type"];
-        $ws["current_step"] = $request["current_step"];
-        $ws["declaration_mode"] = $request["declaration_mode"];
-
-        $date = $request['declaration_time'];
-        $time = $request['declaration_time_hour'];
-        $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-        $ws["declaration_time"] = $datetime;
-
-        $date = $request['print_date'];
-        $time = $request['print_date_hour'];
-        if ($date && $time) {
-            $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-            $ws["print_date"] = $datetime;
-        } else {
-            $ws["print_date"] = null;
-        }
-        $ws["liable_id"] = $request["liable_id"];
-        $ws["coworker_id"] = $request["coworker_id"];
-        $ws["customer_id"] = $request["customer_id"];
-
-        $date = $request['work_start'];
-        $time = $request['work_start_hour'];
-        $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-        $ws["work_start"] = $datetime;
-
-        $date = $request['work_end'];
-        $time = $request['work_end_hour'];
-        if ($date && $time) {
-            $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-            $ws["work_end"] = $datetime;
-        } else {
-            $ws["work_end"] = null;
-        }
-        $ws["work_time"] = $request["work_time"];
-        $ws["error_description"] = $request["error_description"];
-
-        $ws->save();
-
-        return (redirect(route('worksheet.show', $id)));*/
     }
 
     /**

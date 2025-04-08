@@ -3,6 +3,7 @@
 @php
     $titles = [
         'register' => 'Munkatárs felvétele',
+        'ticket/create' => 'Munkajegy felvétele',
         'company' => 'Ügyfelek',
         'company/create' => 'Ügyfél felvétele',
         'worksheet' => 'Munkalapok',
@@ -12,7 +13,11 @@
         'extra/create' => 'Alkatrész felvétele',
     ];
 
-    if (request()->is('company/*/edit')) {
+    if (request()->is('ticket/create')) {
+        $title = $titles['ticket/create'];
+    } elseif (request()->is('ticket/*')) {
+        $title = 'Munkajegy megtekintése';
+    } elseif (request()->is('company/*/edit')) {
         $title = 'Ügyfél szerkesztése';
     } elseif (request()->is('worksheet/create')) {
         $title = $titles['worksheet/create'];
@@ -51,6 +56,8 @@
     @auth
         @if (request()->is('/'))
             @include('tickets.tickets')
+        @elseif (request()->is('ticket/create') || request()->is('ticket/*'))
+            @include('tickets.ticket')
         @elseif(request()->is('register'))
             <div class="container">
                 @include('components.register')
@@ -69,7 +76,10 @@
             @include('worksheets.search')
         @elseif(request()->is('worksheet/*'))
             @include('worksheets.worksheet')
-        @elseif(request()->is('computer/create') || request()->is('computer/*/edit') || request()->is('extra/create') || request()->is('extra/*/edit'))
+        @elseif(request()->is('computer/create') ||
+                request()->is('computer/*/edit') ||
+                request()->is('extra/create') ||
+                request()->is('extra/*/edit'))
             @include('computers.computer_form')
         @elseif(request()->is('computer/*'))
             @include('computers.computer')
