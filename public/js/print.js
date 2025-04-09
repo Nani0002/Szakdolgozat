@@ -13,7 +13,7 @@ function init() {
 
 function submitForm(e) {
     e.preventDefault();
-
+    const form = e.target
     let formData = new FormData(form);
     const printing = document.querySelector("#print_check").checked;
     const url = form.action;
@@ -54,18 +54,7 @@ function submitForm(e) {
         error: function (xhr) {
             let response = JSON.parse(xhr.responseText);
             if (xhr.status === 422) {
-                let errors = xhr.responseJSON.errors;
-
-                let messages = '';
-                for (let field in errors) {
-                    if (errors.hasOwnProperty(field)) {
-                        errors[field].forEach(function (msg) {
-                            messages += msg + '\n';
-                        });
-                    }
-                }
-
-                alert("Validation errors:\n" + messages);
+                handleAjaxErrors(xhr.responseJSON.errors);
             } else if (xhr.status === 401 && response.redirect) {
                 window.location.href = response.redirect;
             } else {
@@ -74,6 +63,32 @@ function submitForm(e) {
         },
     });
 }
+
+function handleAjaxErrors(errors) {
+    document.querySelectorAll('.is-invalid').forEach(el => {
+        el.classList.remove('is-invalid');
+    });
+
+    document.querySelectorAll('.invalid-feedback').forEach(el => {
+        el.classList.remove('d-block');
+        el.classList.add('d-none');
+    });
+
+    for (let field in errors) {
+        let input = document.querySelector(`[name="${field}"]`);
+        let feedback = input?.parentElement.querySelector('.invalid-feedback');
+
+        if (input) {
+            input.classList.add('is-invalid');
+        }
+
+        if (feedback) {
+            feedback.classList.add('d-block');
+            feedback.classList.remove('d-none');
+        }
+    }
+}
+
 
 function print(e){
     window.open(e.target.dataset.previewUrl, "_blank");
