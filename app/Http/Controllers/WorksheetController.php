@@ -160,7 +160,8 @@ class WorksheetController extends Controller
 
         $ws->save();
 
-        return (redirect(route('worksheet.show', $ws->id)));
+        return response()->json(['success' => true, 'id' => $ws->id]);
+        //return (redirect(route('worksheet.show', $ws->id)));
     }
 
     /**
@@ -319,7 +320,8 @@ class WorksheetController extends Controller
         }
         $ws->save();
 
-        return (redirect(route('worksheet.show', $ws->id)));
+        return response()->json(['success' => true, 'id' => $ws->id]);
+        //return (redirect(route('worksheet.show', $ws->id)));
     }
 
     /**
@@ -408,6 +410,19 @@ class WorksheetController extends Controller
             ]);
         } else {
             return response()->json(['success' => false, 'message' => 'Could not find worksheet with id of ' . $id]);
+        }
+    }
+
+    public function getPrintPage($id)
+    {
+        if (Auth::check()) {
+            $worksheet = Worksheet::findOrFail($id);
+            $worksheet["print_date"] = now();
+
+            $worksheet->save();
+            return view('layouts.print', ["worksheet" => $worksheet]);
+        } else {
+            return redirect(route('home'));
         }
     }
 }
