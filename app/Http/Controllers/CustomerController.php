@@ -29,6 +29,8 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
+        $company = Company::findOrFail($request["id"]);
+
         $customer = new Customer();
         $customer->name = $request["name"];
         $customer->email = $request["email"];
@@ -39,6 +41,7 @@ class CustomerController extends Controller
 
         return response()->json([
             'success' => true,
+            "html" => view('companies._card', compact('customer', 'company'))->render()
         ]);
     }
 
@@ -64,6 +67,8 @@ class CustomerController extends Controller
     public function update(Request $request, string $id)
     {
         $customer = Customer::find($id);
+        $company = Company::findOrFail($customer->company_id);
+
         $customer->name = $request["name"];
         $customer->email = $request["email"];
         $customer->mobile = $request["phone"];
@@ -72,6 +77,7 @@ class CustomerController extends Controller
 
         return response()->json([
             'success' => true,
+            "html" => view('companies._card', compact('customer', 'company'))->render()
         ]);
     }
 

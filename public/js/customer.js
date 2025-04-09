@@ -30,8 +30,6 @@ function storeModal(e) {
 }
 
 function updateModal(e) {
-    console.log("AAAAAAA");
-
     const customerId = e.target.id.split("-")[2];
     const companyId = e.target.id.split("-")[3];
     document.querySelector("#form-company").value = companyId;
@@ -85,11 +83,17 @@ function formCheck() {
             if (response.success) {
                 $("#customer-modal").modal("hide");
                 if (editMode) {
-                    document.querySelector(`#customer-name-${id}`).innerHTML = name;
-                    document.querySelector(`#customer-email-${id}`).innerHTML = email;
-                    document.querySelector(`#customer-phone-${id}`).innerHTML = phone;
+                    document.querySelector(`#customer-${id}`).innerHTML =
+                        response.html;
                 } else {
+                    const temp = document.createElement('div');
+                    temp.innerHTML = response.html.trim();
+                    const newElement = temp.firstElementChild;
 
+                    const container = document.querySelector(`#accordion-collapse-${id}`);
+                    const innerContainer = container.firstElementChild;
+
+                    innerContainer.insertBefore(newElement, innerContainer.lastElementChild);
                 }
             } else {
                 alert(response);
