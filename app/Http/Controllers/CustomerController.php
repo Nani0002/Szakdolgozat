@@ -31,11 +31,18 @@ class CustomerController extends Controller
     {
         $company = Company::findOrFail($request["id"]);
 
+        $validated = $request->validate([
+            "name" => "required|string",
+            "email" => "required|string|email",
+            "phone" => "required|string",
+            "id" => "required|string",
+        ]);
+
         $customer = new Customer();
-        $customer->name = $request["name"];
-        $customer->email = $request["email"];
-        $customer->mobile = $request["phone"];
-        $customer->company_id = $request["id"];
+        $customer->name = $validated["name"];
+        $customer->email = $validated["email"];
+        $customer->mobile = $validated["phone"];
+        $customer->company_id = $validated["id"];
 
         $customer->save();
 
@@ -69,9 +76,15 @@ class CustomerController extends Controller
         $customer = Customer::find($id);
         $company = Company::findOrFail($customer->company_id);
 
-        $customer->name = $request["name"];
-        $customer->email = $request["email"];
-        $customer->mobile = $request["phone"];
+        $validated = $request->validate([
+            "name" => "required|string",
+            "email" => "required|string|email",
+            "phone" => "required|string",
+        ]);
+
+        $customer->name = $validated["name"];
+        $customer->email = $validated["email"];
+        $customer->mobile = $validated["phone"];
 
         $customer->save();
 

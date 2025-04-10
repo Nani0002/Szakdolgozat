@@ -13,14 +13,23 @@
                     <div class="mb-3">
                         <label for="name" class="form-label">Név</label>
                         <input type="text" class="form-control" id="name" name="name">
+                        <div class="invalid-feedback d-none">
+                            Név megadása kötelező
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email cím</label>
-                        <input type="email" class="form-control" id="email" placeholder="name@example.com">
+                        <input type="email" class="form-control" id="email" name="email" placeholder="email@example.com">
+                        <div class="invalid-feedback d-none">
+                            Email cím megadása kötelező
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="phone" class="form-label">Telefonszám</label>
-                        <input type="text" class="form-control" id="phone" placeholder="+12-34-567-8901">
+                        <input type="text" class="form-control" id="phone" name="phone" placeholder="+12-34-567-8901">
+                        <div class="invalid-feedback d-none">
+                            Telefonszám megadása kötelező
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -122,4 +131,5 @@
 @push('js')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/customer.js') }}"></script>
+    <script src="{{ asset('js/handleAjaxErrors.js') }}"></script>
 @endpush

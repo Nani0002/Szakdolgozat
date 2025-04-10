@@ -467,6 +467,7 @@
 
 @push('js')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{{ asset('js/worksheet_form.js') }}"></script>
+    <script src="{{ asset('js/worksheetForm.js') }}"></script>
     <script src="{{ asset('js/print.js') }}"></script>
+    <script src="{{ asset('js/handleAjaxErrors.js') }}"></script>
 @endpush

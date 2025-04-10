@@ -86,14 +86,19 @@ function formCheck() {
                     document.querySelector(`#customer-${id}`).innerHTML =
                         response.html;
                 } else {
-                    const temp = document.createElement('div');
+                    const temp = document.createElement("div");
                     temp.innerHTML = response.html.trim();
                     const newElement = temp.firstElementChild;
 
-                    const container = document.querySelector(`#accordion-collapse-${id}`);
+                    const container = document.querySelector(
+                        `#accordion-collapse-${id}`
+                    );
                     const innerContainer = container.firstElementChild;
 
-                    innerContainer.insertBefore(newElement, innerContainer.lastElementChild);
+                    innerContainer.insertBefore(
+                        newElement,
+                        innerContainer.lastElementChild
+                    );
                 }
             } else {
                 alert(response);
@@ -101,7 +106,9 @@ function formCheck() {
         },
         error: function (xhr) {
             let response = JSON.parse(xhr.responseText);
-            if (xhr.status === 401 && response.redirect) {
+            if (xhr.status === 422) {
+                handleAjaxErrors(xhr.responseJSON.errors);
+            } else if (xhr.status === 401 && response.redirect) {
                 window.location.href = response.redirect;
             } else {
                 alert("An error occurred: " + response.error);

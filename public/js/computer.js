@@ -168,7 +168,9 @@ function attach(e) {
         },
         error: function (xhr) {
             let response = JSON.parse(xhr.responseText || "{}");
-            if (xhr.status === 401 && response.redirect) {
+            if (xhr.status === 422) {
+                handleAjaxErrors(xhr.responseJSON.errors);
+            } else if (xhr.status === 401 && response.redirect) {
                 window.location.href = response.redirect;
             } else {
                 alert(

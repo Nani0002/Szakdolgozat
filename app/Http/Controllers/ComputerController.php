@@ -39,16 +39,16 @@ class ComputerController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             "manufacturer" => "string|required",
             "type" => "string|required",
             "serial_number" => "string|required|unique:computers,serial_number",
         ]);
 
         $computer = new Computer();
-        $computer->manufacturer = $request["manufacturer"];
-        $computer->type = $request["type"];
-        $computer->serial_number = $request["serial_number"];
+        $computer->manufacturer = $validated["manufacturer"];
+        $computer->type = $validated["type"];
+        $computer->serial_number = $validated["serial_number"];
 
         $computer->save();
 
@@ -86,14 +86,14 @@ class ComputerController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             "manufacturer" => "string|required",
             "type" => "string|required",
         ]);
 
         $computer = Computer::findOrFail($id);
-        $computer->manufacturer = $request["manufacturer"];
-        $computer->type = $request["type"];
+        $computer->manufacturer = $validated["manufacturer"];
+        $computer->type = $validated["type"];
 
         $computer->save();
 
@@ -131,8 +131,15 @@ class ComputerController extends Controller
     public function attach(Request $request, string $worksheet_id)
     {
         if (Auth::check()) {
+            $validated = $request->validate([
+                "computer_id" => "required|integer",
+                "condition" => "required|string",
+                "password" => "required|string",
+                "imagefile" => "nullable|image|mimes:jpeg,png,jpg,gif",
+            ]);
+
             $worksheet = Worksheet::findOrFail($worksheet_id);
-            $computer = Computer::findOrFail($request["computer_id"]);
+            $computer = Computer::findOrFail($validated["computer_id"]);
             if (!$worksheet || !$computer) {
                 return response()->json([
                     "success" => false,
@@ -149,8 +156,8 @@ class ComputerController extends Controller
             }
 
             $worksheet->computers()->attach($computer->id, [
-                "password" => $request["password"],
-                "condition" => $request["condition"],
+                "password" => $validated["password"],
+                "condition" => $validated["condition"],
                 "imagename" => $originalName,
                 "imagename_hash" => $hashedName,
             ]);
@@ -158,7 +165,6 @@ class ComputerController extends Controller
             $computer = $worksheet->computers()->where('computers.id', $computer->id)->first();
 
             $key = $worksheet->computers()->count() - 1;
-
 
             return response()->json([
                 "success" => true,
@@ -194,7 +200,15 @@ class ComputerController extends Controller
 
     public function refresh(Request $request)
     {
-        $pivot = DB::table('computer_worksheet')->where('id', $request["pivot_id"])->first();
+        $validated = $request->validate([
+            "pivot_id" => "required|integer",
+            "key" => "required|integer",
+            "condition" => "required|string",
+            "password" => "required|string",
+            "imagefile" => "nullable|image|mimes:jpeg,png,jpg,gif",
+        ]);
+
+        $pivot = DB::table('computer_worksheet')->where('id', $validated["pivot_id"])->first();
         $originalName = "default_computer.jpg";
         $hashedName = "default_computer.jpg";
         if ($request->hasFile('imagefile')) {
@@ -212,8 +226,8 @@ class ComputerController extends Controller
         DB::table('computer_worksheet')
             ->where('id', $request['pivot_id'])
             ->update([
-                'condition' => $request['condition'],
-                'password' => $request['password'],
+                'condition' => $validated['condition'],
+                'password' => $validated['password'],
                 'imagename' => $originalName,
                 'imagename_hash' => $hashedName,
                 'updated_at' => now(),
@@ -224,15 +238,15 @@ class ComputerController extends Controller
             'id' => $pivot->id,
             'imagename' => $originalName,
             'imagename_hash' => $hashedName,
-            'condition' => $request['condition'],
-            'password' => $request['password'],
+            'condition' => $validated['condition'],
+            'password' => $validated['password'],
             'worksheet_id' => $pivot->worksheet_id,
             'computer_id' => $pivot->computer_id,
             'created_at' => $pivot->created_at,
             'updated_at' => now(),
         ];
 
-        $key = $request["key"];
+        $key = $validated["key"];
         $worksheet = Worksheet::findOrFail($pivot->worksheet_id);
 
         return response()->json([

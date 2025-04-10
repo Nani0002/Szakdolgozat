@@ -13,7 +13,10 @@
                         <img src='{{ Storage::url('images/' . $profile->imagename_hash) }}' class="profile-img"
                             id="profile-img" data-image-update-url="{{ route('user.new_image') }}"
                             data-csrf-token="{{ csrf_token() }}">
-                        <input type="file" id="imageUpload" class="d-none" accept="image/*">
+                        <div class="form-group">
+                            <input type="file" id="imageUpload" name="imageUpload" class="d-none" accept="image/*">
+                            <div class="invalid-feedback d-none">Nem megfelelő kép formátum!</div>
+                        </div>
                         <button class="btn btn-light rounded-circle plus-btn border-dark border-2"
                             id="changeImageBtn"><b>+</b></button>
                     </div>
@@ -55,4 +58,5 @@
 @push('js')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/profile.js') }}"></script>
+    <script src="{{ asset('js/handleAjaxErrors.js') }}"></script>
 @endpush

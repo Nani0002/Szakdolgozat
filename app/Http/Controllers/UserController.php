@@ -35,7 +35,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         if (Auth::check() && Auth::user()->isAdmin()) {
-            $request->validate([
+            $validated = $request->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
@@ -43,9 +43,9 @@ class UserController extends Controller
             ]);
 
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
+                'name' => $validated["name"],
+                'email' => $validated["email"],
+                'password' => Hash::make($validated["password"]),
                 'role' => isset($request->role) ? 'liable' : 'coworker'
             ]);
 
@@ -75,17 +75,20 @@ class UserController extends Controller
     public function newPassword(Request $request)
     {
         if (Auth::check()) {
-            $request->validate([
+            $validated = $request->validate([
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
             ]);
 
             $user = Auth::user();
 
-            $user->password = $request['password'];
+            $user->password = $validated['password'];
 
             $user->save();
 
-            return response()->json(["message" => "Sikeres módosítás!"]);
+            return response()->json([
+                "success" => true,
+                "message" => "Sikeres módosítás!"
+            ]);
         }
         return redirect(route('home'));
     }

@@ -38,7 +38,7 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => "string|required",
             "type" => "string|required",
             "post_code" => "string|required",
@@ -49,13 +49,13 @@ class CompanyController extends Controller
         ]);
 
         $company = new Company();
-        $company->name = $request->name;
-        $company->type = $request->type;
-        $company->post_code = $request->post_code;
-        $company->city = $request->city;
-        $company->street = $request->street;
-        $company->phone = $request->phone;
-        $company->email = $request->email;
+        $company["name"] = $validated["name"];
+        $company["type"] = $validated["type"];
+        $company["post_code"] = $validated["post_code"];
+        $company["city"] = $validated["city"];
+        $company["street"] = $validated["street"];
+        $company["phone"] = $validated["phone"];
+        $company["email"] = $validated["email"];
 
         $company->save();
 
@@ -87,7 +87,7 @@ class CompanyController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             "name" => "string|required",
             "post_code" => "string|required",
             "city" => "string|required",
@@ -97,12 +97,12 @@ class CompanyController extends Controller
         ]);
 
         $company = Company::find($id);
-        $company->name = $request->name;
-        $company->post_code = $request->post_code;
-        $company->city = $request->city;
-        $company->street = $request->street;
-        $company->phone = $request->phone;
-        $company->email = $request->email;
+        $company["name"] = $validated["name"];
+        $company["post_code"] = $validated["post_code"];
+        $company["city"] = $validated["city"];
+        $company["street"] = $validated["street"];
+        $company["phone"] = $validated["phone"];
+        $company["email"] = $validated["email"];
 
         $company->update();
 

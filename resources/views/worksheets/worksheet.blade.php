@@ -71,7 +71,8 @@
                         </div>
                         <div class="col-6 fs-5">
                             {{ $worksheet->print_date }}
-                            <button id="print-btn" class="btn btn-info" data-preview-url={{route('worksheet.print', $worksheet->id)}}>🖨️</button>
+                            <button id="print-btn" class="btn btn-info"
+                                data-preview-url={{ route('worksheet.print', $worksheet->id) }}>🖨️</button>
                         </div>
                     </div>
                     <div class="row">
@@ -154,7 +155,8 @@
                             </div>
                             <div class="row">
                                 <div class="col-6">
-                                    <h6 class="card-subtitle mb-2 text-body-secondary">{{ $worksheet->customer->email }}
+                                    <h6 class="card-subtitle mb-2 text-body-secondary">
+                                        {{ $worksheet->customer->email }}
                                     </h6>
                                 </div>
                                 <div class="col-6">
@@ -332,6 +334,9 @@
                 <div class="form-floating">
                     <select class="form-select" id="computer_id" name="computer_id"></select>
                     <label for="computer_id">Számítógép sorozatszám</label>
+                    <div class="invalid-feedback d-none">
+                        Kapcolandó számítógép megadása kötelező.
+                    </div>
                 </div>
                 <div class="row mt-3">
                     <div class="col-2 fw-bold">Gyártó:</div>
@@ -345,16 +350,25 @@
                     <input class="form-control" id="condition" name="condition" type="text"
                         placeholder="Állapot" />
                     <label for="condition">Állapot</label>
+                    <div class="invalid-feedback d-none">
+                        Állapot megadása kötelező.
+                    </div>
                 </div>
                 <div class="form-floating mt-2">
                     <input class="form-control" id="password" name="password" type="text"
                         placeholder="Jelszó" />
                     <label for="password">Jelszó</label>
+                    <div class="invalid-feedback d-none">
+                        Jelszó megadása kötelező.
+                    </div>
                 </div>
                 <div class="row mt-3">
                     <div class="col-6 offset-3 position-relative">
                         <img src="" alt="Preview" class="img-fluid" id="prewiew">
-                        <input type="file" id="imagefile" class="d-none" accept="image/*">
+                        <div class="form-group">
+                            <input type="file" id="imagefile" name="imagefile" class="d-none" accept="image/*">
+                            <div class="invalid-feedback d-none">Nem megfelelő kép formátum!</div>
+                        </div>
                         <button class="btn btn-light rounded-circle plus-btn border-dark border-2"
                             id="changeImageBtn"><b>+</b></button>
                     </div>
@@ -379,4 +393,5 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/computer.js') }}"></script>
     <script src="{{ asset('js/print.js') }}"></script>
+    <script src="{{ asset('js/handleAjaxErrors.js') }}"></script>
 @endpush

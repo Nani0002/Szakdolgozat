@@ -9,7 +9,6 @@ $(document).ready(function () {
     const btns = document.querySelectorAll('.edit-comment-btn')
     btns.forEach((e) => {
         e.addEventListener('click', (btn) => {
-
             $(`#edit-comment-${btn.target.id.split('-')[2]}-form`).submit();
         }, false);
     })

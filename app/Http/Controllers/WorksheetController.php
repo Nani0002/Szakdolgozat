@@ -101,57 +101,57 @@ class WorksheetController extends Controller
         }
 
         $ws = new Worksheet();
-        $ws["sheet_number"] = $request["sheet_number"];
-        $ws["sheet_type"] = $request["sheet_type"];
-        $ws["current_step"] = $request["current_step"];
-        $ws["declaration_mode"] = $request["declaration_mode"];
+        $ws["sheet_number"] = $validated["sheet_number"];
+        $ws["sheet_type"] = $validated["sheet_type"];
+        $ws["current_step"] = $validated["current_step"];
+        $ws["declaration_mode"] = $validated["declaration_mode"];
 
-        $date = $request['declaration_time'];
-        $time = $request['declaration_time_hour'];
+        $date = $validated['declaration_time'];
+        $time = $validated['declaration_time_hour'];
         $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
         $ws["declaration_time"] = $datetime;
 
-        $date = $request['print_date'];
-        $time = $request['print_date_hour'];
+        $date = $validated['print_date'];
+        $time = $validated['print_date_hour'];
         if ($date && $time) {
             $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
             $ws["print_date"] = $datetime;
         } else {
             $ws["print_date"] = null;
         }
-        $ws["liable_id"] = $request["liable_id"];
-        $ws["coworker_id"] = $request["coworker_id"];
-        $ws["customer_id"] = $request["customer_id"];
+        $ws["liable_id"] = $validated["liable_id"];
+        $ws["coworker_id"] = $validated["coworker_id"];
+        $ws["customer_id"] = $validated["customer_id"];
 
-        $date = $request['work_start'];
-        $time = $request['work_start_hour'];
+        $date = $validated['work_start'];
+        $time = $validated['work_start_hour'];
         $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
         $ws["work_start"] = $datetime;
 
-        $date = $request['work_end'];
-        $time = $request['work_end_hour'];
+        $date = $validated['work_end'];
+        $time = $validated['work_end_hour'];
         if ($date && $time) {
             $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
             $ws["work_end"] = $datetime;
         } else {
             $ws["work_end"] = null;
         }
-        $ws["work_time"] = $request["work_time"];
-        $ws["error_description"] = $request["error_description"];
+        $ws["work_time"] = $validated["work_time"];
+        $ws["error_description"] = $validated["error_description"];
 
         if ($isOutourced == true) {
             $outsourcing = new Outsourcing();
 
-            $date = $request['entry_time'];
-            $time = $request['entry_time_hour'];
+            $date = $validated['entry_time'];
+            $time = $validated['entry_time_hour'];
             $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
             $outsourcing["entry_time"] = $datetime;
 
-            $outsourcing["finished"] = $request["finished"];
-            $outsourcing["outsourced_number"] = $request["outsourced_number"];
-            $outsourcing["outsourced_price"] = $request["outsourced_price"];
-            $outsourcing["our_price"] = $request["our_price"];
-            $outsourcing["company_id"] = $request["partner_id"];
+            $outsourcing["finished"] = $validated["finished"];
+            $outsourcing["outsourced_number"] = $validated["outsourced_number"];
+            $outsourcing["outsourced_price"] = $validated["outsourced_price"];
+            $outsourcing["our_price"] = $validated["our_price"];
+            $outsourcing["company_id"] = $validated["partner_id"];
 
             $outsourcing->save();
 
@@ -161,7 +161,6 @@ class WorksheetController extends Controller
         $ws->save();
 
         return response()->json(['success' => true, 'id' => $ws->id]);
-        //return (redirect(route('worksheet.show', $ws->id)));
     }
 
     /**
@@ -251,48 +250,48 @@ class WorksheetController extends Controller
             ]);
         }
 
-        $ws["sheet_type"] = $request["sheet_type"];
-        $ws["current_step"] = $request["current_step"];
-        $ws["declaration_mode"] = $request["declaration_mode"];
+        $ws["sheet_type"] = $validated["sheet_type"];
+        $ws["current_step"] = $validated["current_step"];
+        $ws["declaration_mode"] = $validated["declaration_mode"];
 
-        $date = $request['declaration_time'];
-        $time = $request['declaration_time_hour'];
+        $date = $validated['declaration_time'];
+        $time = $validated['declaration_time_hour'];
         $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
         $ws["declaration_time"] = $datetime;
 
-        $date = $request['print_date'];
-        $time = $request['print_date_hour'];
+        $date = $validated['print_date'];
+        $time = $validated['print_date_hour'];
         if ($date && $time) {
             $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
             $ws["print_date"] = $datetime;
         } else {
             $ws["print_date"] = null;
         }
-        $ws["liable_id"] = $request["liable_id"];
-        $ws["coworker_id"] = $request["coworker_id"];
-        $ws["customer_id"] = $request["customer_id"];
+        $ws["liable_id"] = $validated["liable_id"];
+        $ws["coworker_id"] = $validated["coworker_id"];
+        $ws["customer_id"] = $validated["customer_id"];
 
-        $date = $request['work_start'];
-        $time = $request['work_start_hour'];
+        $date = $validated['work_start'];
+        $time = $validated['work_start_hour'];
         $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
         $ws["work_start"] = $datetime;
 
-        $date = $request['work_end'];
-        $time = $request['work_end_hour'];
+        $date = $validated['work_end'];
+        $time = $validated['work_end_hour'];
         if ($date && $time) {
             $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
             $ws["work_end"] = $datetime;
         } else {
             $ws["work_end"] = null;
         }
-        $ws["work_time"] = $request["work_time"];
-        $ws["error_description"] = $request["error_description"];
+        $ws["work_time"] = $validated["work_time"];
+        $ws["error_description"] = $validated["error_description"];
 
         if (isset($ws->outsourcing)) {
             $outsourcing = Outsourcing::findOrFail($ws["outsourcing_id"]);
 
-            $date = $request['entry_time'];
-            $time = $request['entry_time_hour'];
+            $date = $validated['entry_time'];
+            $time = $validated['entry_time_hour'];
             $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
             $outsourcing["entry_time"] = $datetime;
 
@@ -304,15 +303,15 @@ class WorksheetController extends Controller
             $outsourcing->save();
         } else if ($isOutourced == true) {
             $outsourcing = new Outsourcing();
-            $date = $request['entry_time'];
-            $time = $request['entry_time_hour'];
+            $date = $validated['entry_time'];
+            $time = $validated['entry_time_hour'];
             $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
             $outsourcing["entry_time"] = $datetime;
 
-            $outsourcing["finished"] = $request["finished"];
-            $outsourcing["outsourced_price"] = $request["outsourced_price"];
-            $outsourcing["our_price"] = $request["our_price"];
-            $outsourcing["company_id"] = $request["partner_id"];
+            $outsourcing["finished"] = $validated["finished"];
+            $outsourcing["outsourced_price"] = $validated["outsourced_price"];
+            $outsourcing["our_price"] = $validated["our_price"];
+            $outsourcing["company_id"] = $validated["partner_id"];
 
             $outsourcing->save();
 
@@ -321,7 +320,6 @@ class WorksheetController extends Controller
         $ws->save();
 
         return response()->json(['success' => true, 'id' => $ws->id]);
-        //return (redirect(route('worksheet.show', $ws->id)));
     }
 
     /**
@@ -338,7 +336,7 @@ class WorksheetController extends Controller
     public function search(Request $request)
     {
         if (Auth::check()) {
-            $search = $request->query("id");
+            $search = $request["id"];
             $user = Auth::user();
             $liable = $user->liableWorksheets()
                 ->where('sheet_number', 'like', "%{$search}%")
