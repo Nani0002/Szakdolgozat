@@ -24,7 +24,6 @@ class WorksheetFactory extends Factory
             'declaration_mode' => fake()->randomElement(["email", "phone", "personal", "onsite"]),
             'error_description' => fake()->text(),
             'comment' => fake()->text(25),
-            'final' => fake()->boolean(),
             'work_start' => fake()->date(),
             'work_end' => fake()->date(),
             'work_time' => fake()->numberBetween(1,10),

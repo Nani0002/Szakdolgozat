@@ -37,8 +37,9 @@
                     @foreach ($worksheets[$worksheetType] as $worksheet)
                         <div class="accordion-item" draggable="true" ondragstart="drag(event)"
                             id="accordion-{{ $worksheet->id }}" data-slot="{{ $worksheet->slot_number }}"
-                            data-delete-url={{ route('worksheet.destroy', ['worksheet' => $worksheet->id]) }}
-                            data-close-url={{ route('worksheet.close', ['worksheet' => $worksheet->id]) }}>
+                            data-delete-url="{{ route('worksheet.destroy', ['worksheet' => $worksheet->id]) }}"
+                            data-close-url="{{ route('worksheet.close', ['worksheet' => $worksheet->id]) }}"
+                            @if($worksheet->final) data-final="true" @endif>
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                     data-bs-target="#collapse{{ $worksheet->id }}" aria-expanded="true"

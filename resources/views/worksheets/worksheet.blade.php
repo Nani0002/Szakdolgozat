@@ -125,7 +125,7 @@
                             30 perces egység:
                         </div>
                         <div class="col-6">
-                            {{ $worksheet->worktime }}
+                            {{ $worksheet->work_time }}
                         </div>
                     </div>
                     <div class="row">
@@ -303,23 +303,42 @@
                                 @include('computers._card', ['computer' => $computer, 'key' => $key])
                             @endforeach
                         @endif
-                        <div class="col">
-                            <div class="card h-75 d-flex flex-column p-3">
-                                <a id="add-computer" href="{{ route('computer.create') }}"
-                                    class="h-100 d-flex">+</a>
+                        @if (!$worksheet->final)
+                            <div class="col">
+                                <div class="card h-75 d-flex flex-column p-3">
+                                    <a id="add-computer" href="{{ route('computer.create') }}"
+                                        class="h-100 d-flex">+</a>
+                                </div>
+                                <div class="card h-25 d-flex flex-column p-3">
+                                    <button id="select-computer" class="h-100 d-flex" data-bs-toggle="modal"
+                                        data-bs-target="#select-modal"
+                                        data-get-url={{ route('computer.select', $worksheet->id) }}>Kiválasztás</button>
+                                </div>
                             </div>
-                            <div class="card h-25 d-flex flex-column p-3">
-                                <button id="select-computer" class="h-100 d-flex" data-bs-toggle="modal"
-                                    data-bs-target="#select-modal"
-                                    data-get-url={{ route('computer.select', $worksheet->id) }}>Kiválasztás</button>
-                            </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
-            <div class="row mt-3">
-                <a href="{{ route('worksheet.edit', $worksheet->id) }}" class="btn btn-success">Szerkesztés</a>
-            </div>
+            @if (!$worksheet->final)
+                <div class="container">
+                    <div class="row my-3">
+                        <div class="col-6">
+                            <div class="row mx-2">
+                                <a href="{{ route('worksheet.edit', $worksheet->id) }}"
+                                    class="btn btn-success">Szerkesztés</a>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <form action="{{ route('worksheet.final', $worksheet->id) }}" method="post">
+                                <div class="row mx-2">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger">Véglegesítés</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </div>

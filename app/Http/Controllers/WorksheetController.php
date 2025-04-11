@@ -74,8 +74,8 @@ class WorksheetController extends Controller
                 "entry_time_hour" => "required|date_format:H:i",
                 "finished" => "required|in:ongoing,finished,brought",
                 "outsourced_number" => "required|unique:outsourcings,outsourced_number",
-                "outsourced_price" => "required|integer",
-                "our_price" => "required|integer",
+                "outsourced_price" => "required|numeric",
+                "our_price" => "required|numeric",
             ]);
         } else {
             $validated = $request->validate([
@@ -178,6 +178,10 @@ class WorksheetController extends Controller
      */
     public function edit(string $id)
     {
+        $worksheet = Worksheet::findOrFail($id);
+        if($worksheet["final"] == true){
+            return redirect(route('worksheet.show', $id));
+        }
         return view('layouts.menu', [
             "navActions" =>[['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
             "worksheet" => Worksheet::findOrFail($id),
@@ -194,11 +198,14 @@ class WorksheetController extends Controller
     public function update(Request $request, string $id)
     {
         $ws = Worksheet::findOrFail($id);
-        $validated = $request->validate(["outsourcing" => "required|boolean"]);
+        if($ws["final"] == true){
+            return redirect(route('worksheet.show', $id));
+        }
 
+        $validated = $request->validate(["outsourcing" => "required|boolean"]);
         $isOutourced = $validated["outsourcing"];
         if ($isOutourced == true) {
-            $validated = $request->validate([
+            $rules = [
                 "sheet_type" => "required|in:maintanance,paid,warranty",
                 "current_step" => "required|in:open,started,ongoing,price_offered,waiting,to_invoice,closed",
                 "declaration_mode" => "required|in:email,phone,personal,onsite",
@@ -219,10 +226,13 @@ class WorksheetController extends Controller
                 "entry_time" => "required|date",
                 "entry_time_hour" => "required|date_format:H:i",
                 "finished" => "required|in:ongoing,finished,brought",
-                "outsourced_number" => "required|unique:outsourcings,outsourced_number",
-                "outsourced_price" => "required|integer",
-                "our_price" => "required|integer",
-            ]);
+                "outsourced_price" => "required|numeric",
+                "our_price" => "required|numeric",
+            ];
+            if(!isset($ws->outsourcing)){
+                $rules["outsourced_number"] = "required|unique:outsourcings,outsourced_number";
+            }
+            $validated = $request->validate($rules);
         } else {
             $validated = $request->validate([
                 "sheet_type" => "required|in:maintanance,paid,warranty",
@@ -289,10 +299,10 @@ class WorksheetController extends Controller
             $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
             $outsourcing["entry_time"] = $datetime;
 
-            $outsourcing["finished"] = $request["finished"];
-            $outsourcing["outsourced_price"] = $request["outsourced_price"];
-            $outsourcing["our_price"] = $request["our_price"];
-            $outsourcing["company_id"] = $request["partner_id"];
+            $outsourcing["finished"] = $validated["finished"];
+            $outsourcing["outsourced_price"] = $validated["outsourced_price"];
+            $outsourcing["our_price"] = $validated["our_price"];
+            $outsourcing["company_id"] = $validated["partner_id"];
 
             $outsourcing->save();
         } else if ($isOutourced == true) {
@@ -302,6 +312,7 @@ class WorksheetController extends Controller
             $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
             $outsourcing["entry_time"] = $datetime;
 
+            $outsourcing["outsourced_number"] = $validated["outsourced_number"];
             $outsourcing["finished"] = $validated["finished"];
             $outsourcing["outsourced_price"] = $validated["outsourced_price"];
             $outsourcing["our_price"] = $validated["our_price"];
@@ -378,6 +389,10 @@ class WorksheetController extends Controller
             $newStep = $request["newStatus"];
             $newSlot = $request["newSlot"];
 
+            if($newWorksheet["final"] == true && $newWorksheet->current_step != $newStep){
+                return response()->json(['success' => false], 403);
+            }
+
             /** @var \App\Models\User $user */
             $user = Auth::user();
 
@@ -416,7 +431,7 @@ class WorksheetController extends Controller
                 'success' => true,
             ]);
         } else {
-            return response()->json(['success' => false, 'message' => 'Could not find worksheet with id of ' . $id], 404);
+            return response()->json(['success' => false], 404);
         }
     }
 
@@ -439,6 +454,9 @@ class WorksheetController extends Controller
     {
         $worksheet = Worksheet::findOrFail($worksheet);
         $worksheet["final"] = true;
+        $worksheet["current_step"] = "closed";
+
+        $worksheet->save();
         return redirect(route('worksheet.show', $worksheet));
     }
 }

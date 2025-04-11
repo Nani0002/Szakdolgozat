@@ -341,7 +341,7 @@
                             );
                         @endphp
                         <div class="form-check form-switch fs-4 mb-3">
-                            <input type="hidden" name="outsourcing" value="0">
+                            <input type="hidden" name="outsourcing" value="{{ $isOutsourcingChecked ? '1' : '0' }}">
                             <input type="checkbox" class="form-check-input" role="switch" name="outsourcing"
                                 id="outsourcing-switch" value="1" {{ $isOutsourcingChecked ? 'checked' : '' }}
                                 @disabled(isset($worksheet->outsourcing))>
@@ -432,15 +432,6 @@
                         </div>
                     </div>
                 </div>
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
                 <div class="row mx-1 mt-5">
                     <button class="btn btn-primary btn-lg" type="submit">
                         @if (isset($worksheet))

@@ -8,9 +8,11 @@ let key = 0;
 let editmode = false;
 
 function init() {
-    document
-        .querySelector("#select-computer")
-        .addEventListener("click", getComputers, false);
+    const selectComputerBtn = document.querySelector("#select-computer");
+
+    if (selectComputerBtn) {
+        selectComputerBtn.addEventListener("click", getComputers, false);
+    }
 
     document
         .querySelector("#computer_id")

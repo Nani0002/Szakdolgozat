@@ -13,10 +13,13 @@ function drop(e) {
     e.preventDefault();
     const data = e.dataTransfer.getData("text");
     const container = e.target.closest(".dragdrop-container");
+    let moved = document.getElementById(data);
+
     if (
-        e.target.closest(".accordion-item") === null ||
-        e.target.closest(".accordion-item").id !==
-            e.dataTransfer.getData("text")
+        (e.target.closest(".accordion-item") === null ||
+            e.target.closest(".accordion-item").id !==
+                e.dataTransfer.getData("text")) &&
+        (!("final" in moved.dataset) || originalParent.id == container.id)
     ) {
         let i = 0;
         [...container.children].forEach((element) => {
@@ -34,7 +37,6 @@ function drop(e) {
             i++;
         });
         let slot = 0;
-        let moved = document.getElementById(data);
 
         if (container == e.target) {
             //Last place
@@ -118,6 +120,7 @@ function move(id, newStatus, newSlot) {
             let response = JSON.parse(xhr.responseText);
             if (xhr.status === 401 && response.redirect) {
                 window.location.href = response.redirect;
+            } else if (xhr.status === 403) {
             } else {
                 alert("An error occurred: " + response.error);
             }

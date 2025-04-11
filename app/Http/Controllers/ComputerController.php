@@ -88,7 +88,7 @@ class ComputerController extends Controller
     {
         $computer = Computer::findOrFail($id);
 
-        $$computer->delete();
+        $computer->delete();
 
         return redirect(route('worksheet.index'));
     }
@@ -111,6 +111,11 @@ class ComputerController extends Controller
      */
     public function attach(Request $request, string $worksheet_id)
     {
+        $worksheet = Worksheet::findOrFail($worksheet_id);
+        if($worksheet["final"] == true){
+            return redirect(route('worksheet.show', $worksheet->id));
+        }
+
         $validated = $request->validate([
             "computer_id" => "required|integer",
             "condition" => "required|string",
@@ -118,7 +123,6 @@ class ComputerController extends Controller
             "imagefile" => "nullable|image|mimes:jpeg,png,jpg,gif",
         ]);
 
-        $worksheet = Worksheet::findOrFail($worksheet_id);
         $computer = Computer::findOrFail($validated["computer_id"]);
         if (!$worksheet || !$computer) {
             return response()->json([
@@ -158,6 +162,9 @@ class ComputerController extends Controller
     public function detach(string $worksheet, string $computer)
     {
         $ws = Worksheet::findOrFail($worksheet);
+        if($ws["final"] == true){
+            return redirect(route('worksheet.show', $ws->id));
+        }
 
         $ws->computers()->detach($computer);
 
@@ -165,7 +172,7 @@ class ComputerController extends Controller
     }
 
     /**
-     * Get the attached computer and it attachment.
+     * Get the attached computer and its attachment.
      */
     public function get(string $pivot, string $computer)
     {
@@ -193,6 +200,11 @@ class ComputerController extends Controller
         ]);
 
         $pivot = DB::table('computer_worksheet')->where('id', $validated["pivot_id"])->first();
+        $worksheet = Worksheet::findOrFail($pivot->worksheet_id);
+        if($worksheet["final"] == true){
+            return redirect(route('worksheet.show', $worksheet->id));
+        }
+
         $originalName = "default_computer.jpg";
         $hashedName = "default_computer.jpg";
         if ($request->hasFile('imagefile')) {
@@ -231,7 +243,6 @@ class ComputerController extends Controller
         ];
 
         $key = $validated["key"];
-        $worksheet = Worksheet::findOrFail($pivot->worksheet_id);
 
         return response()->json([
             "success" => true,

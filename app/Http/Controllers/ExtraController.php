@@ -16,8 +16,12 @@ class ExtraController extends Controller
      */
     public function create(Request $request)
     {
+        $worksheet = Worksheet::findOrFail($request["worksheet"]);
+        if($worksheet["final"] == true){
+            return redirect(route('worksheet.show', $worksheet->id));
+        }
         return view('layouts.menu', [
-            "connected_worksheet" => Worksheet::findOrFail($request["worksheet"]),
+            "connected_worksheet" => $worksheet,
             "connected_computer" => Computer::findOrFail($request["computer"])
         ]);
     }
@@ -34,6 +38,11 @@ class ExtraController extends Controller
             "type" => "required|string",
             "serial_number" => "required|string|unique:extras,serial_number",
         ]);
+
+        $worksheet = Worksheet::findOrFail($validated["worksheet_id"]);
+        if($worksheet["final"] == true){
+            return redirect(route('worksheet.show', $worksheet->id));
+        }
 
         $extra = new Extra();
         $extra["manufacturer"] = $validated["manufacturer"];
@@ -54,9 +63,14 @@ class ExtraController extends Controller
      */
     public function edit(Request $request, string $id)
     {
+        $worksheet = Worksheet::findOrFail($request["worksheet"]);
+        if($worksheet["final"] == true){
+            return redirect(route('worksheet.show', $worksheet->id));
+        }
+
         return view('layouts.menu', [
             "extra" =>  Extra::findOrFail($id),
-            "connected_worksheet" => Worksheet::findOrFail($request["worksheet"]),
+            "connected_worksheet" => $worksheet,
             "connected_computer" => Computer::findOrFail($request["computer"])
         ]);
     }
@@ -66,6 +80,12 @@ class ExtraController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $extra = Extra::findOrFail($id);
+        $worksheet = $extra->worksheet;
+        if($worksheet["final"] == true){
+            return redirect(route('worksheet.show', $worksheet->id));
+        }
+
         $validated = $request->validate([
             "worksheet_id" => "required|exists:worksheets,id",
             "computer_id" => "required|exists:computers,id",
@@ -73,7 +93,6 @@ class ExtraController extends Controller
             "type" => "required|string",
         ]);
 
-        $extra = Extra::findOrFail($id);
 
         $extra["manufacturer"] = $validated["manufacturer"];
         $extra["type"] = $validated["type"];
@@ -89,6 +108,10 @@ class ExtraController extends Controller
     public function destroy(string $id)
     {
         $extra = Extra::findOrFail($id);
+        $worksheet = $extra->worksheet;
+        if($worksheet["final"] == true){
+            return redirect(route('worksheet.show', $worksheet->id));
+        }
 
         $computer_id = $extra->computer[0]->id;
         $extra->computer()->detach();

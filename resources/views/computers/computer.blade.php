@@ -74,7 +74,7 @@
                     <form action="{{ route('computer.destroy', $computer->id) }}" method="post">
                         @csrf
                         @method('delete')
-                        <input type="submit" class="btn btn-danger edit-customer-btn mt-3 ms-4" value="✖️">
+                        <input type="submit" class="btn btn-danger mt-3 ms-4" value="✖️">
                     </form>
                 </div>
             </div>
@@ -110,13 +110,16 @@
                                     <div class="row">
                                         <div class="col-4 fw-bold">Típus:</div>
                                         <div class="col-6">{{ $extra->type }}</div>
-                                        <div class="col-2">
-                                            <form action="{{ route('extra.destroy', $extra->id) }}" method="post">
-                                                @csrf
-                                                @method('delete')
-                                                <input type="submit" value="✖️" class="btn btn-danger mt-2 mb-1">
-                                            </form>
-                                        </div>
+                                        @if (!$worksheet->final)
+                                            <div class="col-2">
+                                                <form action="{{ route('extra.destroy', $extra->id) }}" method="post">
+                                                    @csrf
+                                                    @method('delete')
+                                                    <input type="submit" value="✖️"
+                                                        class="btn btn-danger mt-2 mb-1">
+                                                </form>
+                                            </div>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
