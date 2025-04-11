@@ -167,9 +167,6 @@ class WorksheetController extends Controller
      */
     public function show(string $id)
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
         return view('layouts.menu', [
             "navActions" =>[['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
             "worksheet" => Worksheet::findOrFail($id)
@@ -181,9 +178,6 @@ class WorksheetController extends Controller
      */
     public function edit(string $id)
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
         return view('layouts.menu', [
             "navActions" =>[['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
             "worksheet" => Worksheet::findOrFail($id),
@@ -333,6 +327,9 @@ class WorksheetController extends Controller
         return redirect(route('worksheet.index'));
     }
 
+    /**
+     * Search for all worksheets that contain a string in their sheet number field.
+     */
     public function search(Request $request)
     {
         /** @var \App\Models\User $user */
@@ -356,6 +353,9 @@ class WorksheetController extends Controller
         ]);
     }
 
+    /**
+     * Set woksheet step to closed.
+     */
     public function close(string $id)
     {
         $worksheet = Worksheet::findOrFail($id);
@@ -366,6 +366,9 @@ class WorksheetController extends Controller
         return redirect(route('worksheet.index'));
     }
 
+    /**
+     * Update the worksheet's current step via drag and drop.
+     */
     public function move(Request $request)
     {
         $id = $request["id"];
@@ -417,6 +420,9 @@ class WorksheetController extends Controller
         }
     }
 
+    /**
+     * Display the printing preview page of the workssheet.
+     */
     public function getPrintPage($id)
     {
         $worksheet = Worksheet::findOrFail($id);
@@ -426,6 +432,9 @@ class WorksheetController extends Controller
         return view('layouts.print', ["worksheet" => $worksheet]);
     }
 
+    /**
+     * Make worksheet uneditable.
+     */
     public function final($worksheet)
     {
         $worksheet = Worksheet::findOrFail($worksheet);

@@ -100,6 +100,9 @@ class CompanyController extends Controller
         return redirect(route('company.index'));
     }
 
+    /**
+     * Get all customers in a customer company.
+     */
     public function getCustomers(Request $request)
     {
         $id = $request->query('id');

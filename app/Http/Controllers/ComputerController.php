@@ -93,6 +93,9 @@ class ComputerController extends Controller
         return redirect(route('worksheet.index'));
     }
 
+    /**
+     * Get all computers with no attachment to the worksheet.
+     */
     public function select(string $worksheet)
     {
         return response()->json([
@@ -103,6 +106,9 @@ class ComputerController extends Controller
         ]);
     }
 
+    /**
+     * Attach a computer to the worksheet.
+     */
     public function attach(Request $request, string $worksheet_id)
     {
         $validated = $request->validate([
@@ -146,6 +152,9 @@ class ComputerController extends Controller
         ], 201);
     }
 
+    /**
+     * Remove the connection between the computer and the worksheet.
+     */
     public function detach(string $worksheet, string $computer)
     {
         $ws = Worksheet::findOrFail($worksheet);
@@ -155,6 +164,9 @@ class ComputerController extends Controller
         return redirect(route('worksheet.show', $ws));
     }
 
+    /**
+     * Get the attached computer and it attachment.
+     */
     public function get(string $pivot, string $computer)
     {
         $comp = Computer::findOrFail($computer);
@@ -167,6 +179,9 @@ class ComputerController extends Controller
         ]);
     }
 
+    /**
+     * Update the connection between the computer and the worksheet.
+     */
     public function refresh(Request $request)
     {
         $validated = $request->validate([

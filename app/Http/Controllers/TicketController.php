@@ -101,6 +101,9 @@ class TicketController extends Controller
         return redirect(route('home'));
     }
 
+    /**
+     * Set ticket status to closed.
+     */
     public function close(string $id)
     {
         $ticket = Ticket::findOrFail($id);
@@ -111,6 +114,9 @@ class TicketController extends Controller
         return redirect(route('home'));
     }
 
+    /**
+     * Update the ticket's status via drag and drop.
+     */
     public function move(Request $request)
     {
         /** @var \App\Models\User $user */
@@ -161,6 +167,9 @@ class TicketController extends Controller
         }
     }
 
+    /**
+     * Attach a comment to the ticket.
+     */
     public function comment(Request $request, string $ticket)
     {
         $validated = $request->validate(["content" => "required|string"]);
@@ -174,6 +183,9 @@ class TicketController extends Controller
         return redirect(route('ticket.show', $ticket));
     }
 
+    /**
+     * Edit a comment in the ticket.
+     */
     public function edit(Request $request, string $comment, string $ticket)
     {
         DB::table('comments')
@@ -185,6 +197,9 @@ class TicketController extends Controller
         return redirect(route('ticket.show', $ticket));
     }
 
+    /**
+     * Remove a comment from the ticket.
+     */
     public function uncomment(string $comment)
     {
         $comment = Comment::findOrFail($comment);

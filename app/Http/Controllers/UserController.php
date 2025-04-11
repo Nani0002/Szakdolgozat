@@ -14,6 +14,9 @@ use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
+    /**
+     * Show the home page of the application.
+     */
     public function home()
     {
         /** @var \App\Models\User $user|null */
@@ -32,6 +35,9 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
         /** @var \App\Models\User $user */
@@ -44,6 +50,9 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
         /** @var \App\Models\User $user */
@@ -76,6 +85,9 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Display the specified resource.
+     */
     public function show()
     {
         /** @var \App\Models\User $user */
@@ -87,6 +99,9 @@ class UserController extends Controller
         return redirect(route('home'));
     }
 
+    /**
+     * Update the password for the current user.
+     */
     public function newPassword(Request $request)
     {
         /** @var \App\Models\User $user */
@@ -109,6 +124,9 @@ class UserController extends Controller
         return response()->json(['error' => 'Unauthorized', 'redirect' => route('home')], 401);
     }
 
+    /**
+     * Update the profile image for the current user.
+     */
     public function setImage(Request $request)
     {
         /** @var \App\Models\User $user */
