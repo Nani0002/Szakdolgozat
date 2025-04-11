@@ -27,7 +27,7 @@ class ViewServiceProvider extends ServiceProvider
 
             $extras = $view->getData()['navActions'] ?? [];
             $view->with([
-                'userUrls' => $user?->getUserUrls(),
+                'userUrls' => $user?->getUserUrls(request()->is('worksheet/*') || request()->is('worksheet')),
                 'navUrls' => User::getNavUrls($user->role ?? null, $extras),
             ]);
         });
