@@ -87,6 +87,6 @@ class Worksheet extends Model
 
     public static function getTypes()
     {
-        return ["open", "started", "ongoing", "price_offered", "waiting", "to_invoice", "closed"];
+        return config('worksheet_steps');
     }
 }

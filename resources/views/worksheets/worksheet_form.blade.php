@@ -46,38 +46,10 @@
 
                             <div class="form-floating">
                                 <select class="form-select" id="current_step" name="current_step">
-                                    @foreach ($worksheetTypes as $worksheetType)
+                                    @foreach ($worksheetTypes as $worksheetType => $worksheetTypePreview)
                                         <option value="{{ $worksheetType }}"
                                             {{ $selected_current_step === $worksheetType ? 'selected' : '' }}>
-                                            @switch($worksheetType)
-                                                @case('open')
-                                                    Felvéve
-                                                @break
-
-                                                @case('started')
-                                                    Kiosztva
-                                                @break
-
-                                                @case('ongoing')
-                                                    Folyamatban
-                                                @break
-
-                                                @case('price_offered')
-                                                    Árajánlat kiadva
-                                                @break
-
-                                                @case('waiting')
-                                                    Külsősre várunk
-                                                @break
-
-                                                @case('to_invoice')
-                                                    Számlázni
-                                                @break
-
-                                                @case('closed')
-                                                    Lezárva
-                                                @break
-                                            @endswitch
+                                            {{$worksheetTypePreview["text"]}}
                                         </option>
                                     @endforeach
                                 </select>

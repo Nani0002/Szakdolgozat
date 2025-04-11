@@ -40,38 +40,10 @@
                             <div class="form-floating mb-3">
                                 <select class="form-select @error('status') is-invalid @enderror" id="status"
                                     name="status">
-                                    @foreach ($ticketTypes as $ticketType)
+                                    @foreach ($ticketTypes as $ticketType => $ticketTypePreview)
                                         <option value="{{ $ticketType }}"
                                             {{ $selected_status === $ticketType ? 'selected' : '' }}>
-                                            @switch($ticketType)
-                                                @case('open')
-                                                    Felvéve
-                                                @break
-
-                                                @case('started')
-                                                    Kiosztva
-                                                @break
-
-                                                @case('ongoing')
-                                                    Folyamatban
-                                                @break
-
-                                                @case('price_offered')
-                                                    Árajánlat kiadva
-                                                @break
-
-                                                @case('waiting')
-                                                    Külsősre várunk
-                                                @break
-
-                                                @case('to_invoice')
-                                                    Számlázni
-                                                @break
-
-                                                @case('closed')
-                                                    Lezárva
-                                                @break
-                                            @endswitch
+                                            {{ $ticketTypePreview['text'] }}
                                         </option>
                                     @endforeach
                                 </select>

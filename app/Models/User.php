@@ -121,7 +121,7 @@ class User extends Authenticatable
     public function sortedTickets(): array
     {
         $tickets = [];
-        foreach (Ticket::getStatuses() as $status) {
+        foreach (Ticket::getStatuses() as $status => $_) {
             $tickets[$status] = $this->tickets()->where("status", $status)->orderBy('slot_number', 'asc')->get();
         }
         return $tickets;
@@ -135,7 +135,7 @@ class User extends Authenticatable
     public function sortedWorksheets(): array
     {
         $worksheets = [];
-        foreach (Worksheet::getTypes() as $type) {
+        foreach (Worksheet::getTypes() as $type => $_) {
             $liable = $this->liableWorksheets()->where('current_step', $type)->get();
             $coworker = $this->coworkerWorksheets()->where('current_step', $type)->get();
 

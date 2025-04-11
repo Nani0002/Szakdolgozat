@@ -21,7 +21,7 @@ class WorksheetController extends Controller
         $user = Auth::user();
 
         return view('layouts.menu', [
-            "navActions" =>[['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
+            "navActions" => [['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
             "worksheets" => $user->sortedWorksheets(),
             "worksheetTypes" => Worksheet::getTypes(),
             "user_id" => Auth::id()
@@ -34,7 +34,7 @@ class WorksheetController extends Controller
     public function create(Request $request)
     {
         return view('layouts.menu', [
-            "navActions" =>[['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
+            "navActions" => [['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
             "worksheetTypes" => Worksheet::getTypes(),
             "users" => User::all(),
             "loggedIn" => Auth::id(),
@@ -168,8 +168,9 @@ class WorksheetController extends Controller
     public function show(string $id)
     {
         return view('layouts.menu', [
-            "navActions" =>[['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
-            "worksheet" => Worksheet::findOrFail($id)
+            "navActions" => [['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
+            "worksheet" => Worksheet::findOrFail($id),
+            "worksheetTypes" => Worksheet::getTypes(),
         ]);
     }
 
@@ -179,11 +180,11 @@ class WorksheetController extends Controller
     public function edit(string $id)
     {
         $worksheet = Worksheet::findOrFail($id);
-        if($worksheet["final"] == true){
+        if ($worksheet["final"] == true) {
             return redirect(route('worksheet.show', $id));
         }
         return view('layouts.menu', [
-            "navActions" =>[['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
+            "navActions" => [['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
             "worksheet" => Worksheet::findOrFail($id),
             "worksheetTypes" => Worksheet::getTypes(),
             "users" => User::all(),
@@ -198,7 +199,7 @@ class WorksheetController extends Controller
     public function update(Request $request, string $id)
     {
         $ws = Worksheet::findOrFail($id);
-        if($ws["final"] == true){
+        if ($ws["final"] == true) {
             return redirect(route('worksheet.show', $id));
         }
 
@@ -229,7 +230,7 @@ class WorksheetController extends Controller
                 "outsourced_price" => "required|numeric",
                 "our_price" => "required|numeric",
             ];
-            if(!isset($ws->outsourcing)){
+            if (!isset($ws->outsourcing)) {
                 $rules["outsourced_number"] = "required|unique:outsourcings,outsourced_number";
             }
             $validated = $request->validate($rules);
@@ -358,7 +359,7 @@ class WorksheetController extends Controller
         $results = $liable->merge($coworker)->sortBy('sheet_number')->values();
 
         return view('layouts.menu', [
-            "navActions" =>[['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
+            "navActions" => [['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
             "worksheets" => $results,
             "querry" => $search
         ]);
@@ -389,7 +390,7 @@ class WorksheetController extends Controller
             $newStep = $request["newStatus"];
             $newSlot = $request["newSlot"];
 
-            if($newWorksheet["final"] == true && $newWorksheet->current_step != $newStep){
+            if ($newWorksheet["final"] == true && $newWorksheet->current_step != $newStep) {
                 return response()->json(['success' => false], 403);
             }
 

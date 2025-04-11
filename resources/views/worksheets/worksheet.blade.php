@@ -6,40 +6,12 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="fs-3 fw-bold">Bizonylatszám: {{ $worksheet->sheet_number }}
-                                @switch($worksheet->current_step)
-                                    @case('open')
-                                        <h5><span class="badge rounded-pill text-bg-primary worksheet-pill">Felvéve</span></h5>
-                                    @break
-
-                                    @case('started')
-                                        <h5><span class="badge rounded-pill text-bg-secondary worksheet-pill">Kiosztva</span>
-                                        </h5>
-                                    @break
-
-                                    @case('ongoing')
-                                        <h5><span class="badge rounded-pill text-bg-success worksheet-pill">Folyamatban</span>
-                                        </h5>
-                                    @break
-
-                                    @case('price_offered')
-                                        <h5><span class="badge rounded-pill text-bg-info worksheet-pill">Árajánlat kiadva</span>
-                                        </h5>
-                                    @break
-
-                                    @case('waiting')
-                                        <h5><span class="badge rounded-pill text-bg-dark worksheet-pill">Külsősre várunk</span>
-                                        </h5>
-                                    @break
-
-                                    @case('to_invoice')
-                                        <h5><span class="badge rounded-pill text-bg-warning worksheet-pill">Számlázni</span>
-                                        </h5>
-                                    @break
-
-                                    @case('closed')
-                                        <h5><span class="badge rounded-pill text-bg-danger worksheet-pill">Lezárva</span></h5>
-                                    @break
-                                @endswitch
+                                <h5>
+                                    <span
+                                        class="badge rounded-pill text-bg-{{ $worksheetTypes[$worksheet->current_step]['color'] }} worksheet-pill">
+                                        {{ $worksheetTypes[$worksheet->current_step]['text'] }}
+                                    </span>
+                                </h5>
                             </div>
                         </div>
                     </div>
