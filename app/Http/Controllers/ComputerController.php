@@ -11,27 +11,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-
 class ComputerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls()]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu');
     }
 
     /**
@@ -60,12 +47,11 @@ class ComputerController extends Controller
      */
     public function show(string $id)
     {
-        if (Auth::check()) {
-            $computer = Computer::findOrFail($id);
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "computer" => $computer, "latest" => $computer->latestInfo()]);
-        } else {
-            return redirect(route('home'));
-        }
+        $computer = Computer::findOrFail($id);
+        return view('layouts.menu', [
+            "computer" => $computer,
+            "latest" => $computer->latestInfo()
+        ]);
     }
 
     /**
@@ -73,12 +59,7 @@ class ComputerController extends Controller
      */
     public function edit(string $id)
     {
-        if (Auth::check()) {
-            $computer = Computer::findOrFail($id);
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "computer" => $computer]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu', ["computer" => Computer::findOrFail($id)]);
     }
 
     /**
@@ -114,67 +95,55 @@ class ComputerController extends Controller
 
     public function select(string $worksheet)
     {
-        if (Auth::check()) {
-            return response()->json([
-                "success" => true,
-                "computers" => Computer::whereDoesntHave('worksheets', function ($f) use ($worksheet) {
-                    $f->where('worksheet_id', $worksheet);
-                })->get()
-            ]);
-        } else {
-            return response()->json([
-                "success" => false,
-            ]);
-        }
+        return response()->json([
+            "success" => true,
+            "computers" => Computer::whereDoesntHave('worksheets', function ($f) use ($worksheet) {
+                $f->where('worksheet_id', $worksheet);
+            })->get()
+        ]);
     }
 
     public function attach(Request $request, string $worksheet_id)
     {
-        if (Auth::check()) {
-            $validated = $request->validate([
-                "computer_id" => "required|integer",
-                "condition" => "required|string",
-                "password" => "required|string",
-                "imagefile" => "nullable|image|mimes:jpeg,png,jpg,gif",
-            ]);
+        $validated = $request->validate([
+            "computer_id" => "required|integer",
+            "condition" => "required|string",
+            "password" => "required|string",
+            "imagefile" => "nullable|image|mimes:jpeg,png,jpg,gif",
+        ]);
 
-            $worksheet = Worksheet::findOrFail($worksheet_id);
-            $computer = Computer::findOrFail($validated["computer_id"]);
-            if (!$worksheet || !$computer) {
-                return response()->json([
-                    "success" => false,
-                ]);
-            }
-
-            $originalName = "default_computer.jpg";
-            $hashedName = "default_computer.jpg";
-            if ($request->hasFile('imagefile')) {
-                $originalName = $request->file('imagefile')->getClientOriginalName();
-                $hashedName = Str::random(40) . '.' . $request->file('imagefile')->getClientOriginalExtension();
-
-                $request->file('imagefile')->storeAs('public/images', $hashedName);
-            }
-
-            $worksheet->computers()->attach($computer->id, [
-                "password" => $validated["password"],
-                "condition" => $validated["condition"],
-                "imagename" => $originalName,
-                "imagename_hash" => $hashedName,
-            ]);
-
-            $computer = $worksheet->computers()->where('computers.id', $computer->id)->first();
-
-            $key = $worksheet->computers()->count() - 1;
-
-            return response()->json([
-                "success" => true,
-                "html" => view('computers._card', compact('computer', 'key', 'worksheet'))->render(),
-            ]);
-        } else {
+        $worksheet = Worksheet::findOrFail($worksheet_id);
+        $computer = Computer::findOrFail($validated["computer_id"]);
+        if (!$worksheet || !$computer) {
             return response()->json([
                 "success" => false,
             ]);
         }
+
+        $originalName = "default_computer.jpg";
+        $hashedName = "default_computer.jpg";
+        if ($request->hasFile('imagefile')) {
+            $originalName = $request->file('imagefile')->getClientOriginalName();
+            $hashedName = Str::random(40) . '.' . $request->file('imagefile')->getClientOriginalExtension();
+
+            $request->file('imagefile')->storeAs('public/images', $hashedName);
+        }
+
+        $worksheet->computers()->attach($computer->id, [
+            "password" => $validated["password"],
+            "condition" => $validated["condition"],
+            "imagename" => $originalName,
+            "imagename_hash" => $hashedName,
+        ]);
+
+        $computer = $worksheet->computers()->where('computers.id', $computer->id)->first();
+
+        $key = $worksheet->computers()->count() - 1;
+
+        return response()->json([
+            "success" => true,
+            "html" => view('computers._card', compact('computer', 'key', 'worksheet'))->render(),
+        ], 201);
     }
 
     public function detach(string $worksheet, string $computer)
@@ -252,6 +221,6 @@ class ComputerController extends Controller
         return response()->json([
             "success" => true,
             "html" => view('computers._card', compact('computer', 'key', 'worksheet'))->render(),
-        ]);
+        ], 201);
     }
 }

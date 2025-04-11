@@ -14,11 +14,7 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "companies" => Company::sortedCompanies()]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu', ["companies" => Company::sortedCompanies()]);
     }
 
     /**
@@ -26,11 +22,7 @@ class CompanyController extends Controller
      */
     public function create(Request $request)
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "type" => $request->query('type', 'partner')]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu', ["type" => $request->query('type', 'partner')]);
     }
 
     /**
@@ -63,23 +55,11 @@ class CompanyController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "company" => Company::find($id)]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu', ["company" => Company::find($id)]);
     }
 
     /**
@@ -96,7 +76,7 @@ class CompanyController extends Controller
             "email" => "string|email|required"
         ]);
 
-        $company = Company::find($id);
+        $company = Company::findOrFail($id);
         $company["name"] = $validated["name"];
         $company["post_code"] = $validated["post_code"];
         $company["city"] = $validated["city"];
@@ -114,8 +94,7 @@ class CompanyController extends Controller
      */
     public function destroy(string $id)
     {
-        $company = Company::find($id);
-
+        $company = Company::findOrFail($id);
         $company->delete();
 
         return redirect(route('company.index'));
@@ -124,15 +103,11 @@ class CompanyController extends Controller
     public function getCustomers(Request $request)
     {
         $id = $request->query('id');
-        $company = Company::find($id);
+        $company = Company::findOrFail($id);
 
-        if ($company) {
-            return response()->json([
-                "success" => true,
-                "customers" => $company->customers()->get()
-            ]);
-        }
-
-        return response()->json(["success" => false]);
+        return response()->json([
+            "success" => true,
+            "customers" => $company->customers()->get()
+        ]);
     }
 }

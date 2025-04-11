@@ -9,22 +9,6 @@ use Illuminate\Http\Request;
 class CustomerController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -49,23 +33,7 @@ class CustomerController extends Controller
         return response()->json([
             'success' => true,
             "html" => view('companies._card', compact('customer', 'company'))->render()
-        ]);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        ], 201);
     }
 
     /**
@@ -91,7 +59,7 @@ class CustomerController extends Controller
         return response()->json([
             'success' => true,
             "html" => view('companies._card', compact('customer', 'company'))->render()
-        ]);
+        ], 201);
     }
 
     /**

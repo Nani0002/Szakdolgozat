@@ -17,11 +17,15 @@ class WorksheetController extends Controller
      */
     public function index()
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true, [['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]]), "userUrls" => Auth::user()->getUserUrls(true), "worksheets" => Auth::user()->sortedWorksheets(), "worksheetTypes" => Worksheet::getTypes(), "user_id" => Auth::id()]);
-        } else {
-            return redirect(route('home'));
-        }
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        return view('layouts.menu', [
+            "navActions" =>[['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
+            "worksheets" => $user->sortedWorksheets(),
+            "worksheetTypes" => Worksheet::getTypes(),
+            "user_id" => Auth::id()
+        ]);
     }
 
     /**
@@ -29,19 +33,14 @@ class WorksheetController extends Controller
      */
     public function create(Request $request)
     {
-        if (Auth::check()) {
-            return view('layouts.menu', [
-                "navUrls" => User::getNavUrls(true, [['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]]),
-                "userUrls" => Auth::user()->getUserUrls(),
-                "worksheetTypes" => Worksheet::getTypes(),
-                "users" => User::all(),
-                "loggedIn" => Auth::user()->id,
-                "companies" => Company::all(),
-                "current_step" => isset($request["current_step"]) ? $request["current_step"] : ""
-            ]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu', [
+            "navActions" =>[['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
+            "worksheetTypes" => Worksheet::getTypes(),
+            "users" => User::all(),
+            "loggedIn" => Auth::id(),
+            "companies" => Company::all(),
+            "current_step" => isset($request["current_step"]) ? $request["current_step"] : ""
+        ]);
     }
 
     /**
@@ -160,7 +159,7 @@ class WorksheetController extends Controller
 
         $ws->save();
 
-        return response()->json(['success' => true, 'id' => $ws->id]);
+        return response()->json(['success' => true, 'id' => $ws->id], 201);
     }
 
     /**
@@ -168,11 +167,13 @@ class WorksheetController extends Controller
      */
     public function show(string $id)
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true, [['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]]), "userUrls" => Auth::user()->getUserUrls(true), "worksheet" => Worksheet::findOrFail($id)]);
-        } else {
-            return redirect(route('home'));
-        }
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        return view('layouts.menu', [
+            "navActions" =>[['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
+            "worksheet" => Worksheet::findOrFail($id)
+        ]);
     }
 
     /**
@@ -180,19 +181,17 @@ class WorksheetController extends Controller
      */
     public function edit(string $id)
     {
-        if (Auth::check()) {
-            return view('layouts.menu', [
-                "navUrls" => User::getNavUrls(true, [['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]]),
-                "userUrls" => Auth::user()->getUserUrls(),
-                "worksheet" => Worksheet::findOrFail($id),
-                "worksheetTypes" => Worksheet::getTypes(),
-                "users" => User::all(),
-                "loggedIn" => Auth::user()->id,
-                "companies" => Company::all(),
-            ]);
-        } else {
-            return redirect(route('home'));
-        }
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        return view('layouts.menu', [
+            "navActions" =>[['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
+            "worksheet" => Worksheet::findOrFail($id),
+            "worksheetTypes" => Worksheet::getTypes(),
+            "users" => User::all(),
+            "loggedIn" => Auth::id(),
+            "companies" => Company::all(),
+        ]);
     }
 
     /**
@@ -200,8 +199,9 @@ class WorksheetController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validated = $request->validate(["outsourcing" => "required|boolean"]);
         $ws = Worksheet::findOrFail($id);
+        $validated = $request->validate(["outsourcing" => "required|boolean"]);
+
         $isOutourced = $validated["outsourcing"];
         if ($isOutourced == true) {
             $validated = $request->validate([
@@ -319,7 +319,7 @@ class WorksheetController extends Controller
         }
         $ws->save();
 
-        return response()->json(['success' => true, 'id' => $ws->id]);
+        return response()->json(['success' => true, 'id' => $ws->id], 201);
     }
 
     /**
@@ -335,23 +335,25 @@ class WorksheetController extends Controller
 
     public function search(Request $request)
     {
-        if (Auth::check()) {
-            $search = $request["id"];
-            $user = Auth::user();
-            $liable = $user->liableWorksheets()
-                ->where('sheet_number', 'like', "%{$search}%")
-                ->get();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-            $coworker = $user->coworkerWorksheets()
-                ->where('sheet_number', 'like', "%{$search}%")
-                ->get();
+        $search = $request["id"];
+        $liable = $user->liableWorksheets()
+            ->where('sheet_number', 'like', "%{$search}%")
+            ->get();
 
-            $results = $liable->merge($coworker)->sortBy('sheet_number')->values();
+        $coworker = $user->coworkerWorksheets()
+            ->where('sheet_number', 'like', "%{$search}%")
+            ->get();
 
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true, [['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]]), "userUrls" => Auth::user()->getUserUrls(), "worksheets" => $results, "querry" => $search]);
-        } else {
-            return redirect(route('home'));
-        }
+        $results = $liable->merge($coworker)->sortBy('sheet_number')->values();
+
+        return view('layouts.menu', [
+            "navActions" =>[['type' => 'create', 'text' => "munkalap", "url" => route('worksheet.create')]],
+            "worksheets" => $results,
+            "querry" => $search
+        ]);
     }
 
     public function close(string $id)
@@ -367,13 +369,17 @@ class WorksheetController extends Controller
     public function move(Request $request)
     {
         $id = $request["id"];
-        $newStep = $request["newStatus"];
-        $newSlot = $request["newSlot"];
         $newWorksheet = Worksheet::findOrFail($id);
 
         if ($newWorksheet) {
+            $newStep = $request["newStatus"];
+            $newSlot = $request["newSlot"];
+
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+
             if ($newWorksheet->current_step == $newStep) {
-                $worksheets = Auth::user()->worksheetsByStep($newStep)->sortBy('slot_number')->values();
+                $worksheets = $user->worksheetsByStep($newStep)->sortBy('slot_number')->values();
 
                 $filtered = $worksheets->reject(fn($ws) => $ws->id == $newWorksheet->id)->values();
 
@@ -385,14 +391,14 @@ class WorksheetController extends Controller
                 }
             } else {
                 $oldStep = $newWorksheet->current_step;
-                foreach (Auth::user()->worksheetsByStep($oldStep) as $worksheet) {
+                foreach ($user->worksheetsByStep($oldStep) as $worksheet) {
                     if ($worksheet->id != $id && $worksheet->slot_number > $newWorksheet->slot_number) {
                         $worksheet->slot_number = $worksheet->slot_number - 1;
                         $worksheet->save();
                     }
                 }
 
-                foreach (Auth::user()->worksheetsByStep($newStep) as $worksheet) {
+                foreach ($user->worksheetsByStep($newStep) as $worksheet) {
                     if ($worksheet->id != $id && $worksheet->slot_number >= $newSlot) {
                         $worksheet->slot_number = $worksheet->slot_number + 1;
                         $worksheet->save();
@@ -407,20 +413,23 @@ class WorksheetController extends Controller
                 'success' => true,
             ]);
         } else {
-            return response()->json(['success' => false, 'message' => 'Could not find worksheet with id of ' . $id]);
+            return response()->json(['success' => false, 'message' => 'Could not find worksheet with id of ' . $id], 404);
         }
     }
 
     public function getPrintPage($id)
     {
-        if (Auth::check()) {
-            $worksheet = Worksheet::findOrFail($id);
-            $worksheet["print_date"] = now();
+        $worksheet = Worksheet::findOrFail($id);
+        $worksheet["print_date"] = now();
 
-            $worksheet->save();
-            return view('layouts.print', ["worksheet" => $worksheet]);
-        } else {
-            return redirect(route('home'));
-        }
+        $worksheet->save();
+        return view('layouts.print', ["worksheet" => $worksheet]);
+    }
+
+    public function final($worksheet)
+    {
+        $worksheet = Worksheet::findOrFail($worksheet);
+        $worksheet["final"] = true;
+        return redirect(route('worksheet.show', $worksheet));
     }
 }

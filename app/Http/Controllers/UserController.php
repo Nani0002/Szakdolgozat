@@ -16,8 +16,17 @@ class UserController extends Controller
 {
     public function home()
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "tickets" => Auth::user()->sortedTickets(), "userUrls" => Auth::user()->getUserUrls(), "ticketTypes" => Ticket::getStatuses()]);
+        /** @var \App\Models\User $user|null */
+        $user = Auth::user();
+
+        if ($user) {
+            /** @var \App\Models\User $user */
+
+            return view('layouts.menu', [
+                "navActions" => [['type' => 'create', 'text' => "hibajegy", "url" => route('ticket.create')]],
+                "tickets" => $user->sortedTickets(),
+                "ticketTypes" => Ticket::getStatuses()
+            ]);
         } else {
             return view('layouts.menu', ["navUrls" => User::getNavUrls(false)]);
         }
@@ -25,8 +34,11 @@ class UserController extends Controller
 
     public function create()
     {
-        if (Auth::check() && Auth::user()->isAdmin()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "tickets" => [], "userUrls" => Auth::user()->getUserUrls()]);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->isAdmin()) {
+            return view('layouts.menu');
         } else {
             return redirect(route('home'));
         }
@@ -34,7 +46,10 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        if (Auth::check() && Auth::user()->isAdmin()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->isAdmin()) {
             $validated = $request->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
@@ -63,25 +78,26 @@ class UserController extends Controller
 
     public function show()
     {
-        if (Auth::check()) {
-            $user = Auth::user();
-            return view('user.user', ["navUrls" => User::getNavUrls(true), "userUrls" => $user->getUserUrls(), "profile" => $user]);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user) {
+            return view('user.user', ["profile" => $user]);
         }
         return redirect(route('home'));
     }
 
-    public function update(Request $request) {}
-
     public function newPassword(Request $request)
     {
-        if (Auth::check()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user) {
             $validated = $request->validate([
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
             ]);
 
-            $user = Auth::user();
-
-            $user->password = $validated['password'];
+            $user["password"] = $validated['password'];
 
             $user->save();
 
@@ -90,15 +106,16 @@ class UserController extends Controller
                 "message" => "Sikeres módosítás!"
             ]);
         }
-        return redirect(route('home'));
+        return response()->json(['error' => 'Unauthorized', 'redirect' => route('home')], 401);
     }
 
     public function setImage(Request $request)
     {
-        if (Auth::check()) {
-            $request->validate(['image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048']);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-            $user = Auth::user();
+        if ($user) {
+            $request->validate(['image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048']);
 
             if ($user->imagename_hash != "default_user.png" && $user->imagename_hash != "default_computer.jpg") {
                 Storage::delete('public/images/' . $user->imagename_hash);
@@ -109,16 +126,16 @@ class UserController extends Controller
 
             $request->file('image')->storeAs('public/images', $hashedName);
 
-            $user->update([
-                'imagename' => $originalName,
-                'imagename_hash' => $hashedName,
-            ]);
+            $user["imagename"] = $originalName;
+            $user["imagename_hash"] = $hashedName;
+
+            $user->save();
 
             return response()->json([
                 'success' => true,
                 'new_image_url' => Storage::url('images/' . $hashedName)
             ]);
         }
-        return response()->json(['error' => 'Unauthorized', 'redirect' => url('/')], 401);
+        return response()->json(['error' => 'Unauthorized', 'redirect' => route('home')], 401);
     }
 }

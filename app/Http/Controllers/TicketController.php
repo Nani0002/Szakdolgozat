@@ -16,16 +16,13 @@ class TicketController extends Controller
      */
     public function create(Request $request)
     {
-        if (Auth::check()) {
-            return view('layouts.menu', [
-                "navUrls" => User::getNavUrls(true),
-                "userUrls" => Auth::user()->getUserUrls(),
-                "user_id" => Auth::id(), "users" => User::all(),
-                "ticketTypes" => Ticket::getStatuses(),
-                "status" => isset($request["status"]) ? $request["status"] : ""]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu', [
+            "navActions" => [['type' => 'create', 'text' => "hibajegy", "url" => route('ticket.create')]],
+            "user_id" => Auth::id(),
+            "users" => User::all(),
+            "ticketTypes" => Ticket::getStatuses(),
+            "status" => isset($request["status"]) ? $request["status"] : ""
+        ]);
     }
 
     /**
@@ -39,6 +36,7 @@ class TicketController extends Controller
             "status" => "required|string",
             "users" => "required|array"
         ]);
+
         $user_id = Auth::id();
         $ticket = new Ticket();
         $ticket["title"] = $validated["title"];
@@ -58,11 +56,13 @@ class TicketController extends Controller
      */
     public function show(string $id)
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "user_id" => Auth::id(), "ticket" => Ticket::findOrFail($id), "users" => User::all(), "ticketTypes" => Ticket::getStatuses()]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu', [
+            "navActions" => [['type' => 'create', 'text' => "hibajegy", "url" => route('ticket.create')]],
+            "user_id" => Auth::id(),
+            "ticket" => Ticket::findOrFail($id),
+            "users" => User::all(),
+            "ticketTypes" => Ticket::getStatuses()
+        ]);
     }
 
     /**
@@ -113,6 +113,9 @@ class TicketController extends Controller
 
     public function move(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         $id = $request["id"];
         $newStatus = $request["newStatus"];
         $newSlot = $request["newSlot"];
@@ -120,7 +123,7 @@ class TicketController extends Controller
 
         if ($newTicket) {
             if ($newTicket->status == $newStatus) {
-                $tickets = Auth::user()->ticketsByStatus($newStatus)->sortBy('slot_number')->values();
+                $tickets = $user->ticketsByStatus($newStatus)->sortBy('slot_number')->values();
 
                 $filtered = $tickets->reject(fn($ticket) => $ticket->id == $newTicket->id)->values();
 
@@ -132,14 +135,14 @@ class TicketController extends Controller
                 }
             } else {
                 $oldStatus = $newTicket->status;
-                foreach (Auth::user()->ticketsByStatus($oldStatus) as $ticket) {
+                foreach ($user->ticketsByStatus($oldStatus) as $ticket) {
                     if ($ticket->id != $id && $ticket->slot_number > $newTicket->slot_number) {
                         $ticket->slot_number = $ticket->slot_number - 1;
                         $ticket->save();
                     }
                 }
 
-                foreach (Auth::user()->ticketsByStatus($newStatus) as $ticket) {
+                foreach ($user->ticketsByStatus($newStatus) as $ticket) {
                     if ($ticket->id != $id && $ticket->slot_number >= $newSlot) {
                         $ticket->slot_number = $ticket->slot_number + 1;
                         $ticket->save();
@@ -154,7 +157,7 @@ class TicketController extends Controller
                 'success' => true,
             ]);
         } else {
-            return response()->json(['success' => false, 'message' => 'Could not find ticket with id of ' . $id]);
+            return response()->json(['success' => false, 'message' => 'Could not find ticket with id of ' . $id], 404);
         }
     }
 
@@ -182,7 +185,8 @@ class TicketController extends Controller
         return redirect(route('ticket.show', $ticket));
     }
 
-    public function uncomment(string $comment) {
+    public function uncomment(string $comment)
+    {
         $comment = Comment::findOrFail($comment);
         $ticket = $comment->ticket_id;
 

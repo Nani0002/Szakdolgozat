@@ -12,23 +12,14 @@ use Illuminate\Support\Facades\Auth;
 class ExtraController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
      * Show the form for creating a new resource.
      */
     public function create(Request $request)
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "connected_worksheet" => Worksheet::findOrFail($request["worksheet"]), "connected_computer" => Computer::findOrFail($request["computer"])]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu', [
+            "connected_worksheet" => Worksheet::findOrFail($request["worksheet"]),
+            "connected_computer" => Computer::findOrFail($request["computer"])
+        ]);
     }
 
     /**
@@ -59,23 +50,15 @@ class ExtraController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      */
     public function edit(Request $request, string $id)
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "extra" =>  Extra::findOrFail($id), "connected_worksheet" => Worksheet::findOrFail($request["worksheet"]), "connected_computer" => Computer::findOrFail($request["computer"])]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu', [
+            "extra" =>  Extra::findOrFail($id),
+            "connected_worksheet" => Worksheet::findOrFail($request["worksheet"]),
+            "connected_computer" => Computer::findOrFail($request["computer"])
+        ]);
     }
 
     /**
