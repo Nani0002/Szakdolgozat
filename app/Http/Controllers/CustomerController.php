@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CustomerRequest;
 use App\Models\Company;
 use App\Models\Customer;
 use Illuminate\Http\Request;
@@ -11,22 +12,15 @@ class CustomerController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CustomerRequest $request)
     {
         $company = Company::findOrFail($request["id"]);
 
-        $validated = $request->validate([
-            "name" => "required|string",
-            "email" => "required|string|email",
-            "phone" => "required|string",
-            "id" => "required|string",
-        ]);
-
         $customer = new Customer();
-        $customer->name = $validated["name"];
-        $customer->email = $validated["email"];
-        $customer->mobile = $validated["phone"];
-        $customer->company_id = $validated["id"];
+        $customer->name = $request["name"];
+        $customer->email = $request["email"];
+        $customer->mobile = $request["phone"];
+        $customer->company_id = $company->id;
 
         $customer->save();
 
@@ -39,20 +33,13 @@ class CustomerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(CustomerRequest $request, Customer $customer)
     {
-        $customer = Customer::find($id);
         $company = Company::findOrFail($customer->company_id);
 
-        $validated = $request->validate([
-            "name" => "required|string",
-            "email" => "required|string|email",
-            "phone" => "required|string",
-        ]);
-
-        $customer->name = $validated["name"];
-        $customer->email = $validated["email"];
-        $customer->mobile = $validated["phone"];
+        $customer->name = $request["name"];
+        $customer->email = $request["email"];
+        $customer->mobile = $request["phone"];
 
         $customer->save();
 

@@ -13,19 +13,21 @@
                 <div class="container">
                     <form id="contactForm">
                         <div class="form-floating mb-3">
-                            <input class="form-control @error('name') is-invalid @enderror" id="name" name="name" type="text" placeholder="Név"
+                            <input class="form-control @error('name') is-invalid @enderror" id="name"
+                                name="name" type="text" placeholder="Név"
                                 value="{{ old('name', $company->name ?? '') }}" />
                             <label for="name">Név</label>
                             @error('name')
                                 <div class="invalid-feedback">
-                                    Név megadása kötelező
+                                    {{ $message }}
                                 </div>
                             @enderror
                         </div>
 
                         @if (isset($company))
                             <div class="form-floating mb-3">
-                                <select class="form-select @error('type') is-invalid @enderror" id="type" name="type" disabled>
+                                <select class="form-select @error('type') is-invalid @enderror" id="type"
+                                    name="type" disabled>
                                     <option value="{{ $company->type }}">
                                         {{ $company->type == 'partner' ? 'Partner' : 'Ügyfél' }}
                                     </option>
@@ -33,13 +35,14 @@
                                 <label for="type">Cég típusa</label>
                                 @error('type')
                                     <div class="invalid-feedback">
-                                        Nem megfelelő típus
+                                        {{ $message }}
                                     </div>
                                 @enderror
                             </div>
                         @else
                             <div class="form-floating mb-3">
-                                <select class="form-select @error('type') is-invalid @enderror" id="type" name="type" name="type">
+                                <select class="form-select @error('type') is-invalid @enderror" id="type"
+                                    name="type" name="type">
                                     <option value="customer"
                                         {{ old('type', $type ?? 'customer') === 'customer' ? 'selected' : '' }}>
                                         Ügyfél
@@ -52,7 +55,7 @@
                                 <label for="type">Cég típusa</label>
                                 @error('type')
                                     <div class="invalid-feedback">
-                                        Nem megfelelő típus
+                                        {{ $message }}
                                     </div>
                                 @enderror
                             </div>
@@ -63,34 +66,37 @@
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input class="form-control @error('post_code') is-invalid @enderror" id="post_code" name="post_code" type="text"
-                                placeholder="Irányítószám" value="{{ old('post_code', $company->post_code ?? '') }}" />
+                            <input class="form-control @error('post_code') is-invalid @enderror" id="post_code"
+                                name="post_code" type="text" placeholder="Irányítószám"
+                                value="{{ old('post_code', $company->post_code ?? '') }}" />
                             <label for="post_code">Irányítószám</label>
                             @error('post_code')
                                 <div class="invalid-feedback">
-                                    Irányítószám megadása kötelező
+                                    {{ $message }}
                                 </div>
                             @enderror
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input class="form-control @error('city') is-invalid @enderror" id="city" name="city" type="text" placeholder="Város"
+                            <input class="form-control @error('city') is-invalid @enderror" id="city"
+                                name="city" type="text" placeholder="Város"
                                 value="{{ old('city', $company->city ?? '') }}" />
                             <label for="city">Város</label>
                             @error('city')
                                 <div class="invalid-feedback">
-                                    Város megadása kötelező
+                                    {{ $message }}
                                 </div>
                             @enderror
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input class="form-control @error('street') is-invalid @enderror" id="street" name="street" type="text" placeholder="Utca"
+                            <input class="form-control @error('street') is-invalid @enderror" id="street"
+                                name="street" type="text" placeholder="Utca"
                                 value="{{ old('street', $company->street ?? '') }}" />
                             <label for="street">Utca</label>
                             @error('street')
                                 <div class="invalid-feedback">
-                                    Utca megadása kötelező
+                                    {{ $message }}
                                 </div>
                             @enderror
                         </div>
@@ -100,23 +106,25 @@
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" type="text"
-                                placeholder="Telefonszám" value="{{ old('phone', $company->phone ?? '') }}" />
+                            <input class="form-control @error('phone') is-invalid @enderror" id="phone"
+                                name="phone" type="text" placeholder="Telefonszám"
+                                value="{{ old('phone', $company->phone ?? '') }}" />
                             <label for="phone">Telefonszám</label>
                             @error('phone')
                                 <div class="invalid-feedback">
-                                    Telefonszám megadása kötelező
+                                    {{ $message }}
                                 </div>
                             @enderror
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input class="form-control @error('email') is-invalid @enderror" id="email" name="email" type="email"
-                                placeholder="Email cím" value="{{ old('email', $company->email ?? '') }}" />
+                            <input class="form-control @error('email') is-invalid @enderror" id="email"
+                                name="email" type="email" placeholder="Email cím"
+                                value="{{ old('email', $company->email ?? '') }}" />
                             <label for="email">Email cím</label>
                             @error('email')
                                 <div class="invalid-feedback">
-                                    Email cím megadása kötelező
+                                    {{ $message }}
                                 </div>
                             @enderror
                         </div>

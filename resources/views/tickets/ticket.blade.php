@@ -16,7 +16,7 @@
                         <label for="title">Cím</label>
                         @error('title')
                             <div class="invalid-feedback">
-                                Cím megadása kötelező
+                                {{ $message }}
                             </div>
                         @enderror
                     </div>
@@ -27,7 +27,7 @@
                                     placeholder="Szöveg" rows="20">{{ old('text', $ticket->text ?? '') }}</textarea>
                                 <label for="text">Szöveg</label>
                                 @error('text')
-                                    <div class="invalid-feedback d-block">Szöveg megadása kötelező</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -49,7 +49,7 @@
                                 </select>
                                 <label for="status">Státusz</label>
                                 @error('status')
-                                    <div class="invalid-feedback d-block">Nem megfelelő státusz</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="input-group mb-3">
@@ -70,7 +70,7 @@
                                     @endforeach
                                 </select>
                                 @error('users')
-                                    <div class="invalid-feedback d-block">Legalább egy munkatárs megadása kötelező</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>

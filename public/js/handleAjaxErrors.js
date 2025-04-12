@@ -6,6 +6,7 @@ function handleAjaxErrors(errors) {
     document.querySelectorAll(".invalid-feedback").forEach((el) => {
         el.classList.remove("d-block");
         el.classList.add("d-none");
+        el.textContent = "";
     });
 
     for (let field in errors) {
@@ -19,6 +20,7 @@ function handleAjaxErrors(errors) {
         if (feedback) {
             feedback.classList.add("d-block");
             feedback.classList.remove("d-none");
+            feedback.textContent = errors[field][0];
         }
     }
 }

@@ -16,14 +16,18 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if(!Auth::check()){
-            return redirect(route('home'));
+        if (!Auth::check()) {
+            return $request->expectsJson()
+                ? response()->json(['error' => 'Not authenticated', 'route' => route('home')], 401)
+                : redirect(route('home'));
         }
 
         $user = Auth::user();
 
-        if(!in_array($user->role, $roles)){
-            abort(403);
+        if (!in_array($user->role, $roles)) {
+            return $request->expectsJson()
+                ? response()->json(['error' => 'Forbidden'], 403)
+                : abort(403);
         }
 
         return $next($request);

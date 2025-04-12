@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ExtraRequest;
 use App\Models\Computer;
 use App\Models\Extra;
-use App\Models\User;
 use App\Models\Worksheet;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ExtraController extends Controller
 {
@@ -29,33 +28,25 @@ class ExtraController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ExtraRequest $request)
     {
-        $validated = $request->validate([
-            "worksheet_id" => "required|exists:worksheets,id",
-            "computer_id" => "required|exists:computers,id",
-            "manufacturer" => "required|string",
-            "type" => "required|string",
-            "serial_number" => "required|string|unique:extras,serial_number",
-        ]);
-
-        $worksheet = Worksheet::findOrFail($validated["worksheet_id"]);
+        $worksheet = Worksheet::findOrFail($request["worksheet_id"]);
         if($worksheet["final"] == true){
             return redirect(route('worksheet.show', $worksheet->id));
         }
 
         $extra = new Extra();
-        $extra["manufacturer"] = $validated["manufacturer"];
-        $extra["type"] = $validated["type"];
-        $extra["serial_number"] = $validated["serial_number"];
+        $extra->manufacturer = $request["manufacturer"];
+        $extra->type = $request["type"];
+        $extra->serial_number = $request["serial_number"];
 
         $extra->save();
 
-        $extra->computer()->attach($validated['computer_id'], [
-            'worksheet_id' => $validated['worksheet_id'],
+        $extra->computer()->attach($request['computer_id'], [
+            'worksheet_id' => $request['worksheet_id'],
         ]);
 
-        return redirect(route('computer.show', $validated["computer_id"]));
+        return redirect(route('computer.show', $request["computer_id"]));
     }
 
     /**
@@ -78,28 +69,19 @@ class ExtraController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(ExtraRequest $request, Extra $extra)
     {
-        $extra = Extra::findOrFail($id);
-        $worksheet = $extra->worksheet;
-        if($worksheet["final"] == true){
+        $worksheet = $extra->worksheet()->first();
+        if($worksheet->final == true){
             return redirect(route('worksheet.show', $worksheet->id));
         }
 
-        $validated = $request->validate([
-            "worksheet_id" => "required|exists:worksheets,id",
-            "computer_id" => "required|exists:computers,id",
-            "manufacturer" => "required|string",
-            "type" => "required|string",
-        ]);
-
-
-        $extra["manufacturer"] = $validated["manufacturer"];
-        $extra["type"] = $validated["type"];
+        $extra->manufacturer = $request["manufacturer"];
+        $extra->type = $request["type"];
 
         $extra->save();
 
-        return redirect(route('computer.show', $validated["computer_id"]));
+        return redirect(route('computer.show', $request["computer_id"]));
     }
 
     /**

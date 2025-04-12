@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DragAndDropRequest;
+use App\Http\Requests\TicketRequest;
 use App\Models\Comment;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class TicketController extends Controller
 {
@@ -28,25 +29,19 @@ class TicketController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(TicketRequest $request)
     {
-        $validated = $request->validate([
-            "title" => "required|string",
-            "text" => "required|string",
-            "status" => "required|string",
-            "users" => "required|array"
-        ]);
-
         $user_id = Auth::id();
+
         $ticket = new Ticket();
-        $ticket["title"] = $validated["title"];
-        $ticket["text"] = $validated["text"];
-        $ticket["status"] = $validated["status"];
-        $ticket["slot_number"] = Ticket::getLastSlot($validated["status"], $user_id) + 1;
+        $ticket->title = $request->title;
+        $ticket->text = $request->text;
+        $ticket->status = $request->status;
+        $ticket->slot_number = Ticket::getLastSlot($request->status, $user_id) + 1;
 
         $ticket->save();
 
-        $ticket->users()->attach($validated['users']);
+        $ticket->users()->attach($request->users);
 
         return redirect(route('ticket.show', $ticket->id));
     }
@@ -68,24 +63,17 @@ class TicketController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(TicketRequest $request, string $id)
     {
-        $validated = $request->validate([
-            "title" => "required|string",
-            "text" => "required|string",
-            "status" => "required|string",
-            "users" => "required|array"
-        ]);
-
         $ticket = Ticket::findOrFail($id);
 
-        $ticket["title"] = $validated["title"];
-        $ticket["text"] = $validated["text"];
-        $ticket["status"] = $validated["status"];
+        $ticket->title = $request->title;
+        $ticket->text = $request->text;
+        $ticket->status = $request->status;
 
         $ticket->save();
 
-        $ticket->users()->sync($validated['users']);
+        $ticket->users()->sync($request->users);
 
         return redirect(route('ticket.show', $ticket->id));
     }
@@ -117,54 +105,46 @@ class TicketController extends Controller
     /**
      * Update the ticket's status via drag and drop.
      */
-    public function move(Request $request)
+    public function move(DragAndDropRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $id = $request["id"];
-        $newStatus = $request["newStatus"];
-        $newSlot = $request["newSlot"];
-        $newTicket = Ticket::findOrFail($id);
+        $ticket = Ticket::findOrFail($request->id);
 
-        if ($newTicket) {
-            if ($newTicket->status == $newStatus) {
-                $tickets = $user->ticketsByStatus($newStatus)->sortBy('slot_number')->values();
+        if ($ticket->status == $request->newStatus) {
+            $tickets = $user->ticketsByStatus($request->newStatus)
+                ->sortBy('slot_number')
+                ->reject(fn($tc) => $tc->id === $ticket->id)
+                ->values();
 
-                $filtered = $tickets->reject(fn($ticket) => $ticket->id == $newTicket->id)->values();
+            $tickets->splice($request->newSlot, 0, [$ticket]);
 
-                $filtered->splice($newSlot, 0, [$newTicket]);
-
-                foreach ($filtered as $index => $ticket) {
-                    $ticket->slot_number = $index;
-                    $ticket->save();
-                }
-            } else {
-                $oldStatus = $newTicket->status;
-                foreach ($user->ticketsByStatus($oldStatus) as $ticket) {
-                    if ($ticket->id != $id && $ticket->slot_number > $newTicket->slot_number) {
-                        $ticket->slot_number = $ticket->slot_number - 1;
-                        $ticket->save();
-                    }
-                }
-
-                foreach ($user->ticketsByStatus($newStatus) as $ticket) {
-                    if ($ticket->id != $id && $ticket->slot_number >= $newSlot) {
-                        $ticket->slot_number = $ticket->slot_number + 1;
-                        $ticket->save();
-                    }
-                }
-
-                $newTicket->status = $newStatus;
-                $newTicket->slot_number = $newSlot;
-                $newTicket->save();
+            foreach ($tickets as $i => $tc) {
+                $tc->slot_number = $i;
+                $tc->save();
             }
-            return response()->json([
-                'success' => true,
-            ]);
         } else {
-            return response()->json(['success' => false, 'message' => 'Could not find ticket with id of ' . $id], 404);
+            foreach ($user->ticketsByStatus($ticket->status) as $tc) {
+                if ($tc->id !== $ticket->id && $tc->slot_number > $ticket->slot_number) {
+                    $tc->slot_number -= 1;
+                    $tc->save();
+                }
+            }
+
+            foreach ($user->ticketsByStatus($request->newStatus) as $tc) {
+                if ($tc->id !== $ticket->id && $tc->slot_number >= $request->newSlot) {
+                    $tc->slot_number += 1;
+                    $tc->save();
+                }
+            }
+
+            $ticket->status = $request->newStatus;
+            $ticket->slot_number = $request->newSlot;
+            $ticket->save();
         }
+
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -174,8 +154,8 @@ class TicketController extends Controller
     {
         $validated = $request->validate(["content" => "required|string"]);
 
-        $tic = Ticket::findOrFail($ticket);
-        $tic->comments()->create([
+        $ticket = Ticket::findOrFail($ticket);
+        $ticket->comments()->create([
             'user_id' => Auth::id(),
             'content' => $validated["content"]
         ]);
@@ -188,11 +168,16 @@ class TicketController extends Controller
      */
     public function edit(Request $request, string $comment, string $ticket)
     {
-        DB::table('comments')
-            ->where('id', $comment)
-            ->update([
-                'content' => $request['content'],
-            ]);
+        $comment = Comment::findOrFail($comment);
+        if($comment->user_id != Auth::id()){
+            return redirect(route('ticket.show', $ticket));
+        }
+
+        $validated = $request->validate(["content" => "required|string"]);
+
+        $comment->content = $validated["content"];
+
+        $comment->save();
 
         return redirect(route('ticket.show', $ticket));
     }

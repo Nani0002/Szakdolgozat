@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DragAndDropRequest;
+use App\Http\Requests\WorksheetRequest;
 use App\Models\Company;
 use App\Models\Outsourcing;
 use App\Models\User;
@@ -9,9 +11,21 @@ use App\Models\Worksheet;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class WorksheetController extends Controller
 {
+    /**
+     * Helper function to convert into DateTime.
+     */
+    private function toDateTime(?string $date, ?string $time): ?Carbon
+    {
+        if ($date && $time) {
+            return Carbon::createFromFormat('Y-m-d H:i', "$date $time");
+        }
+        return null;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -46,115 +60,46 @@ class WorksheetController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(WorksheetRequest $request)
     {
-        $validated = $request->validate(["outsourcing" => "required|boolean"]);
+        $validated = $request->validated();
         $isOutourced = $validated["outsourcing"];
-        if ($isOutourced == true) {
-            $validated = $request->validate([
-                "sheet_number" => "required|unique:worksheets,sheet_number",
-                "sheet_type" => "required|in:maintanance,paid,warranty",
-                "current_step" => "required|in:open,started,ongoing,price_offered,waiting,to_invoice,closed",
-                "declaration_mode" => "required|in:email,phone,personal,onsite",
-                "declaration_time" => "required|date",
-                "declaration_time_hour" => "required|date_format:H:i",
-                "print_date" => "nullable|date",
-                "print_date_hour" => "nullable|date_format:H:i",
-                "liable_id" => "required|integer",
-                "coworker_id" => "required|integer",
-                "customer_id" => "required|integer",
-                "work_start" => "nullable|date",
-                "work_start_hour" => "nullable|date_format:H:i",
-                "work_end" => "nullable|date",
-                "work_end_hour" => "nullable|date_format:H:i",
-                "work_time" => "nullable|integer",
-                "error_description" => "required",
-                "partner_id" => "required|integer",
-                "entry_time" => "required|date",
-                "entry_time_hour" => "required|date_format:H:i",
-                "finished" => "required|in:ongoing,finished,brought",
-                "outsourced_number" => "required|unique:outsourcings,outsourced_number",
-                "outsourced_price" => "required|numeric",
-                "our_price" => "required|numeric",
-            ]);
-        } else {
-            $validated = $request->validate([
-                "sheet_number" => "required|unique:worksheets,sheet_number",
-                "sheet_type" => "required|in:maintanance,paid,warranty",
-                "current_step" => "required|in:open,started,ongoing,price_offered,waiting,to_invoice,closed",
-                "declaration_mode" => "required|in:email,phone,personal,onsite",
-                "declaration_time" => "required|date",
-                "declaration_time_hour" => "required|date_format:H:i",
-                "print_date" => "nullable|date",
-                "print_date_hour" => "nullable|date_format:H:i",
-                "liable_id" => "required|integer",
-                "coworker_id" => "required|integer",
-                "customer_id" => "required|integer",
-                "work_start" => "nullable|date",
-                "work_start_hour" => "nullable|date_format:H:i",
-                "work_end" => "nullable|date",
-                "work_end_hour" => "nullable|date_format:H:i",
-                "work_time" => "nullable|integer",
-                "error_description" => "required",
-            ]);
-        }
 
         $ws = new Worksheet();
-        $ws["sheet_number"] = $validated["sheet_number"];
-        $ws["sheet_type"] = $validated["sheet_type"];
-        $ws["current_step"] = $validated["current_step"];
-        $ws["declaration_mode"] = $validated["declaration_mode"];
+        $ws->sheet_number = $validated["sheet_number"];
 
-        $date = $validated['declaration_time'];
-        $time = $validated['declaration_time_hour'];
-        $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-        $ws["declaration_time"] = $datetime;
+        $ws->sheet_type = $validated["sheet_type"];
+        $ws->current_step = $validated["current_step"];
+        $ws->declaration_mode = $validated["declaration_mode"];
 
-        $date = $validated['print_date'];
-        $time = $validated['print_date_hour'];
-        if ($date && $time) {
-            $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-            $ws["print_date"] = $datetime;
-        } else {
-            $ws["print_date"] = null;
-        }
-        $ws["liable_id"] = $validated["liable_id"];
-        $ws["coworker_id"] = $validated["coworker_id"];
-        $ws["customer_id"] = $validated["customer_id"];
+        $ws->declaration_time = $this->toDateTime($validated['declaration_time'], $validated['declaration_time_hour']);
+        $ws->print_date = $this->toDateTime($validated['print_date'], $validated['print_date_hour']);
 
-        $date = $validated['work_start'];
-        $time = $validated['work_start_hour'];
-        $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-        $ws["work_start"] = $datetime;
+        $ws->liable_id = $validated["liable_id"];
+        $ws->coworker_id = $validated["coworker_id"];
+        $ws->customer_id = $validated["customer_id"];
 
-        $date = $validated['work_end'];
-        $time = $validated['work_end_hour'];
-        if ($date && $time) {
-            $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-            $ws["work_end"] = $datetime;
-        } else {
-            $ws["work_end"] = null;
-        }
-        $ws["work_time"] = $validated["work_time"];
-        $ws["error_description"] = $validated["error_description"];
+        $ws->work_start = $this->toDateTime($validated['work_start'], $validated['work_start_hour']);
+        $ws->work_end = $this->toDateTime($validated['work_end'], $validated['work_end_hour']);
+        $ws->work_time = $validated["work_time"];
+        $ws->comment = $validated["comment"];
+        $ws->error_description = $validated["error_description"];
+        $ws->work_description = $validated["work_description"];
 
         if ($isOutourced == true) {
             $outsourcing = new Outsourcing();
 
-            $date = $validated['entry_time'];
-            $time = $validated['entry_time_hour'];
-            $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-            $outsourcing["entry_time"] = $datetime;
+            $outsourcing->entry_time = $this->toDateTime($validated['entry_time'], $validated['entry_time_hour']);
 
-            $outsourcing["finished"] = $validated["finished"];
-            $outsourcing["outsourced_number"] = $validated["outsourced_number"];
-            $outsourcing["outsourced_price"] = $validated["outsourced_price"];
-            $outsourcing["our_price"] = $validated["our_price"];
-            $outsourcing["company_id"] = $validated["partner_id"];
+            $outsourcing->finished = $validated["finished"];
+            $outsourcing->outsourced_number = $validated["outsourced_number"];
+            $outsourcing->outsourced_price = $validated["outsourced_price"];
+            $outsourcing->our_price = $validated["our_price"];
+            $outsourcing->company_id = $validated["partner_id"];
 
             $outsourcing->save();
 
-            $ws["outsourcing_id"] = $outsourcing["id"];
+            $ws->outsourcing_id = $outsourcing->id;
         }
 
         $ws->save();
@@ -196,136 +141,60 @@ class WorksheetController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(WorksheetRequest $request, Worksheet $worksheet)
     {
-        $ws = Worksheet::findOrFail($id);
-        if ($ws["final"] == true) {
-            return redirect(route('worksheet.show', $id));
+        if ($worksheet->final) {
+            return redirect(route('worksheet.show', $worksheet->id));
         }
 
-        $validated = $request->validate(["outsourcing" => "required|boolean"]);
-        $isOutourced = $validated["outsourcing"];
-        if ($isOutourced == true) {
-            $rules = [
-                "sheet_type" => "required|in:maintanance,paid,warranty",
-                "current_step" => "required|in:open,started,ongoing,price_offered,waiting,to_invoice,closed",
-                "declaration_mode" => "required|in:email,phone,personal,onsite",
-                "declaration_time" => "required|date",
-                "declaration_time_hour" => "required|date_format:H:i",
-                "print_date" => "nullable|date",
-                "print_date_hour" => "nullable|date_format:H:i",
-                "liable_id" => "required|integer",
-                "coworker_id" => "required|integer",
-                "customer_id" => "required|integer",
-                "work_start" => "nullable|date",
-                "work_start_hour" => "nullable|date_format:H:i",
-                "work_end" => "nullable|date",
-                "work_end_hour" => "nullable|date_format:H:i",
-                "work_time" => "nullable|integer",
-                "error_description" => "required",
-                "partner_id" => "required|integer",
-                "entry_time" => "required|date",
-                "entry_time_hour" => "required|date_format:H:i",
-                "finished" => "required|in:ongoing,finished,brought",
-                "outsourced_price" => "required|numeric",
-                "our_price" => "required|numeric",
-            ];
-            if (!isset($ws->outsourcing)) {
-                $rules["outsourced_number"] = "required|unique:outsourcings,outsourced_number";
+        $validated = $request->validated();
+        $isOutsourced = $validated["outsourcing"];
+
+        $worksheet->sheet_type = $validated["sheet_type"];
+        $worksheet->current_step = $validated["current_step"];
+        $worksheet->declaration_mode = $validated["declaration_mode"];
+
+        $worksheet->declaration_time = $this->toDateTime($validated['declaration_time'], $validated['declaration_time_hour']);
+        $worksheet->print_date = $this->toDateTime($validated['print_date'], $validated['print_date_hour']);
+
+        $worksheet->liable_id = $validated["liable_id"];
+        $worksheet->coworker_id = $validated["coworker_id"];
+        $worksheet->customer_id = $validated["customer_id"];
+
+        $worksheet->work_start = $this->toDateTime($validated['work_start'], $validated['work_start_hour']);
+        $worksheet->work_end = $this->toDateTime($validated['work_end'], $validated['work_end_hour']);
+
+        $worksheet->work_time = $validated["work_time"];
+        $worksheet->comment = $validated["comment"];
+        $worksheet->error_description = $validated["error_description"];
+        $worksheet->work_description = $validated["work_description"];
+
+        if ($isOutsourced) {
+            $existingOutsourcing = $worksheet->outsourcing;
+
+            if (!($existingOutsourcing instanceof Outsourcing)) {
+                $existingOutsourcing = null;
             }
-            $validated = $request->validate($rules);
-        } else {
-            $validated = $request->validate([
-                "sheet_type" => "required|in:maintanance,paid,warranty",
-                "current_step" => "required|in:open,started,ongoing,price_offered,waiting,to_invoice,closed",
-                "declaration_mode" => "required|in:email,phone,personal,onsite",
-                "declaration_time" => "required|date",
-                "declaration_time_hour" => "required|date_format:H:i",
-                "print_date" => "nullable|date",
-                "print_date_hour" => "nullable|date_format:H:i",
-                "liable_id" => "required|integer",
-                "coworker_id" => "required|integer",
-                "customer_id" => "required|integer",
-                "work_start" => "nullable|date",
-                "work_start_hour" => "nullable|date_format:H:i",
-                "work_end" => "nullable|date",
-                "work_end_hour" => "nullable|date_format:H:i",
-                "work_time" => "nullable|integer",
-                "error_description" => "required",
-            ]);
-        }
 
-        $ws["sheet_type"] = $validated["sheet_type"];
-        $ws["current_step"] = $validated["current_step"];
-        $ws["declaration_mode"] = $validated["declaration_mode"];
+            $outsourcing = $existingOutsourcing ?? new Outsourcing();
 
-        $date = $validated['declaration_time'];
-        $time = $validated['declaration_time_hour'];
-        $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-        $ws["declaration_time"] = $datetime;
+            $outsourcing->entry_time = $this->toDateTime($validated['entry_time'], $validated['entry_time_hour']);
+            $outsourcing->finished = $validated["finished"];
+            $outsourcing->outsourced_price = $validated["outsourced_price"];
+            $outsourcing->our_price = $validated["our_price"];
+            $outsourcing->company_id = $validated["partner_id"];
 
-        $date = $validated['print_date'];
-        $time = $validated['print_date_hour'];
-        if ($date && $time) {
-            $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-            $ws["print_date"] = $datetime;
-        } else {
-            $ws["print_date"] = null;
-        }
-        $ws["liable_id"] = $validated["liable_id"];
-        $ws["coworker_id"] = $validated["coworker_id"];
-        $ws["customer_id"] = $validated["customer_id"];
-
-        $date = $validated['work_start'];
-        $time = $validated['work_start_hour'];
-        $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-        $ws["work_start"] = $datetime;
-
-        $date = $validated['work_end'];
-        $time = $validated['work_end_hour'];
-        if ($date && $time) {
-            $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-            $ws["work_end"] = $datetime;
-        } else {
-            $ws["work_end"] = null;
-        }
-        $ws["work_time"] = $validated["work_time"];
-        $ws["error_description"] = $validated["error_description"];
-
-        if (isset($ws->outsourcing)) {
-            $outsourcing = Outsourcing::findOrFail($ws["outsourcing_id"]);
-
-            $date = $validated['entry_time'];
-            $time = $validated['entry_time_hour'];
-            $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-            $outsourcing["entry_time"] = $datetime;
-
-            $outsourcing["finished"] = $validated["finished"];
-            $outsourcing["outsourced_price"] = $validated["outsourced_price"];
-            $outsourcing["our_price"] = $validated["our_price"];
-            $outsourcing["company_id"] = $validated["partner_id"];
+            if (!$worksheet->outsourcing instanceof Outsourcing) {
+                $outsourcing->outsourced_number = $validated["outsourced_number"];
+            }
 
             $outsourcing->save();
-        } else if ($isOutourced == true) {
-            $outsourcing = new Outsourcing();
-            $date = $validated['entry_time'];
-            $time = $validated['entry_time_hour'];
-            $datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-            $outsourcing["entry_time"] = $datetime;
-
-            $outsourcing["outsourced_number"] = $validated["outsourced_number"];
-            $outsourcing["finished"] = $validated["finished"];
-            $outsourcing["outsourced_price"] = $validated["outsourced_price"];
-            $outsourcing["our_price"] = $validated["our_price"];
-            $outsourcing["company_id"] = $validated["partner_id"];
-
-            $outsourcing->save();
-
-            $ws["outsourcing_id"] = $outsourcing["id"];
+            $worksheet->outsourcing_id = $outsourcing->id;
         }
-        $ws->save();
 
-        return response()->json(['success' => true, 'id' => $ws->id], 201);
+        $worksheet->save();
+
+        return response()->json(['success' => true, 'id' => $worksheet->id], 201);
     }
 
     /**
@@ -381,59 +250,50 @@ class WorksheetController extends Controller
     /**
      * Update the worksheet's current step via drag and drop.
      */
-    public function move(Request $request)
+    public function move(DragAndDropRequest $request)
     {
-        $id = $request["id"];
-        $newWorksheet = Worksheet::findOrFail($id);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-        if ($newWorksheet) {
-            $newStep = $request["newStatus"];
-            $newSlot = $request["newSlot"];
+        $worksheet = Worksheet::findOrFail($request->id);
 
-            if ($newWorksheet["final"] == true && $newWorksheet->current_step != $newStep) {
-                return response()->json(['success' => false], 403);
-            }
-
-            /** @var \App\Models\User $user */
-            $user = Auth::user();
-
-            if ($newWorksheet->current_step == $newStep) {
-                $worksheets = $user->worksheetsByStep($newStep)->sortBy('slot_number')->values();
-
-                $filtered = $worksheets->reject(fn($ws) => $ws->id == $newWorksheet->id)->values();
-
-                $filtered->splice($newSlot, 0, [$newWorksheet]);
-
-                foreach ($filtered as $index => $worksheet) {
-                    $worksheet->slot_number = $index;
-                    $worksheet->save();
-                }
-            } else {
-                $oldStep = $newWorksheet->current_step;
-                foreach ($user->worksheetsByStep($oldStep) as $worksheet) {
-                    if ($worksheet->id != $id && $worksheet->slot_number > $newWorksheet->slot_number) {
-                        $worksheet->slot_number = $worksheet->slot_number - 1;
-                        $worksheet->save();
-                    }
-                }
-
-                foreach ($user->worksheetsByStep($newStep) as $worksheet) {
-                    if ($worksheet->id != $id && $worksheet->slot_number >= $newSlot) {
-                        $worksheet->slot_number = $worksheet->slot_number + 1;
-                        $worksheet->save();
-                    }
-                }
-
-                $newWorksheet->current_step = $newStep;
-                $newWorksheet->slot_number = $newSlot;
-                $newWorksheet->save();
-            }
-            return response()->json([
-                'success' => true,
-            ]);
-        } else {
-            return response()->json(['success' => false], 404);
+        if ($worksheet->final && $worksheet->current_step !== $request->newStatus) {
+            return response()->json(['success' => false], 403);
         }
+
+        if ($worksheet->current_step === $request->newStatus) {
+            $worksheets = $user->worksheetsByStep($request->newStatus)
+                ->sortBy('slot_number')
+                ->reject(fn($ws) => $ws->id === $worksheet->id)
+                ->values();
+
+            $worksheets->splice($request->newSlot, 0, [$worksheet]);
+
+            foreach ($worksheets as $i => $ws) {
+                $ws->slot_number = $i;
+                $ws->save();
+            }
+        } else {
+            foreach ($user->worksheetsByStep($worksheet->current_step) as $ws) {
+                if ($ws->id !== $worksheet->id && $ws->slot_number > $worksheet->slot_number) {
+                    $ws->slot_number -= 1;
+                    $ws->save();
+                }
+            }
+
+            foreach ($user->worksheetsByStep($request->newStatus) as $ws) {
+                if ($ws->id !== $worksheet->id && $ws->slot_number >= $request->newSlot) {
+                    $ws->slot_number += 1;
+                    $ws->save();
+                }
+            }
+
+            $worksheet->current_step = $request->newStatus;
+            $worksheet->slot_number = $request->newSlot;
+            $worksheet->save();
+        }
+
+        return response()->json(['success' => true]);
     }
 
     /**

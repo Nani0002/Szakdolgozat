@@ -58,31 +58,29 @@ class UserController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if ($user->isAdmin()) {
-            $validated = $request->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-                'password' => ['required', 'confirmed', Rules\Password::defaults()],
-                'role' => ['string'],
-            ]);
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['string'],
+        ]);
 
-            $user = User::create([
-                'name' => $validated["name"],
-                'email' => $validated["email"],
-                'password' => Hash::make($validated["password"]),
-                'role' => isset($request->role) ? 'liable' : 'coworker'
-            ]);
+        $user = new User();
 
-            event(new Registered($user));
+        $user->name = $validated["name"];
+        $user->email = $validated["email"];
+        $user->password = Hash::make($validated["password"]);
+        $user->role = isset($request->role) ? 'liable' : 'coworker';
 
-            Auth::logout();
+        $user->save();
 
-            Auth::login($user);
+        event(new Registered($user));
 
-            return redirect(route('home'));
-        } else {
-            return redirect(route('home'));
-        }
+        Auth::logout();
+
+        Auth::login($user);
+
+        return redirect(route('home'));
     }
 
     /**
@@ -90,13 +88,7 @@ class UserController extends Controller
      */
     public function show()
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        if ($user) {
-            return view('user.user', ["profile" => $user]);
-        }
-        return redirect(route('home'));
+        return view('layouts.menu', ["profile" => Auth::user()]);
     }
 
     /**
@@ -107,21 +99,18 @@ class UserController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if ($user) {
-            $validated = $request->validate([
-                'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            ]);
+        $validated = $request->validate([
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
 
-            $user["password"] = $validated['password'];
+        $user->password = $validated['password'];
 
-            $user->save();
+        $user->save();
 
-            return response()->json([
-                "success" => true,
-                "message" => "Sikeres módosítás!"
-            ]);
-        }
-        return response()->json(['error' => 'Unauthorized', 'redirect' => route('home')], 401);
+        return response()->json([
+            "success" => true,
+            "message" => "Sikeres módosítás!"
+        ]);
     }
 
     /**
@@ -132,28 +121,25 @@ class UserController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if ($user) {
-            $request->validate(['image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048']);
+        $request->validate(['image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048']);
 
-            if ($user->imagename_hash != "default_user.png" && $user->imagename_hash != "default_computer.jpg") {
-                Storage::delete('public/images/' . $user->imagename_hash);
-            }
-
-            $originalName = $request->file('image')->getClientOriginalName();
-            $hashedName = Str::random(40) . '.' . $request->file('image')->getClientOriginalExtension();
-
-            $request->file('image')->storeAs('public/images', $hashedName);
-
-            $user["imagename"] = $originalName;
-            $user["imagename_hash"] = $hashedName;
-
-            $user->save();
-
-            return response()->json([
-                'success' => true,
-                'new_image_url' => Storage::url('images/' . $hashedName)
-            ]);
+        if ($user->imagename_hash != "default_user.png" && $user->imagename_hash != "default_computer.jpg") {
+            Storage::delete('public/images/' . $user->imagename_hash);
         }
-        return response()->json(['error' => 'Unauthorized', 'redirect' => route('home')], 401);
+
+        $originalName = $request->file('image')->getClientOriginalName();
+        $hashedName = Str::random(40) . '.' . $request->file('image')->getClientOriginalExtension();
+
+        $request->file('image')->storeAs('public/images', $hashedName);
+
+        $user["imagename"] = $originalName;
+        $user["imagename_hash"] = $hashedName;
+
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'new_image_url' => Storage::url('images/' . $hashedName)
+        ]);
     }
 }

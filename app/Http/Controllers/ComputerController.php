@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ComputerRequest;
 use App\Models\Computer;
 use App\Models\User;
 use App\Models\Worksheet;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -24,18 +24,12 @@ class ComputerController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ComputerRequest $request)
     {
-        $validated = $request->validate([
-            "manufacturer" => "string|required",
-            "type" => "string|required",
-            "serial_number" => "string|required|unique:computers,serial_number",
-        ]);
-
         $computer = new Computer();
-        $computer->manufacturer = $validated["manufacturer"];
-        $computer->type = $validated["type"];
-        $computer->serial_number = $validated["serial_number"];
+        $computer->manufacturer = $request["manufacturer"];
+        $computer->type = $request["type"];
+        $computer->serial_number = $request["serial_number"];
 
         $computer->save();
 
@@ -65,16 +59,10 @@ class ComputerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(ComputerRequest $request, Computer $computer)
     {
-        $validated = $request->validate([
-            "manufacturer" => "string|required",
-            "type" => "string|required",
-        ]);
-
-        $computer = Computer::findOrFail($id);
-        $computer->manufacturer = $validated["manufacturer"];
-        $computer->type = $validated["type"];
+        $computer->manufacturer = $request["manufacturer"];
+        $computer->type = $request["type"];
 
         $computer->save();
 
@@ -121,7 +109,17 @@ class ComputerController extends Controller
             "condition" => "required|string",
             "password" => "required|string",
             "imagefile" => "nullable|image|mimes:jpeg,png,jpg,gif",
+        ], [
+            "computer_id.required" => "A számítógép megadása kötelező.",
+            "computer_id.integer" => "A számítógép azonosító nem megfelelő.",
+            "condition.required" => "Az állapot megadása kötelező.",
+            "condition.string" => "Az állapot formátuma nem megfelelő.",
+            "password.required" => "A jelszó megadása kötelező.",
+            "password.string" => "A jelszó formátuma nem megfelelő.",
+            "imagefile.image" => "A feltöltött fájlnak képként kell értelmezhetőnek lennie.",
+            "imagefile.mimes" => "A képnek JPEG, PNG, JPG vagy GIF formátumúnak kell lennie.",
         ]);
+
 
         $computer = Computer::findOrFail($validated["computer_id"]);
         if (!$worksheet || !$computer) {
@@ -192,11 +190,22 @@ class ComputerController extends Controller
     public function refresh(Request $request)
     {
         $validated = $request->validate([
-            "pivot_id" => "required|integer",
-            "key" => "required|integer",
-            "condition" => "required|string",
-            "password" => "required|string",
-            "imagefile" => "nullable|image|mimes:jpeg,png,jpg,gif",
+            "pivot_id"   => "required|integer",
+            "key"        => "required|integer",
+            "condition"  => "required|string",
+            "password"   => "required|string",
+            "imagefile"  => "nullable|image|mimes:jpeg,png,jpg,gif",
+        ], [
+            "pivot_id.required"   => "A pivot azonosító megadása kötelező.",
+            "pivot_id.integer"    => "A pivot azonosítónak számnak kell lennie.",
+            "key.required"        => "A kulcs megadása kötelező.",
+            "key.integer"         => "A kulcsnak számnak kell lennie.",
+            "condition.required"  => "Az állapot megadása kötelező.",
+            "condition.string"    => "Az állapot formátuma nem megfelelő.",
+            "password.required"   => "A jelszó megadása kötelező.",
+            "password.string"     => "A jelszónak szövegnek kell lennie.",
+            "imagefile.image"     => "A feltöltött fájlnak képként kell értelmezhetőnek lennie.",
+            "imagefile.mimes"     => "A képnek JPEG, PNG, JPG vagy GIF formátumúnak kell lennie.",
         ]);
 
         $pivot = DB::table('computer_worksheet')->where('id', $validated["pivot_id"])->first();

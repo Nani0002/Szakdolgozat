@@ -15,6 +15,10 @@
                                 value="{{ old('sheet_number', $worksheet->sheet_number ?? '') }}"
                                 @disabled(isset($worksheet)) />
                             <label for="sheet_number">Munkalapszám</label>
+                            @isset($worksheet)
+                                <input type="hidden" name="sheet_number"
+                                    value="{{ old('sheet_number', $worksheet->sheet_number) }}">
+                            @endisset
                             <div class="invalid-feedback d-none">
                                 Munkalapszám megadása kötelező
                             </div>
@@ -49,7 +53,7 @@
                                     @foreach ($worksheetTypes as $worksheetType => $worksheetTypePreview)
                                         <option value="{{ $worksheetType }}"
                                             {{ $selected_current_step === $worksheetType ? 'selected' : '' }}>
-                                            {{$worksheetTypePreview["text"]}}
+                                            {{ $worksheetTypePreview['text'] }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -307,13 +311,11 @@
                 <div class="row border-top pt-3">
                     <div class="col-12">
                         @php
-                            $isOutsourcingChecked = old(
-                                'outsourcing',
-                                !isset($worksheet) || isset($worksheet->outsourcing),
-                            );
+                            $isOutsourcingChecked = old('outsourcing', isset($worksheet) && $worksheet->outsourcing ? true : false);
                         @endphp
                         <div class="form-check form-switch fs-4 mb-3">
-                            <input type="hidden" name="outsourcing" value="{{ $isOutsourcingChecked ? '1' : '0' }}">
+                            <input type="hidden" name="outsourcing"
+                                value="{{ $isOutsourcingChecked ? '1' : '0' }}">
                             <input type="checkbox" class="form-check-input" role="switch" name="outsourcing"
                                 id="outsourcing-switch" value="1" {{ $isOutsourcingChecked ? 'checked' : '' }}
                                 @disabled(isset($worksheet->outsourcing))>
@@ -380,6 +382,10 @@
                                 type="text" placeholder="Külső munkalapszám" @disabled(isset($worksheet->outsourcing))
                                 value="{{ old('outsourced_number', $worksheet->outsourcing->outsourced_number ?? '') }}" />
                             <label for="outsourced_number">Külső munkalapszám</label>
+                            @isset($worksheet->outsourcing)
+                                <input type="hidden"
+                                    name="outsourced_number" value="{{ old('outsourced_number', $worksheet->outsourcing->outsourced_number) }}">
+                            @endisset
                             <div class="invalid-feedback d-none">
                                 Munkalapszám megadása kötelező
                             </div>

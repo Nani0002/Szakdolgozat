@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Session\TokenMismatchException;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -44,5 +46,18 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    public function render($request, Throwable $exception)
+    {
+        Log::error('❗ Exception caught in render()', [
+            'type' => get_class($exception),
+            'message' => $exception->getMessage(),
+            'status' => method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : null,
+            'user_id' => auth()->id(),
+            'url' => $request->fullUrl(),
+        ]);
+
+        return parent::render($request, $exception);
     }
 }
