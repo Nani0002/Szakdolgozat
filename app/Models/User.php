@@ -53,7 +53,7 @@ class User extends Authenticatable
 
 
     /**
-     * Returns if user has admin privilige.
+     * Returns if user has admin priviliges.
      */
     public function isAdmin(): Bool
     {
@@ -61,13 +61,31 @@ class User extends Authenticatable
     }
 
     /**
+     * Returns if user has liable priviliges.
+     */
+    public function isLiable(): Bool
+    {
+        return $this->role === 'liable';
+    }
+
+    /**
+     * Returns if user has coworker priviliges.
+     */
+    public function isCoworker(): Bool
+    {
+        return $this->role === 'coworker';
+    }
+
+    /**
      * Returns navbar urls depending on whether a user is logged in or not.
      */
-    public static function getNavUrls($auth, $routes = []): array
+    public static function getNavUrls($role, $routes = []): array
     {
         $navUrls = [['name' => 'Főoldal', 'url' => route('home')]];
-        if ($auth === true) {
-            array_push($navUrls, ['name' => 'Munkalapok', 'url' => route('worksheet.index')], ['name' => 'Ügyfelek', 'url' => route('company.index')]);
+        if ($role != null) {
+            if($role != "admin")
+                array_push($navUrls, ['name' => 'Munkalapok', 'url' => route('worksheet.index')]);
+            array_push($navUrls, ['name' => 'Ügyfelek', 'url' => route('company.index')]);
             foreach ($routes as $route) {
                 switch ($route['type']) {
                     case 'create':
@@ -103,7 +121,7 @@ class User extends Authenticatable
     public function sortedTickets(): array
     {
         $tickets = [];
-        foreach (Ticket::getStatuses() as $status) {
+        foreach (Ticket::getStatuses() as $status => $_) {
             $tickets[$status] = $this->tickets()->where("status", $status)->orderBy('slot_number', 'asc')->get();
         }
         return $tickets;
@@ -117,7 +135,7 @@ class User extends Authenticatable
     public function sortedWorksheets(): array
     {
         $worksheets = [];
-        foreach (Worksheet::getTypes() as $type) {
+        foreach (Worksheet::getTypes() as $type => $_) {
             $liable = $this->liableWorksheets()->where('current_step', $type)->get();
             $coworker = $this->coworkerWorksheets()->where('current_step', $type)->get();
 

@@ -23,13 +23,35 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [UserController::class, 'home'])->name('home');
 
+/*
+| Guest only routes.
+*/
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 });
 
-Route::middleware('auth')->group(function () {
+/*
+| Admin only routes.
+*/
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('register', [UserController::class, 'create']);
+
+    Route::post('register', [UserController::class, 'store'])->name('register');
+});
+
+/*
+    Liable role only routes.
+*/
+Route::middleware(['auth', 'role:liable'])->group(function () {
+    Route::post('worksheet/final/{worksheet}', [WorksheetController::class,'final'])->name('worksheet.final');
+});
+
+/*
+| Non admin routes.
+*/
+Route::middleware(['auth', 'role:liable,coworker'])->group(function () {
     Route::get('worksheet/search/', [WorksheetController::class, 'search'])->name('worksheet.search');
 
     Route::patch('worksheet/close/{worksheet}', [WorksheetController::class, 'close'])->name('worksheet.close');
@@ -40,13 +62,28 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('worksheet', WorksheetController::class);
 
+    Route::get('computer/select/{worksheet}', [ComputerController::class, 'select'])->name('computer.select');
+
+    Route::post('computer/attach/{worksheet}', [ComputerController::class, 'attach'])->name('computer.attach');
+
+    Route::delete('computer/detach/{worksheet}/{computer}', [ComputerController::class, 'detach'])->name('computer.detach');
+
+    Route::put('computer/refresh', [ComputerController::class, 'refresh'])->name('computer.refresh');
+
+    Route::get('computer/get/{pivot}/{computer}', [ComputerController::class, 'get'])->name('computer.get');
+
+    Route::resource('computer', ComputerController::class);
+
+    Route::resource('extra', ExtraController::class);
+});
+
+/*
+| Authenticated users only routes.
+*/
+Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
     Route::get('user', [UserController::class, 'show'])->name('user');
-
-    Route::get('register', [UserController::class, 'create']);
-
-    Route::post('register', [UserController::class, 'store'])->name('register');
 
     Route::post('new_password', [UserController::class, 'newPassword'])->name('user.new_password');
 
@@ -69,18 +106,4 @@ Route::middleware('auth')->group(function () {
     Route::get('company/customers', [CompanyController::class, 'getCustomers'])->name('company.customers');
 
     Route::resource('company', CompanyController::class);
-
-    Route::get('computer/select/{worksheet}', [ComputerController::class, 'select'])->name('computer.select');
-
-    Route::post('computer/attach/{worksheet}', [ComputerController::class, 'attach'])->name('computer.attach');
-
-    Route::delete('computer/detach/{worksheet}/{computer}', [ComputerController::class, 'detach'])->name('computer.detach');
-
-    Route::put('computer/refresh', [ComputerController::class, 'refresh'])->name('computer.refresh');
-
-    Route::get('computer/get/{pivot}/{computer}', [ComputerController::class, 'get'])->name('computer.get');
-
-    Route::resource('computer', ComputerController::class);
-
-    Route::resource('extra', ExtraController::class);
 });

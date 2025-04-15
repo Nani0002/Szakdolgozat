@@ -2,49 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ComputerRequest;
 use App\Models\Computer;
 use App\Models\User;
 use App\Models\Worksheet;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-
 class ComputerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls()]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ComputerRequest $request)
     {
-        $request->validate([
-            "manufacturer" => "string|required",
-            "type" => "string|required",
-            "serial_number" => "string|required|unique:computers,serial_number",
-        ]);
-
         $computer = new Computer();
         $computer->manufacturer = $request["manufacturer"];
         $computer->type = $request["type"];
@@ -60,12 +41,11 @@ class ComputerController extends Controller
      */
     public function show(string $id)
     {
-        if (Auth::check()) {
-            $computer = Computer::findOrFail($id);
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "computer" => $computer, "latest" => $computer->latestInfo()]);
-        } else {
-            return redirect(route('home'));
-        }
+        $computer = Computer::findOrFail($id);
+        return view('layouts.menu', [
+            "computer" => $computer,
+            "latest" => $computer->latestInfo()
+        ]);
     }
 
     /**
@@ -73,25 +53,14 @@ class ComputerController extends Controller
      */
     public function edit(string $id)
     {
-        if (Auth::check()) {
-            $computer = Computer::findOrFail($id);
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "computer" => $computer]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu', ["computer" => Computer::findOrFail($id)]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(ComputerRequest $request, Computer $computer)
     {
-        $request->validate([
-            "manufacturer" => "string|required",
-            "type" => "string|required",
-        ]);
-
-        $computer = Computer::findOrFail($id);
         $computer->manufacturer = $request["manufacturer"];
         $computer->type = $request["type"];
 
@@ -107,79 +76,102 @@ class ComputerController extends Controller
     {
         $computer = Computer::findOrFail($id);
 
-        $$computer->delete();
+        $computer->delete();
 
         return redirect(route('worksheet.index'));
     }
 
+    /**
+     * Get all computers with no attachment to the worksheet.
+     */
     public function select(string $worksheet)
     {
-        if (Auth::check()) {
-            return response()->json([
-                "success" => true,
-                "computers" => Computer::whereDoesntHave('worksheets', function ($f) use ($worksheet) {
-                    $f->where('worksheet_id', $worksheet);
-                })->get()
-            ]);
-        } else {
-            return response()->json([
-                "success" => false,
-            ]);
-        }
+        return response()->json([
+            "success" => true,
+            "computers" => Computer::whereDoesntHave('worksheets', function ($f) use ($worksheet) {
+                $f->where('worksheet_id', $worksheet);
+            })->get()
+        ]);
     }
 
+    /**
+     * Attach a computer to the worksheet.
+     */
     public function attach(Request $request, string $worksheet_id)
     {
-        if (Auth::check()) {
-            $worksheet = Worksheet::findOrFail($worksheet_id);
-            $computer = Computer::findOrFail($request["computer_id"]);
-            if (!$worksheet || !$computer) {
-                return response()->json([
-                    "success" => false,
-                ]);
-            }
+        $worksheet = Worksheet::findOrFail($worksheet_id);
+        if($worksheet["final"] == true){
+            return redirect(route('worksheet.show', $worksheet->id));
+        }
 
-            $originalName = "default_computer.jpg";
-            $hashedName = "default_computer.jpg";
-            if ($request->hasFile('imagefile')) {
-                $originalName = $request->file('imagefile')->getClientOriginalName();
-                $hashedName = Str::random(40) . '.' . $request->file('imagefile')->getClientOriginalExtension();
-
-                $request->file('imagefile')->storeAs('public/images', $hashedName);
-            }
-
-            $worksheet->computers()->attach($computer->id, [
-                "password" => $request["password"],
-                "condition" => $request["condition"],
-                "imagename" => $originalName,
-                "imagename_hash" => $hashedName,
-            ]);
-
-            $computer = $worksheet->computers()->where('computers.id', $computer->id)->first();
-
-            $key = $worksheet->computers()->count() - 1;
+        $validated = $request->validate([
+            "computer_id" => "required|integer",
+            "condition" => "required|string",
+            "password" => "required|string",
+            "imagefile" => "nullable|image|mimes:jpeg,png,jpg,gif",
+        ], [
+            "computer_id.required" => "A számítógép megadása kötelező.",
+            "computer_id.integer" => "A számítógép azonosító nem megfelelő.",
+            "condition.required" => "Az állapot megadása kötelező.",
+            "condition.string" => "Az állapot formátuma nem megfelelő.",
+            "password.required" => "A jelszó megadása kötelező.",
+            "password.string" => "A jelszó formátuma nem megfelelő.",
+            "imagefile.image" => "A feltöltött fájlnak képként kell értelmezhetőnek lennie.",
+            "imagefile.mimes" => "A képnek JPEG, PNG, JPG vagy GIF formátumúnak kell lennie.",
+        ]);
 
 
-            return response()->json([
-                "success" => true,
-                "html" => view('computers._card', compact('computer', 'key', 'worksheet'))->render(),
-            ]);
-        } else {
+        $computer = Computer::findOrFail($validated["computer_id"]);
+        if (!$worksheet || !$computer) {
             return response()->json([
                 "success" => false,
             ]);
         }
+
+        $originalName = "default_computer.jpg";
+        $hashedName = "default_computer.jpg";
+        if ($request->hasFile('imagefile')) {
+            $originalName = $request->file('imagefile')->getClientOriginalName();
+            $hashedName = Str::random(40) . '.' . $request->file('imagefile')->getClientOriginalExtension();
+
+            $request->file('imagefile')->storeAs('public/images', $hashedName);
+        }
+
+        $worksheet->computers()->attach($computer->id, [
+            "password" => $validated["password"],
+            "condition" => $validated["condition"],
+            "imagename" => $originalName,
+            "imagename_hash" => $hashedName,
+        ]);
+
+        $computer = $worksheet->computers()->where('computers.id', $computer->id)->first();
+
+        $key = $worksheet->computers()->count() - 1;
+
+        return response()->json([
+            "success" => true,
+            "html" => view('computers._card', compact('computer', 'key', 'worksheet'))->render(),
+        ], 201);
     }
 
+    /**
+     * Remove the connection between the computer and the worksheet.
+     */
     public function detach(string $worksheet, string $computer)
     {
         $ws = Worksheet::findOrFail($worksheet);
+        if($ws["final"] == true){
+            return redirect(route('worksheet.show', $ws->id));
+        }
 
         $ws->computers()->detach($computer);
 
         return redirect(route('worksheet.show', $ws));
     }
 
+    /**
+     * Get the attached computer and its attachment.
+     */
     public function get(string $pivot, string $computer)
     {
         $comp = Computer::findOrFail($computer);
@@ -192,9 +184,36 @@ class ComputerController extends Controller
         ]);
     }
 
+    /**
+     * Update the connection between the computer and the worksheet.
+     */
     public function refresh(Request $request)
     {
-        $pivot = DB::table('computer_worksheet')->where('id', $request["pivot_id"])->first();
+        $validated = $request->validate([
+            "pivot_id"   => "required|integer",
+            "key"        => "required|integer",
+            "condition"  => "required|string",
+            "password"   => "required|string",
+            "imagefile"  => "nullable|image|mimes:jpeg,png,jpg,gif",
+        ], [
+            "pivot_id.required"   => "A pivot azonosító megadása kötelező.",
+            "pivot_id.integer"    => "A pivot azonosítónak számnak kell lennie.",
+            "key.required"        => "A kulcs megadása kötelező.",
+            "key.integer"         => "A kulcsnak számnak kell lennie.",
+            "condition.required"  => "Az állapot megadása kötelező.",
+            "condition.string"    => "Az állapot formátuma nem megfelelő.",
+            "password.required"   => "A jelszó megadása kötelező.",
+            "password.string"     => "A jelszónak szövegnek kell lennie.",
+            "imagefile.image"     => "A feltöltött fájlnak képként kell értelmezhetőnek lennie.",
+            "imagefile.mimes"     => "A képnek JPEG, PNG, JPG vagy GIF formátumúnak kell lennie.",
+        ]);
+
+        $pivot = DB::table('computer_worksheet')->where('id', $validated["pivot_id"])->first();
+        $worksheet = Worksheet::findOrFail($pivot->worksheet_id);
+        if($worksheet["final"] == true){
+            return redirect(route('worksheet.show', $worksheet->id));
+        }
+
         $originalName = "default_computer.jpg";
         $hashedName = "default_computer.jpg";
         if ($request->hasFile('imagefile')) {
@@ -212,8 +231,8 @@ class ComputerController extends Controller
         DB::table('computer_worksheet')
             ->where('id', $request['pivot_id'])
             ->update([
-                'condition' => $request['condition'],
-                'password' => $request['password'],
+                'condition' => $validated['condition'],
+                'password' => $validated['password'],
                 'imagename' => $originalName,
                 'imagename_hash' => $hashedName,
                 'updated_at' => now(),
@@ -224,20 +243,19 @@ class ComputerController extends Controller
             'id' => $pivot->id,
             'imagename' => $originalName,
             'imagename_hash' => $hashedName,
-            'condition' => $request['condition'],
-            'password' => $request['password'],
+            'condition' => $validated['condition'],
+            'password' => $validated['password'],
             'worksheet_id' => $pivot->worksheet_id,
             'computer_id' => $pivot->computer_id,
             'created_at' => $pivot->created_at,
             'updated_at' => now(),
         ];
 
-        $key = $request["key"];
-        $worksheet = Worksheet::findOrFail($pivot->worksheet_id);
+        $key = $validated["key"];
 
         return response()->json([
             "success" => true,
             "html" => view('computers._card', compact('computer', 'key', 'worksheet'))->render(),
-        ]);
+        ], 201);
     }
 }

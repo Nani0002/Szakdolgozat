@@ -6,40 +6,12 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="fs-3 fw-bold">Bizonylatszám: {{ $worksheet->sheet_number }}
-                                @switch($worksheet->current_step)
-                                    @case('open')
-                                        <h5><span class="badge rounded-pill text-bg-primary worksheet-pill">Felvéve</span></h5>
-                                    @break
-
-                                    @case('started')
-                                        <h5><span class="badge rounded-pill text-bg-secondary worksheet-pill">Kiosztva</span>
-                                        </h5>
-                                    @break
-
-                                    @case('ongoing')
-                                        <h5><span class="badge rounded-pill text-bg-success worksheet-pill">Folyamatban</span>
-                                        </h5>
-                                    @break
-
-                                    @case('price_offered')
-                                        <h5><span class="badge rounded-pill text-bg-info worksheet-pill">Árajánlat kiadva</span>
-                                        </h5>
-                                    @break
-
-                                    @case('waiting')
-                                        <h5><span class="badge rounded-pill text-bg-dark worksheet-pill">Külsősre várunk</span>
-                                        </h5>
-                                    @break
-
-                                    @case('to_invoice')
-                                        <h5><span class="badge rounded-pill text-bg-warning worksheet-pill">Számlázni</span>
-                                        </h5>
-                                    @break
-
-                                    @case('closed')
-                                        <h5><span class="badge rounded-pill text-bg-danger worksheet-pill">Lezárva</span></h5>
-                                    @break
-                                @endswitch
+                                <h5>
+                                    <span
+                                        class="badge rounded-pill text-bg-{{ $worksheetTypes[$worksheet->current_step]['color'] }} worksheet-pill">
+                                        {{ $worksheetTypes[$worksheet->current_step]['text'] }}
+                                    </span>
+                                </h5>
                             </div>
                         </div>
                     </div>
@@ -71,7 +43,8 @@
                         </div>
                         <div class="col-6 fs-5">
                             {{ $worksheet->print_date }}
-                            <button id="print-btn" class="btn btn-info" data-preview-url={{route('worksheet.print', $worksheet->id)}}>🖨️</button>
+                            <button id="print-btn" class="btn btn-info"
+                                data-preview-url={{ route('worksheet.print', $worksheet->id) }}>🖨️</button>
                         </div>
                     </div>
                     <div class="row">
@@ -124,7 +97,7 @@
                             30 perces egység:
                         </div>
                         <div class="col-6">
-                            {{ $worksheet->worktime }}
+                            {{ $worksheet->work_time }}
                         </div>
                     </div>
                     <div class="row">
@@ -154,7 +127,8 @@
                             </div>
                             <div class="row">
                                 <div class="col-6">
-                                    <h6 class="card-subtitle mb-2 text-body-secondary">{{ $worksheet->customer->email }}
+                                    <h6 class="card-subtitle mb-2 text-body-secondary">
+                                        {{ $worksheet->customer->email }}
                                     </h6>
                                 </div>
                                 <div class="col-6">
@@ -301,23 +275,42 @@
                                 @include('computers._card', ['computer' => $computer, 'key' => $key])
                             @endforeach
                         @endif
-                        <div class="col">
-                            <div class="card h-75 d-flex flex-column p-3">
-                                <a id="add-computer" href="{{ route('computer.create') }}"
-                                    class="h-100 d-flex">+</a>
+                        @if (!$worksheet->final)
+                            <div class="col">
+                                <div class="card h-75 d-flex flex-column p-3">
+                                    <a id="add-computer" href="{{ route('computer.create') }}"
+                                        class="h-100 d-flex">+</a>
+                                </div>
+                                <div class="card h-25 d-flex flex-column p-3">
+                                    <button id="select-computer" class="h-100 d-flex" data-bs-toggle="modal"
+                                        data-bs-target="#select-modal"
+                                        data-get-url={{ route('computer.select', $worksheet->id) }}>Kiválasztás</button>
+                                </div>
                             </div>
-                            <div class="card h-25 d-flex flex-column p-3">
-                                <button id="select-computer" class="h-100 d-flex" data-bs-toggle="modal"
-                                    data-bs-target="#select-modal"
-                                    data-get-url={{ route('computer.select', $worksheet->id) }}>Kiválasztás</button>
-                            </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
-            <div class="row mt-3">
-                <a href="{{ route('worksheet.edit', $worksheet->id) }}" class="btn btn-success">Szerkesztés</a>
-            </div>
+            @if (!$worksheet->final)
+                <div class="container">
+                    <div class="row my-3">
+                        <div class="col-6">
+                            <div class="row mx-2">
+                                <a href="{{ route('worksheet.edit', $worksheet->id) }}"
+                                    class="btn btn-success">Szerkesztés</a>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <form action="{{ route('worksheet.final', $worksheet->id) }}" method="post">
+                                <div class="row mx-2">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger">Véglegesítés</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </div>
@@ -332,6 +325,9 @@
                 <div class="form-floating">
                     <select class="form-select" id="computer_id" name="computer_id"></select>
                     <label for="computer_id">Számítógép sorozatszám</label>
+                    <div class="invalid-feedback d-none">
+                        Kapcolandó számítógép megadása kötelező.
+                    </div>
                 </div>
                 <div class="row mt-3">
                     <div class="col-2 fw-bold">Gyártó:</div>
@@ -345,16 +341,25 @@
                     <input class="form-control" id="condition" name="condition" type="text"
                         placeholder="Állapot" />
                     <label for="condition">Állapot</label>
+                    <div class="invalid-feedback d-none">
+                        Állapot megadása kötelező.
+                    </div>
                 </div>
                 <div class="form-floating mt-2">
                     <input class="form-control" id="password" name="password" type="text"
                         placeholder="Jelszó" />
                     <label for="password">Jelszó</label>
+                    <div class="invalid-feedback d-none">
+                        Jelszó megadása kötelező.
+                    </div>
                 </div>
                 <div class="row mt-3">
                     <div class="col-6 offset-3 position-relative">
                         <img src="" alt="Preview" class="img-fluid" id="prewiew">
-                        <input type="file" id="imagefile" class="d-none" accept="image/*">
+                        <div class="form-group">
+                            <input type="file" id="imagefile" name="imagefile" class="d-none" accept="image/*">
+                            <div class="invalid-feedback d-none">Nem megfelelő kép formátum!</div>
+                        </div>
                         <button class="btn btn-light rounded-circle plus-btn border-dark border-2"
                             id="changeImageBtn"><b>+</b></button>
                     </div>
@@ -379,4 +384,5 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/computer.js') }}"></script>
     <script src="{{ asset('js/print.js') }}"></script>
+    <script src="{{ asset('js/handleAjaxErrors.js') }}"></script>
 @endpush

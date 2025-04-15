@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -40,7 +41,7 @@ return new class extends Migration
             $table->unsignedBigInteger("outsourcing_id")->nullable();
             $table->foreign("outsourcing_id")->references("id")->on("outsourcings")->onDelete("cascade");
 
-            $table->enum("current_step", ["open", "started", "ongoing", "price_offered", "waiting", "to_invoice", "closed"]);
+            $table->enum("current_step", array_keys(Config::get('worksheet_steps')));
 
             $table->integer("slot_number")->default(0);
 

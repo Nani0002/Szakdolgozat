@@ -11,16 +11,26 @@
                 @endisset
                 <div class="container">
                     <div class="form-floating mb-3">
-                        <input class="form-control" id="title" name="title" type="text" placeholder="Cím"
-                            value="{{ old('title', $ticket->title ?? '') }}" />
+                        <input class="form-control @error('title') is-invalid @enderror" id="title" name="title"
+                            type="text" placeholder="Cím" value="{{ old('title', $ticket->title ?? '') }}" />
                         <label for="title">Cím</label>
+                        @error('title')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="row">
                         <div class="col-6">
                             <div class="form-floating mb-3">
-                                <textarea class="form-control h-100" id="text" name="text" placeholder="Szöveg" rows="20">{{ old('text', $ticket->text ?? '') }}</textarea>
+                                <textarea class="form-control h-100 @error('text') is-invalid @enderror" id="text" name="text"
+                                    placeholder="Szöveg" rows="20">{{ old('text', $ticket->text ?? '') }}</textarea>
                                 <label for="text">Szöveg</label>
+                                @error('text')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
+
                         </div>
                         <div class="col-6">
                             @php
@@ -28,43 +38,19 @@
                             @endphp
 
                             <div class="form-floating mb-3">
-                                <select class="form-select" id="status" name="status">
-                                    @foreach ($ticketTypes as $ticketType)
+                                <select class="form-select @error('status') is-invalid @enderror" id="status"
+                                    name="status">
+                                    @foreach ($ticketTypes as $ticketType => $ticketTypePreview)
                                         <option value="{{ $ticketType }}"
                                             {{ $selected_status === $ticketType ? 'selected' : '' }}>
-                                            @switch($ticketType)
-                                                @case('open')
-                                                    Felvéve
-                                                @break
-
-                                                @case('started')
-                                                    Kiosztva
-                                                @break
-
-                                                @case('ongoing')
-                                                    Folyamatban
-                                                @break
-
-                                                @case('price_offered')
-                                                    Árajánlat kiadva
-                                                @break
-
-                                                @case('waiting')
-                                                    Külsősre várunk
-                                                @break
-
-                                                @case('to_invoice')
-                                                    Számlázni
-                                                @break
-
-                                                @case('closed')
-                                                    Lezárva
-                                                @break
-                                            @endswitch
+                                            {{ $ticketTypePreview['text'] }}
                                         </option>
                                     @endforeach
                                 </select>
                                 <label for="status">Státusz</label>
+                                @error('status')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="input-group mb-3">
                                 @php
@@ -74,8 +60,8 @@
                                     );
                                 @endphp
 
-                                <select class="form-multi-select" data-placeholder="Csatolt munkatársak" id="users"
-                                    name="users[]" multiple>
+                                <select class="form-multi-select @error('users') is-invalid @enderror"
+                                    data-placeholder="Csatolt munkatársak" id="users" name="users[]" multiple>
                                     @foreach ($users as $user)
                                         <option value="{{ $user->id }}"
                                             {{ in_array($user->id, $selected_users) ? 'selected' : '' }}>
@@ -83,6 +69,9 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                @error('users')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CompanyRequest;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -14,11 +15,7 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "companies" => Company::sortedCompanies()]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu', ["companies" => Company::sortedCompanies()]);
     }
 
     /**
@@ -26,36 +23,22 @@ class CompanyController extends Controller
      */
     public function create(Request $request)
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "type" => $request->query('type', 'partner')]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu', ["type" => $request->query('type', 'partner')]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CompanyRequest $request)
     {
-        $request->validate([
-            'name' => "string|required",
-            "type" => "string|required",
-            "post_code" => "string|required",
-            "city" => "string|required",
-            "street" => "string|required",
-            "phone" => "string|required",
-            "email" => "string|email|required"
-        ]);
-
         $company = new Company();
-        $company->name = $request->name;
-        $company->type = $request->type;
-        $company->post_code = $request->post_code;
-        $company->city = $request->city;
-        $company->street = $request->street;
-        $company->phone = $request->phone;
-        $company->email = $request->email;
+        $company["name"] = $request["name"];
+        $company["type"] = $request["type"];
+        $company["post_code"] = $request["post_code"];
+        $company["city"] = $request["city"];
+        $company["street"] = $request["street"];
+        $company["phone"] = $request["phone"];
+        $company["email"] = $request["email"];
 
         $company->save();
 
@@ -63,46 +46,24 @@ class CompanyController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "userUrls" => Auth::user()->getUserUrls(), "company" => Company::find($id)]);
-        } else {
-            return redirect(route('home'));
-        }
+        return view('layouts.menu', ["company" => Company::find($id)]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(CompanyRequest $request, Company $company)
     {
-        $request->validate([
-            "name" => "string|required",
-            "post_code" => "string|required",
-            "city" => "string|required",
-            "street" => "string|required",
-            "phone" => "string|required",
-            "email" => "string|email|required"
-        ]);
-
-        $company = Company::find($id);
-        $company->name = $request->name;
-        $company->post_code = $request->post_code;
-        $company->city = $request->city;
-        $company->street = $request->street;
-        $company->phone = $request->phone;
-        $company->email = $request->email;
+        $company["name"] = $request["name"];
+        $company["post_code"] = $request["post_code"];
+        $company["city"] = $request["city"];
+        $company["street"] = $request["street"];
+        $company["phone"] = $request["phone"];
+        $company["email"] = $request["email"];
 
         $company->update();
 
@@ -114,25 +75,23 @@ class CompanyController extends Controller
      */
     public function destroy(string $id)
     {
-        $company = Company::find($id);
-
+        $company = Company::findOrFail($id);
         $company->delete();
 
         return redirect(route('company.index'));
     }
 
+    /**
+     * Get all customers in a customer company.
+     */
     public function getCustomers(Request $request)
     {
         $id = $request->query('id');
-        $company = Company::find($id);
+        $company = Company::findOrFail($id);
 
-        if ($company) {
-            return response()->json([
-                "success" => true,
-                "customers" => $company->customers()->get()
-            ]);
-        }
-
-        return response()->json(["success" => false]);
+        return response()->json([
+            "success" => true,
+            "customers" => $company->customers()->get()
+        ]);
     }
 }

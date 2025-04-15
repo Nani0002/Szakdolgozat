@@ -2,37 +2,9 @@
     <div class="ticket-frame bg-light rounded-5" data-update-url="{{ route('ticket.move') }}"
         data-csrf-token="{{ csrf_token() }}" id="dragdrop-frame">
         @isset($ticketTypes)
-            @foreach ($ticketTypes as $ticketType)
+            @foreach ($ticketTypes as $ticketType => $ticketTypePreview)
                 <div class="ticket-column" id="ticket-column-{{ $ticketType }}">
-                    @switch($ticketType)
-                        @case('open')
-                            <h5><span class="badge rounded-pill text-bg-primary ticket-pill">Felvéve</span></h5>
-                        @break
-
-                        @case('started')
-                            <h5><span class="badge rounded-pill text-bg-secondary ticket-pill">Kiosztva</span></h5>
-                        @break
-
-                        @case('ongoing')
-                            <h5><span class="badge rounded-pill text-bg-success ticket-pill">Folyamatban</span></h5>
-                        @break
-
-                        @case('price_offered')
-                            <h5><span class="badge rounded-pill text-bg-info ticket-pill">Árajánlat kiadva</span></h5>
-                        @break
-
-                        @case('waiting')
-                            <h5><span class="badge rounded-pill text-bg-dark ticket-pill">Külsősre várunk</span></h5>
-                        @break
-
-                        @case('to_invoice')
-                            <h5><span class="badge rounded-pill text-bg-warning ticket-pill">Számlázni</span></h5>
-                        @break
-
-                        @case('closed')
-                            <h5><span class="badge rounded-pill text-bg-danger ticket-pill">Lezárva</span></h5>
-                        @break
-                    @endswitch
+                    <h5><span class="badge rounded-pill text-bg-{{$ticketTypePreview["color"]}} ticket-pill">{{$ticketTypePreview["text"]}}</span></h5>
                     <div class="ticket-container dragdrop-container accordion" id="ticket-container-{{ $ticketType }}"
                         ondrop="drop(event)" ondragover="allowDrop(event)">
                         @foreach ($tickets[$ticketType] as $ticket)

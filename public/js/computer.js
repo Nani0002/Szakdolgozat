@@ -8,9 +8,11 @@ let key = 0;
 let editmode = false;
 
 function init() {
-    document
-        .querySelector("#select-computer")
-        .addEventListener("click", getComputers, false);
+    const selectComputerBtn = document.querySelector("#select-computer");
+
+    if (selectComputerBtn) {
+        selectComputerBtn.addEventListener("click", getComputers, false);
+    }
 
     document
         .querySelector("#computer_id")
@@ -168,7 +170,9 @@ function attach(e) {
         },
         error: function (xhr) {
             let response = JSON.parse(xhr.responseText || "{}");
-            if (xhr.status === 401 && response.redirect) {
+            if (xhr.status === 422) {
+                handleAjaxErrors(xhr.responseJSON.errors);
+            } else if (xhr.status === 401 && response.redirect) {
                 window.location.href = response.redirect;
             } else {
                 alert(

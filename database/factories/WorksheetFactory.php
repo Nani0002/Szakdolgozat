@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Worksheet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,12 +25,11 @@ class WorksheetFactory extends Factory
             'declaration_mode' => fake()->randomElement(["email", "phone", "personal", "onsite"]),
             'error_description' => fake()->text(),
             'comment' => fake()->text(25),
-            'final' => fake()->boolean(),
             'work_start' => fake()->date(),
             'work_end' => fake()->date(),
             'work_time' => fake()->numberBetween(1,10),
             'work_description' => fake()->text(300),
-            'current_step' => fake()->randomElement(["open", "started", "ongoing", "price_offered", "waiting", "to_invoice", "closed"]),
+            'current_step' => fake()->randomElement(array_keys(Worksheet::getTypes())),
             'slot_number' => 0,
         ];
     }

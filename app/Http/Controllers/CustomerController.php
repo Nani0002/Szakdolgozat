@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CustomerRequest;
 use App\Models\Company;
 use App\Models\Customer;
 use Illuminate\Http\Request;
@@ -9,61 +10,33 @@ use Illuminate\Http\Request;
 class CustomerController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CustomerRequest $request)
     {
+        $company = Company::findOrFail($request["id"]);
+
         $customer = new Customer();
         $customer->name = $request["name"];
         $customer->email = $request["email"];
         $customer->mobile = $request["phone"];
-        $customer->company_id = $request["id"];
+        $customer->company_id = $company->id;
 
         $customer->save();
 
         return response()->json([
             'success' => true,
-        ]);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+            "html" => view('companies._card', compact('customer', 'company'))->render()
+        ], 201);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(CustomerRequest $request, Customer $customer)
     {
-        $customer = Customer::find($id);
+        $company = Company::findOrFail($customer->company_id);
+
         $customer->name = $request["name"];
         $customer->email = $request["email"];
         $customer->mobile = $request["phone"];
@@ -72,7 +45,8 @@ class CustomerController extends Controller
 
         return response()->json([
             'success' => true,
-        ]);
+            "html" => view('companies._card', compact('customer', 'company'))->render()
+        ], 201);
     }
 
     /**

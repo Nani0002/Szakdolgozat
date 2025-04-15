@@ -3,6 +3,7 @@
 @php
     $titles = [
         'register' => 'Munkatárs felvétele',
+        'user' => 'Profilom',
         'ticket/create' => 'Munkajegy felvétele',
         'company' => 'Ügyfelek',
         'company/create' => 'Ügyfél felvétele',
@@ -56,6 +57,8 @@
     @auth
         @if (request()->is('/'))
             @include('tickets.tickets')
+        @elseif (request()->is('user'))
+            @include('user.user')
         @elseif (request()->is('ticket/create') || request()->is('ticket/*'))
             @include('tickets.ticket')
         @elseif(request()->is('register'))

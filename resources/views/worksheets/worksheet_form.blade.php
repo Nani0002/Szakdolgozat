@@ -15,6 +15,13 @@
                                 value="{{ old('sheet_number', $worksheet->sheet_number ?? '') }}"
                                 @disabled(isset($worksheet)) />
                             <label for="sheet_number">Munkalapszám</label>
+                            @isset($worksheet)
+                                <input type="hidden" name="sheet_number"
+                                    value="{{ old('sheet_number', $worksheet->sheet_number) }}">
+                            @endisset
+                            <div class="invalid-feedback d-none">
+                                Munkalapszám megadása kötelező
+                            </div>
                         </div>
                         <div class="input-group mb-3">
                             @php
@@ -33,6 +40,9 @@
                                     </option>Garanciális
                                 </select>
                                 <label for="declaration_mode">Munkalap típusa</label>
+                                <div class="invalid-feedback d-none">
+                                    Nem megfelelő munkalap típus
+                                </div>
                             </div>
                             @php
                                 $selected_current_step = old('current_step', $worksheet->current_step ?? $current_step);
@@ -40,42 +50,17 @@
 
                             <div class="form-floating">
                                 <select class="form-select" id="current_step" name="current_step">
-                                    @foreach ($worksheetTypes as $worksheetType)
+                                    @foreach ($worksheetTypes as $worksheetType => $worksheetTypePreview)
                                         <option value="{{ $worksheetType }}"
                                             {{ $selected_current_step === $worksheetType ? 'selected' : '' }}>
-                                            @switch($worksheetType)
-                                                @case('open')
-                                                    Felvéve
-                                                @break
-
-                                                @case('started')
-                                                    Kiosztva
-                                                @break
-
-                                                @case('ongoing')
-                                                    Folyamatban
-                                                @break
-
-                                                @case('price_offered')
-                                                    Árajánlat kiadva
-                                                @break
-
-                                                @case('waiting')
-                                                    Külsősre várunk
-                                                @break
-
-                                                @case('to_invoice')
-                                                    Számlázni
-                                                @break
-
-                                                @case('closed')
-                                                    Lezárva
-                                                @break
-                                            @endswitch
+                                            {{ $worksheetTypePreview['text'] }}
                                         </option>
                                     @endforeach
                                 </select>
                                 <label for="current_step">Munkalap állapota</label>
+                                <div class="invalid-feedback d-none">
+                                    Nem megfelelő állapot
+                                </div>
                             </div>
                             @php
                                 $selected_declaration_mode = old(
@@ -100,6 +85,9 @@
                                         Helyszíni</option>
                                 </select>
                                 <label for="declaration_mode">Bejelentés módja</label>
+                                <div class="invalid-feedback d-none">
+                                    Nem megfelelő bejelentési mód
+                                </div>
                             </div>
                         </div>
                         @php
@@ -126,6 +114,9 @@
                                 value="{{ $declaration_date }}" />
                             <input id="declaration_time_hour" class="form-control" type="time"
                                 name="declaration_time_hour" value="{{ $declaration_time }}" />
+                            <div class="invalid-feedback d-none">
+                                Nem megfelelő felvételi idő
+                            </div>
                         </div>
                         <div class="form-check form-switch fs-4 mb-3">
                             <input class="form-check-input" type="checkbox" role="switch" id="print_check">
@@ -179,6 +170,9 @@
                                     @endforeach
                                 </select>
                                 <label for="liable_id">Belső felelős</label>
+                                <div class="invalid-feedback d-none">
+                                    Nem megfelelő belső felelős
+                                </div>
                             </div>
                         </div>
                         <div class="input-group mb-3">
@@ -200,6 +194,9 @@
                                     @endforeach
                                 </select>
                                 <label for="coworker_id">Belső munkatárs</label>
+                                <div class="invalid-feedback d-none">
+                                    Nem megfelelő belső munkatárs
+                                </div>
                             </div>
                         </div>
                         <div class="form-floating mb-3">
@@ -215,6 +212,9 @@
                                 @endforeach
                             </select>
                             <label for="company_id">Ügyfél cég</label>
+                            <div class="invalid-feedback d-none">
+                                Nem megfelelő ügyfél cég
+                            </div>
                         </div>
                         <div class="form-floating mb-3">
                             @php
@@ -228,6 +228,9 @@
                                 @endforeach
                             </select>
                             <label for="customer_id">Ügyfél munkatárs</label>
+                            <div class="invalid-feedback d-none">
+                                Nem megfelelő ügyfél munkatárs
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -256,6 +259,9 @@
                                 value="{{ $work_start_date }}" />
                             <input id="work_start_hour" class="form-control" type="time" name="work_start_hour"
                                 value="{{ $work_start_time }}" />
+                            <div class="invalid-feedback d-none">
+                                Nem megfelelő kezdési idő
+                            </div>
                         </div>
                         @php
                             $work_end_date = old(
@@ -292,6 +298,9 @@
                         <div class="form-floating mb-3">
                             <textarea class="form-control" placeholder="Hibaleírás" id="error_description" name="error_description">{{ old('error_description', $worksheet->error_description ?? '') }}</textarea>
                             <label for="error_description">Hibaleírás</label>
+                            <div class="invalid-feedback d-none">
+                                Hibaleírás megadása kötelező
+                            </div>
                         </div>
                         <div class="form-floating mb-3">
                             <textarea class="form-control" placeholder="Elvégzett munka" id="work_description" name="work_description">{{ old('work_description', $worksheet->work_description ?? '') }}</textarea>
@@ -302,13 +311,11 @@
                 <div class="row border-top pt-3">
                     <div class="col-12">
                         @php
-                            $isOutsourcingChecked = old(
-                                'outsourcing',
-                                !isset($worksheet) || isset($worksheet->outsourcing),
-                            );
+                            $isOutsourcingChecked = old('outsourcing', isset($worksheet) && $worksheet->outsourcing ? true : false);
                         @endphp
                         <div class="form-check form-switch fs-4 mb-3">
-                            <input type="hidden" name="outsourcing" value="0">
+                            <input type="hidden" name="outsourcing"
+                                value="{{ $isOutsourcingChecked ? '1' : '0' }}">
                             <input type="checkbox" class="form-check-input" role="switch" name="outsourcing"
                                 id="outsourcing-switch" value="1" {{ $isOutsourcingChecked ? 'checked' : '' }}
                                 @disabled(isset($worksheet->outsourcing))>
@@ -350,6 +357,9 @@
                                 value="{{ $entry_date }}" />
                             <input id="entry_time_hour" class="form-control" type="time" name="entry_time_hour"
                                 value="{{ $entry_time }}" />
+                            <div class="invalid-feedback d-none">
+                                Nem megfelelő beviteli idő
+                            </div>
                         </div>
                         @php
                             $selected_finished = old('finished', $worksheet->outsourcing->finished ?? '');
@@ -372,30 +382,34 @@
                                 type="text" placeholder="Külső munkalapszám" @disabled(isset($worksheet->outsourcing))
                                 value="{{ old('outsourced_number', $worksheet->outsourcing->outsourced_number ?? '') }}" />
                             <label for="outsourced_number">Külső munkalapszám</label>
+                            @isset($worksheet->outsourcing)
+                                <input type="hidden"
+                                    name="outsourced_number" value="{{ old('outsourced_number', $worksheet->outsourcing->outsourced_number) }}">
+                            @endisset
+                            <div class="invalid-feedback d-none">
+                                Munkalapszám megadása kötelező
+                            </div>
                         </div>
                         <div class="form-floating mb-3">
                             <input class="form-control" id="outsourced_price" name="outsourced_price" type="number"
                                 placeholder="Vállalt árajánlat"
                                 value="{{ old('outsourced_price', $worksheet->outsourcing->outsourced_price ?? '') }}" />
                             <label for="outsourced_price">Vállalt árajánlat</label>
+                            <div class="invalid-feedback d-none">
+                                Ajánlat megadása kötelező
+                            </div>
                         </div>
                         <div class="form-floating mb-3">
                             <input class="form-control" id="our_price" name="our_price" type="number"
                                 placeholder="Saját árajánlat"
                                 value="{{ old('our_price', $worksheet->outsourcing->our_price ?? '') }}" />
                             <label for="our_price">Saját árajánlat</label>
+                            <div class="invalid-feedback d-none">
+                                Ajánlat megadása kötelező
+                            </div>
                         </div>
                     </div>
                 </div>
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
                 <div class="row mx-1 mt-5">
                     <button class="btn btn-primary btn-lg" type="submit">
                         @if (isset($worksheet))
@@ -422,6 +436,7 @@
 
 @push('js')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{{ asset('js/worksheet_form.js') }}"></script>
+    <script src="{{ asset('js/worksheetForm.js') }}"></script>
     <script src="{{ asset('js/print.js') }}"></script>
+    <script src="{{ asset('js/handleAjaxErrors.js') }}"></script>
 @endpush

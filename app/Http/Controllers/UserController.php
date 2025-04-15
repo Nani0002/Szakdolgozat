@@ -14,108 +14,132 @@ use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
+    /**
+     * Show the home page of the application.
+     */
     public function home()
     {
-        if (Auth::check()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "tickets" => Auth::user()->sortedTickets(), "userUrls" => Auth::user()->getUserUrls(), "ticketTypes" => Ticket::getStatuses()]);
+        /** @var \App\Models\User $user|null */
+        $user = Auth::user();
+
+        if ($user) {
+            /** @var \App\Models\User $user */
+
+            return view('layouts.menu', [
+                "navActions" => [['type' => 'create', 'text' => "hibajegy", "url" => route('ticket.create')]],
+                "tickets" => $user->sortedTickets(),
+                "ticketTypes" => Ticket::getStatuses()
+            ]);
         } else {
             return view('layouts.menu', ["navUrls" => User::getNavUrls(false)]);
         }
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
-        if (Auth::check() && Auth::user()->isAdmin()) {
-            return view('layouts.menu', ["navUrls" => User::getNavUrls(true), "tickets" => [], "userUrls" => Auth::user()->getUserUrls()]);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->isAdmin()) {
+            return view('layouts.menu');
         } else {
             return redirect(route('home'));
         }
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
-        if (Auth::check() && Auth::user()->isAdmin()) {
-            $request->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-                'password' => ['required', 'confirmed', Rules\Password::defaults()],
-                'role' => ['string'],
-            ]);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => isset($request->role) ? 'liable' : 'coworker'
-            ]);
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['string'],
+        ]);
 
-            event(new Registered($user));
+        $user = new User();
 
-            Auth::logout();
+        $user->name = $validated["name"];
+        $user->email = $validated["email"];
+        $user->password = Hash::make($validated["password"]);
+        $user->role = isset($request->role) ? 'liable' : 'coworker';
 
-            Auth::login($user);
+        $user->save();
 
-            return redirect(route('home'));
-        } else {
-            return redirect(route('home'));
-        }
+        event(new Registered($user));
+
+        Auth::logout();
+
+        Auth::login($user);
+
+        return redirect(route('home'));
     }
 
+    /**
+     * Display the specified resource.
+     */
     public function show()
     {
-        if (Auth::check()) {
-            $user = Auth::user();
-            return view('user.user', ["navUrls" => User::getNavUrls(true), "userUrls" => $user->getUserUrls(), "profile" => $user]);
-        }
-        return redirect(route('home'));
+        return view('layouts.menu', ["profile" => Auth::user()]);
     }
 
-    public function update(Request $request) {}
-
+    /**
+     * Update the password for the current user.
+     */
     public function newPassword(Request $request)
     {
-        if (Auth::check()) {
-            $request->validate([
-                'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            ]);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-            $user = Auth::user();
+        $validated = $request->validate([
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
 
-            $user->password = $request['password'];
+        $user->password = $validated['password'];
 
-            $user->save();
+        $user->save();
 
-            return response()->json(["message" => "Sikeres módosítás!"]);
-        }
-        return redirect(route('home'));
+        return response()->json([
+            "success" => true,
+            "message" => "Sikeres módosítás!"
+        ]);
     }
 
+    /**
+     * Update the profile image for the current user.
+     */
     public function setImage(Request $request)
     {
-        if (Auth::check()) {
-            $request->validate(['image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048']);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-            $user = Auth::user();
+        $request->validate(['image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048']);
 
-            if ($user->imagename_hash != "default_user.png" && $user->imagename_hash != "default_computer.jpg") {
-                Storage::delete('public/images/' . $user->imagename_hash);
-            }
-
-            $originalName = $request->file('image')->getClientOriginalName();
-            $hashedName = Str::random(40) . '.' . $request->file('image')->getClientOriginalExtension();
-
-            $request->file('image')->storeAs('public/images', $hashedName);
-
-            $user->update([
-                'imagename' => $originalName,
-                'imagename_hash' => $hashedName,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'new_image_url' => Storage::url('images/' . $hashedName)
-            ]);
+        if ($user->imagename_hash != "default_user.png" && $user->imagename_hash != "default_computer.jpg") {
+            Storage::delete('public/images/' . $user->imagename_hash);
         }
-        return response()->json(['error' => 'Unauthorized', 'redirect' => url('/')], 401);
+
+        $originalName = $request->file('image')->getClientOriginalName();
+        $hashedName = Str::random(40) . '.' . $request->file('image')->getClientOriginalExtension();
+
+        $request->file('image')->storeAs('public/images', $hashedName);
+
+        $user["imagename"] = $originalName;
+        $user["imagename_hash"] = $hashedName;
+
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'new_image_url' => Storage::url('images/' . $hashedName)
+        ]);
     }
 }

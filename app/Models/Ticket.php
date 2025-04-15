@@ -34,7 +34,7 @@ class Ticket extends Model
 
     public static function getStatuses()
     {
-        return ["open", "started", "ongoing", "price_offered", "waiting", "to_invoice", "closed"];
+        return config('ticket_statuses');
     }
 
     public static function getLastSlot(string $status, int $userId): int

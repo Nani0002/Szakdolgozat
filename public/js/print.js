@@ -13,7 +13,7 @@ function init() {
 
 function submitForm(e) {
     e.preventDefault();
-
+    const form = e.target
     let formData = new FormData(form);
     const printing = document.querySelector("#print_check").checked;
     const url = form.action;
@@ -54,18 +54,9 @@ function submitForm(e) {
         error: function (xhr) {
             let response = JSON.parse(xhr.responseText);
             if (xhr.status === 422) {
-                let errors = xhr.responseJSON.errors;
+                console.log(xhr.responseJSON.errors);
 
-                let messages = '';
-                for (let field in errors) {
-                    if (errors.hasOwnProperty(field)) {
-                        errors[field].forEach(function (msg) {
-                            messages += msg + '\n';
-                        });
-                    }
-                }
-
-                alert("Validation errors:\n" + messages);
+                handleAjaxErrors(xhr.responseJSON.errors);
             } else if (xhr.status === 401 && response.redirect) {
                 window.location.href = response.redirect;
             } else {
