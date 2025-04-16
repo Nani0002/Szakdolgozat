@@ -83,7 +83,7 @@
             @foreach ($computer->worksheets as $worksheet)
                 <div class="row border rounded-2 my-1 py-1">
                     <div class="row">
-                        <div class="col-4 fw-bold">{{ $worksheet->sheet_number }}</div>
+                        <div class="col-7 fw-bold">{{ $worksheet->sheet_number }}</div>
                         <div class="col-5 fw-bold">{{ $worksheet->declaration_time }}</div>
                     </div>
                     <div class="row mt-2">
@@ -96,32 +96,47 @@
                         @if ($extras->isNotEmpty())
                             <div class="col-9">
                                 <div class="row">
-                                    <div class="col-12 fw-bold">Beszerelt extrák:</div>
+                                    <div class="col-12 fw-bold">Beszerelt alkatrészek:</div>
                                 </div>
-                                @foreach ($extras as $extra)
-                                    <div class="row border-top">
-                                        <div class="col-4 fw-bold">Sorozatszám:</div>
-                                        <div class="col-8">{{ $extra->serial_number }}</div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-4 fw-bold">Gyártó:</div>
-                                        <div class="col-8">{{ $extra->manufacturer }}</div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-4 fw-bold">Típus:</div>
-                                        <div class="col-6">{{ $extra->type }}</div>
+                                <div class="list-group">
+                                    @foreach ($extras as $extra)
                                         @if (!$worksheet->final)
-                                            <div class="col-2">
-                                                <form action="{{ route('extra.destroy', $extra->id) }}" method="post">
-                                                    @csrf
-                                                    @method('delete')
-                                                    <input type="submit" value="✖️"
-                                                        class="btn btn-danger mt-2 mb-1">
-                                                </form>
+                                            <a href="{{ route('extra.edit', ['extra' => $extra->id, 'worksheet' => $worksheet->id, 'computer' => $computer->id]) }}"
+                                                class="list-group-item list-group-item-action">
+                                                <div class="row">
+                                                    <div class="col-6">{{ $extra->manufacturer }}</div>
+                                                    <div class="col-6">{{ $extra->type }}</div>
+                                                </div>
+                                                <div class="row border-top mt-1 pt-1">
+                                                    <div class="col-8">{{ $extra->serial_number }}</div>
+                                                    <div class="col-4">
+                                                        <form action="{{ route('extra.destroy', $extra->id) }}"
+                                                            method="post">
+                                                            @csrf
+                                                            @method('delete')
+                                                            <input type="submit" value="✖️"
+                                                                class="btn btn-danger mt-3">
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        @else
+                                            <div class="list-group-item list-group-item-action">
+                                                <div class="row">
+                                                    <div class="col-6">{{ $extra->manufacturer }}</div>
+                                                    <div class="col-6">{{ $extra->type }}</div>
+                                                </div>
+                                                <div class="row border-top mt-1 pt-1">
+                                                    <div class="col-8">{{ $extra->serial_number }}</div>
+                                                </div>
                                             </div>
                                         @endif
-                                    </div>
-                                @endforeach
+                                    @endforeach
+                                    @if (!$worksheet->final)
+                                        <a href="{{ route('extra.create', ['worksheet' => $worksheet->id, 'computer' => $computer->id]) }}"
+                                            class="list-group-item list-group-item-action">Hozzáadás</a>
+                                    @endif
+                                </div>
                             </div>
                         @endif
                     </div>

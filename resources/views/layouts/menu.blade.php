@@ -10,6 +10,7 @@
         'worksheet' => 'Munkalapok',
         'worksheet/search' => 'Munkalapok',
         'worksheet/create' => 'Munkalap felvétele',
+        'computer' => 'Számítógépek',
         'computer/create' => 'Számítógép felvétele',
         'extra/create' => 'Alkatrész felvétele',
     ];
@@ -79,6 +80,8 @@
             @include('worksheets.search')
         @elseif(request()->is('worksheet/*'))
             @include('worksheets.worksheet')
+        @elseif(request()->is('computer'))
+            @include('computers.computers')
         @elseif(request()->is('computer/create') ||
                 request()->is('computer/*/edit') ||
                 request()->is('extra/create') ||
