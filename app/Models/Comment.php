@@ -35,7 +35,7 @@ class Comment extends Model
         return $this->updated_at != null ? Comment::timestamp($this->updated_at) : Comment::timestamp($this->created_at);
     }
 
-    public static function timestamp($time)
+    private static function timestamp($time)
     {
         $time = Carbon::parse($time);
         $now = Carbon::now();
@@ -50,13 +50,13 @@ class Comment extends Model
         } elseif ($diffInSeconds < 60) {
             return $diffInSeconds . ' seconds ago';
         } elseif ($diffInMinutes < 60) {
-            return $diffInMinutes . ' minutes ago';
+            return $diffInMinutes . ' minute' . ($diffInMinutes === 1 ? '' : 's') . ' ago';
         } elseif ($diffInHours < 24) {
-            return $diffInHours . ' hours ago';
+            return $diffInHours . ' hour' . ($diffInHours === 1 ? '' : 's') . ' ago';
         } elseif ($diffInDays < 7) {
-            return $diffInDays . ' days ago';
+            return $diffInDays . ' day' . ($diffInDays === 1 ? '' : 's') . ' ago';
         } elseif ($diffInWeeks < 4) {
-            return $diffInWeeks . ' weeks ago';
+            return $diffInWeeks . ' week' . ($diffInWeeks === 1 ? '' : 's') . ' ago';
         } else {
             return $time->format('Y-m-d');
         }
