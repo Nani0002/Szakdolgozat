@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ComputerRequest;
 use App\Models\Computer;
-use App\Models\User;
 use App\Models\Worksheet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +12,17 @@ use Illuminate\Support\Str;
 
 class ComputerController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        return view('layouts.menu', [
+            "navActions" => [['type' => 'create', 'text' => "számítógép", "url" => route('computer.create')]],
+            "computers" => Computer::all()
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -78,7 +88,7 @@ class ComputerController extends Controller
 
         $computer->delete();
 
-        return redirect(route('worksheet.index'));
+        return redirect(route('computer.index'));
     }
 
     /**
@@ -100,7 +110,7 @@ class ComputerController extends Controller
     public function attach(Request $request, string $worksheet_id)
     {
         $worksheet = Worksheet::findOrFail($worksheet_id);
-        if($worksheet["final"] == true){
+        if ($worksheet["final"] == true) {
             return redirect(route('worksheet.show', $worksheet->id));
         }
 
@@ -160,7 +170,7 @@ class ComputerController extends Controller
     public function detach(string $worksheet, string $computer)
     {
         $ws = Worksheet::findOrFail($worksheet);
-        if($ws["final"] == true){
+        if ($ws["final"] == true) {
             return redirect(route('worksheet.show', $ws->id));
         }
 
@@ -210,7 +220,7 @@ class ComputerController extends Controller
 
         $pivot = DB::table('computer_worksheet')->where('id', $validated["pivot_id"])->first();
         $worksheet = Worksheet::findOrFail($pivot->worksheet_id);
-        if($worksheet["final"] == true){
+        if ($worksheet["final"] == true) {
             return redirect(route('worksheet.show', $worksheet->id));
         }
 

@@ -84,8 +84,7 @@ class User extends Authenticatable
         $navUrls = [['name' => 'Főoldal', 'url' => route('home')]];
         if ($role != null) {
             if($role != "admin")
-                array_push($navUrls, ['name' => 'Munkalapok', 'url' => route('worksheet.index')]);
-            array_push($navUrls, ['name' => 'Ügyfelek', 'url' => route('company.index')]);
+                array_push($navUrls, ['name' => 'Munkalapok', 'url' => route('worksheet.index')], ['name' => 'Számítógépek', 'url' => route('computer.index')], ['name' => 'Ügyfelek', 'url' => route('company.index')]);
             foreach ($routes as $route) {
                 switch ($route['type']) {
                     case 'create':
