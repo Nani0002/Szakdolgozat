@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Outsourcing extends Model
@@ -34,9 +34,9 @@ class Outsourcing extends Model
         'entry_time' => 'datetime',
     ];
 
-    public function worksheets(): HasMany
+    public function worksheet(): HasOne
     {
-        return $this->hasMany(Worksheet::class);
+        return $this->hasOne(Worksheet::class);
     }
 
     public function company(): BelongsTo
