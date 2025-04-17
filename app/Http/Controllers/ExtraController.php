@@ -46,7 +46,7 @@ class ExtraController extends Controller
             'worksheet_id' => $request['worksheet_id'],
         ]);
 
-        return redirect(route('computer.show', $request["computer_id"]));
+        return redirect(route('computer.show', $request["computer_id"]), 201);
     }
 
     /**
@@ -81,7 +81,7 @@ class ExtraController extends Controller
 
         $extra->save();
 
-        return redirect(route('computer.show', $request["computer_id"]));
+        return redirect(route('computer.show', $request["computer_id"]), 201);
     }
 
     /**
@@ -90,7 +90,7 @@ class ExtraController extends Controller
     public function destroy(string $id)
     {
         $extra = Extra::findOrFail($id);
-        $worksheet = $extra->worksheet;
+        $worksheet = $extra->worksheet()->first();
         if($worksheet["final"] == true){
             return redirect(route('worksheet.show', $worksheet->id));
         }

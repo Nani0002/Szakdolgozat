@@ -46,7 +46,7 @@ class UserController extends Controller
         if ($user->isAdmin()) {
             return view('layouts.menu');
         } else {
-            return redirect(route('home'));
+            return redirect(route('home'), 403);
         }
     }
 
@@ -59,10 +59,26 @@ class UserController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['string'],
+            'role' => 'string',
+        ], [
+            'name.required' => 'A név megadása kötelező.',
+            'name.string' => 'A név csak szöveg lehet.',
+            'name.max' => 'A név legfeljebb 255 karakter lehet.',
+
+            'email.required' => 'Az email cím megadása kötelező.',
+            'email.string' => 'Az email cím formátuma érvénytelen.',
+            'email.lowercase' => 'Az email cím kisbetűs kell legyen.',
+            'email.email' => 'Kérlek érvényes email címet adj meg.',
+            'email.max' => 'Az email legfeljebb 255 karakter lehet.',
+            'email.unique' => 'Ez az email cím már foglalt.',
+
+            'password.required' => 'A jelszó megadása kötelező.',
+            'password.confirmed' => 'A jelszavak nem egyeznek.',
+
+            'role.string' => 'A szerepkör érvénytelen formátumban van.',
         ]);
 
         $user = new User();
@@ -80,7 +96,7 @@ class UserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('home'));
+        return redirect(route('home'), 201);
     }
 
     /**
@@ -101,6 +117,9 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'password.required' => 'A jelszó megadása kötelező.',
+            'password.confirmed' => 'A jelszavak nem egyeznek.',
         ]);
 
         $user->password = $validated['password'];
@@ -116,21 +135,26 @@ class UserController extends Controller
     /**
      * Update the profile image for the current user.
      */
-    public function setImage(Request $request)
+    public function newImage(Request $request)
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $request->validate(['image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048']);
+        $request->validate(['image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'], [
+            'image.required' => 'A kép feltöltése kötelező.',
+            'image.image' => 'A fájlnak érvényes képnek kell lennie.',
+            'image.mimes' => 'A képnek JPEG, PNG, JPG vagy GIF formátumúnak kell lennie.',
+            'image.max' => 'A kép mérete nem haladhatja meg a 2MB-ot.',
+        ]);
 
         if ($user->imagename_hash != "default_user.png" && $user->imagename_hash != "default_computer.jpg") {
-            Storage::delete('public/images/' . $user->imagename_hash);
+            Storage::disk('public')->delete('images/' . $user->imagename_hash);
         }
 
         $originalName = $request->file('image')->getClientOriginalName();
-        $hashedName = Str::random(40) . '.' . $request->file('image')->getClientOriginalExtension();
+        $hashedName = $request->file('image')->hashName();;
 
-        $request->file('image')->storeAs('public/images', $hashedName);
+        $request->file('image')->storeAs('images', $hashedName, 'public');
 
         $user["imagename"] = $originalName;
         $user["imagename_hash"] = $hashedName;

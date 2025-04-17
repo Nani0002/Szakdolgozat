@@ -8,7 +8,6 @@ use App\Models\Worksheet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class ComputerController extends Controller
 {
@@ -43,7 +42,7 @@ class ComputerController extends Controller
 
         $computer->save();
 
-        return redirect(route('computer.show', $computer->id));
+        return redirect(route('computer.show', $computer->id), 201);
     }
 
     /**
@@ -76,7 +75,7 @@ class ComputerController extends Controller
 
         $computer->save();
 
-        return redirect(route('computer.show', $computer->id));
+        return redirect(route('computer.show', $computer->id), 201);
     }
 
     /**
@@ -142,9 +141,9 @@ class ComputerController extends Controller
         $hashedName = "default_computer.jpg";
         if ($request->hasFile('imagefile')) {
             $originalName = $request->file('imagefile')->getClientOriginalName();
-            $hashedName = Str::random(40) . '.' . $request->file('imagefile')->getClientOriginalExtension();
+            $hashedName = $request->file('imagefile')->hashName();
 
-            $request->file('imagefile')->storeAs('public/images', $hashedName);
+            $request->file('imagefile')->storeAs('images', $hashedName, 'public');
         }
 
         $worksheet->computers()->attach($computer->id, [
@@ -229,13 +228,13 @@ class ComputerController extends Controller
         if ($request->hasFile('imagefile')) {
 
             $originalName = $request->file('imagefile')->getClientOriginalName();
-            $hashedName = Str::random(40) . '.' . $request->file('imagefile')->getClientOriginalExtension();
+            $hashedName = $request->file('imagefile')->hashName();
 
             if ($pivot->imagename_hash != "default_computer.jpg" && $pivot->imagename_hash  != "default_user.png") {
-                Storage::delete('public/images/' . $pivot->imagename_hash);
+                Storage::disk('public')->delete('images/' . $pivot->imagename_hash);
             }
 
-            $request->file('imagefile')->storeAs('public/images', $hashedName);
+            $request->file('imagefile')->storeAs('images', $hashedName, 'public');
         }
 
         DB::table('computer_worksheet')

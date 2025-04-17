@@ -45,7 +45,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Liable role only routes.
 */
 Route::middleware(['auth', 'role:liable'])->group(function () {
-    Route::post('worksheet/final/{worksheet}', [WorksheetController::class,'final'])->name('worksheet.final');
+    Route::post('worksheet/final/{worksheet}', [WorksheetController::class, 'final'])->name('worksheet.final');
 });
 
 /*
@@ -87,7 +87,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('new_password', [UserController::class, 'newPassword'])->name('user.new_password');
 
-    Route::post('user/update-image', [UserController::class, 'setImage'])->name('user.new_image');
+    Route::post('user/update-image', [UserController::class, 'newImage'])->name('user.new_image');
 
     Route::put('comment/{comment}/{ticket}', [TicketController::class, 'edit'])->name('comment.edit');
 

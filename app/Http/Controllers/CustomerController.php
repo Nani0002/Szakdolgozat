@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CustomerRequest;
 use App\Models\Company;
 use App\Models\Customer;
-use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
@@ -46,7 +45,7 @@ class CustomerController extends Controller
         return response()->json([
             'success' => true,
             "html" => view('companies._card', compact('customer', 'company'))->render()
-        ], 201);
+        ]);
     }
 
     /**
@@ -54,7 +53,7 @@ class CustomerController extends Controller
      */
     public function destroy(string $id)
     {
-        $customer = Customer::find($id);
+        $customer = Customer::findOrFail($id);
         $customer->delete();
         return redirect(route('company.index'));
     }
