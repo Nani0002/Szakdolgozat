@@ -1,0 +1,43 @@
+name: Laravel CI
+
+on: [push, pull_request]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: sqlite, mbstring, bcmath
+          coverage: none
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Create SQLite base database
+        run: |
+          mkdir -p database
+          touch database/test.sqlite
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Generate app key
+        run: php artisan key:generate
+
+      - name: Run migrations
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/test.sqlite
+        run: php artisan migrate
+
+      - name: Run Laravel Parallel Tests
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/test.sqlite
+        run: php artisan test --parallel
