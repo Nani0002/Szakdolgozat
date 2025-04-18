@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string("title");
             $table->string("text");
             $table->enum("status", array_keys(Config::get('ticket_statuses')));
-            $table->integer("slot_number");
 
             $table->timestamps();
             $table->softDeletes();

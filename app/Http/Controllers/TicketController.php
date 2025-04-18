@@ -37,11 +37,13 @@ class TicketController extends Controller
         $ticket->title = $request->title;
         $ticket->text = $request->text;
         $ticket->status = $request->status;
-        $ticket->slot_number = Ticket::getLastSlot($request->status, $user_id) + 1;
 
         $ticket->save();
 
-        $ticket->users()->attach($request->users);
+        foreach ($request->users as $userId) {
+            $slot = Ticket::getLastSlot($request->status, $userId) + 1;
+            $ticket->users()->attach($userId, ['slot_number' => $slot]);
+        }
 
         return redirect(route('ticket.show', $ticket->id));
     }
@@ -112,36 +114,50 @@ class TicketController extends Controller
 
         $ticket = Ticket::findOrFail($request->id);
 
-        if ($ticket->status == $request->newStatus) {
-            $tickets = $user->ticketsByStatus($request->newStatus)
-                ->sortBy('slot_number')
-                ->reject(fn($tc) => $tc->id === $ticket->id)
+        $currentPivot = $ticket->users()->where('user_id', $user->id)->first()->pivot;
+
+        if ($ticket->status === $request->newStatus) {
+            $tickets = $user->tickets()
+                ->where('status', $request->newStatus)
+                ->get()
+                ->sortBy(fn($t) => $t->pivot->slot_number)
+                ->reject(fn($t) => $t->id === $ticket->id)
                 ->values();
 
             $tickets->splice($request->newSlot, 0, [$ticket]);
 
-            foreach ($tickets as $i => $tc) {
-                $tc->slot_number = $i;
-                $tc->save();
+            foreach ($tickets as $i => $t) {
+                $t->users()->updateExistingPivot($user->id, ['slot_number' => $i]);
             }
         } else {
-            foreach ($user->ticketsByStatus($ticket->status) as $tc) {
-                if ($tc->id !== $ticket->id && $tc->slot_number > $ticket->slot_number) {
-                    $tc->slot_number -= 1;
-                    $tc->save();
+            $oldTickets = $user->tickets()
+                ->where('status', $ticket->status)
+                ->get()
+                ->sortBy(fn($t) => $t->pivot->slot_number);
+
+            foreach ($oldTickets as $t) {
+                if ($t->id !== $ticket->id && $t->pivot->slot_number > $currentPivot->slot_number) {
+                    $newSlot = $t->pivot->slot_number - 1;
+                    $t->users()->updateExistingPivot($user->id, ['slot_number' => $newSlot]);
                 }
             }
 
-            foreach ($user->ticketsByStatus($request->newStatus) as $tc) {
-                if ($tc->id !== $ticket->id && $tc->slot_number >= $request->newSlot) {
-                    $tc->slot_number += 1;
-                    $tc->save();
+            $newTickets = $user->tickets()
+                ->where('status', $request->newStatus)
+                ->get()
+                ->sortBy(fn($t) => $t->pivot->slot_number);
+
+            foreach ($newTickets as $t) {
+                if ($t->id !== $ticket->id && $t->pivot->slot_number >= $request->newSlot) {
+                    $newSlot = $t->pivot->slot_number + 1;
+                    $t->users()->updateExistingPivot($user->id, ['slot_number' => $newSlot]);
                 }
             }
 
             $ticket->status = $request->newStatus;
-            $ticket->slot_number = $request->newSlot;
             $ticket->save();
+
+            $ticket->users()->updateExistingPivot($user->id, ['slot_number' => $request->newSlot]);
         }
 
         return response()->json(['success' => true]);
@@ -169,7 +185,7 @@ class TicketController extends Controller
     public function edit(Request $request, string $comment, string $ticket)
     {
         $comment = Comment::findOrFail($comment);
-        if($comment->user_id != Auth::id()){
+        if ($comment->user_id != Auth::id()) {
             return redirect(route('ticket.show', $ticket));
         }
 

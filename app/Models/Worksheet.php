@@ -32,7 +32,8 @@ class Worksheet extends Model
         'work_time',
         'work_description',
         'current_step',
-        'slot_number',
+        'liable_slot_number',
+        'coworker_slot_number',
     ];
 
     /**

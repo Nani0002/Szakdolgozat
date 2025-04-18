@@ -117,12 +117,18 @@ function move(id, newStatus, newSlot) {
             }
         },
         error: function (xhr) {
-            let response = JSON.parse(xhr.responseText);
-            if (xhr.status === 401 && response.redirect) {
-                window.location.href = response.redirect;
-            } else if (xhr.status === 403) {
-            } else {
-                alert("An error occurred: " + response.error);
+            try {
+                const response = JSON.parse(xhr.responseText);
+                if (xhr.status === 401 && response.redirect) {
+                    window.location.href = response.redirect;
+                } else if (xhr.status === 403) {
+                    alert("Nincs jogosultságod.");
+                } else {
+                    alert("Hiba történt: " + (response.error || JSON.stringify(response)));
+                }
+            } catch (e) {
+                alert("Belső szerverhiba (500). Ellenőrizd a Laravel logokat.");
+                console.error(xhr.responseText);
             }
         },
     });

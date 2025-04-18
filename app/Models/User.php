@@ -83,7 +83,7 @@ class User extends Authenticatable
     {
         $navUrls = [['name' => 'Főoldal', 'url' => route('home')]];
         if ($role != null) {
-            if($role != "admin")
+            if ($role != "admin")
                 array_push($navUrls, ['name' => 'Munkalapok', 'url' => route('worksheet.index')], ['name' => 'Számítógépek', 'url' => route('computer.index')], ['name' => 'Ügyfelek', 'url' => route('company.index')]);
             foreach ($routes as $route) {
                 switch ($route['type']) {
@@ -114,7 +114,7 @@ class User extends Authenticatable
 
     public function tickets(): BelongsToMany
     {
-        return $this->belongsToMany(Ticket::class);
+        return $this->belongsToMany(Ticket::class)->withPivot('slot_number');
     }
 
     public function sortedTickets(): array
@@ -126,32 +126,55 @@ class User extends Authenticatable
         return $tickets;
     }
 
-    public function ticketsByStatus($status): Collection
+    public function ticketsByStatus(string $status)
     {
-        return $this->tickets()->where("status", $status)->orderBy('slot_number', 'asc')->get();
+        return $this->tickets->where('status', $status)->sortBy('pivot.slot_number');
     }
 
     public function sortedWorksheets(): array
     {
         $worksheets = [];
+
         foreach (Worksheet::getTypes() as $type => $_) {
-            $liable = $this->liableWorksheets()->where('current_step', $type)->get();
-            $coworker = $this->coworkerWorksheets()->where('current_step', $type)->get();
+            $liable = $this->liableWorksheets()
+                ->where('current_step', $type)
+                ->get();
+
+            $coworker = $this->coworkerWorksheets()
+                ->where('current_step', $type)
+                ->get();
 
             $merged = $liable->merge($coworker);
-            $sorted = $merged->sortBy('slot_number')->values();
+
+            $sorted = $merged->sortBy(function ($ws) {
+                return $ws->liable_id === $this->id
+                    ? $ws->liable_slot_number
+                    : $ws->coworker_slot_number;
+            })->values();
 
             $worksheets[$type] = $sorted;
         }
+
         return $worksheets;
     }
 
     public function worksheetsByStep($step): Collection
     {
-        $liable = $this->liableWorksheets()->where('current_step', $step)->get();
-        $coworker = $this->coworkerWorksheets()->where('current_step', $step)->get();
+        $liable = $this->liableWorksheets()
+            ->where('current_step', $step)
+            ->get();
+
+        $coworker = $this->coworkerWorksheets()
+            ->where('current_step', $step)
+            ->get();
+
         $merged = $liable->merge($coworker);
-        return $merged->sortBy('slot_number')->values();
+
+        return $merged->sortBy(function ($ws) {
+            return $ws->liable_id === $this->id
+                ? $ws->liable_slot_number
+                : $ws->coworker_slot_number;
+        })->values();
     }
 
     public function coworkerWorksheets(): HasMany
@@ -164,7 +187,8 @@ class User extends Authenticatable
         return $this->hasMany(Worksheet::class, "liable_id");
     }
 
-    public function comments() {
+    public function comments()
+    {
         return $this->hasMany(Comment::class);
     }
 }

@@ -21,7 +21,6 @@ class TicketFactory extends Factory
             "title" => fake()->text(50),
             "text" => fake()->text(200),
             "status" => fake()->randomElement(array_keys(Ticket::getStatuses())),
-            "slot_number" => 0,
         ];
     }
 }

@@ -43,7 +43,8 @@ return new class extends Migration
 
             $table->enum("current_step", array_keys(Config::get('worksheet_steps')));
 
-            $table->integer("slot_number")->default(0);
+            $table->integer("liable_slot_number")->nullable();
+            $table->integer("coworker_slot_number")->nullable();
 
             $table->timestamps();
             $table->softDeletes();

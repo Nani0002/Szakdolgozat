@@ -39,17 +39,17 @@ class Ticket extends Model
 
     public static function getLastSlot(string $status, int $userId): int
     {
-        return Ticket::where('status', $status)
-            ->whereHas('users', function ($query) use ($userId) {
-                $query->where('users.id', $userId);
-            })
-            ->orderByDesc('slot_number')
-            ->pluck('slot_number')->first();
+        return User::find($userId)
+            ->tickets()
+            ->where('status', $status)
+            ->orderByDesc('ticket_user.slot_number')
+            ->pluck('ticket_user.slot_number')
+            ->first() ?? -1;
     }
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)->withPivot('slot_number');
     }
 
     public function comments()

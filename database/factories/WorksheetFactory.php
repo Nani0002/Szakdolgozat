@@ -30,7 +30,8 @@ class WorksheetFactory extends Factory
             'work_time' => fake()->numberBetween(1,10),
             'work_description' => fake()->text(300),
             'current_step' => fake()->randomElement(array_keys(Worksheet::getTypes())),
-            'slot_number' => 0,
+            'liable_slot_number' => 0,
+            'coworker_slot_number' => 0,
         ];
     }
 }
