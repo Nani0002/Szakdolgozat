@@ -254,42 +254,49 @@ class WorksheetController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-
         $worksheet = Worksheet::findOrFail($request->id);
 
         if ($worksheet->final && $worksheet->current_step !== $request->newStatus) {
             return response()->json(['success' => false], 403);
         }
 
+        $isLiable = $worksheet->liable_id === $user->id;
+        $isCoworker = $worksheet->coworker_id === $user->id;
+
+        if (!($isLiable || $isCoworker)) {
+            return response()->json(['success' => false], 403);
+        }
+
+        $slotField = $isLiable ? 'liable_slot_number' : 'coworker_slot_number';
+        $currentSlot = $worksheet->{$slotField};
+
+        $worksheets = $user->worksheetsByStep($request->newStatus)
+            ->reject(fn($ws) => $ws->id === $worksheet->id)
+            ->values();
+
         if ($worksheet->current_step === $request->newStatus) {
-            $worksheets = $user->worksheetsByStep($request->newStatus)
-                ->sortBy('slot_number')
-                ->reject(fn($ws) => $ws->id === $worksheet->id)
-                ->values();
-
             $worksheets->splice($request->newSlot, 0, [$worksheet]);
-
             foreach ($worksheets as $i => $ws) {
-                $ws->slot_number = $i;
+                $ws->{$slotField} = $i;
                 $ws->save();
             }
         } else {
             foreach ($user->worksheetsByStep($worksheet->current_step) as $ws) {
-                if ($ws->id !== $worksheet->id && $ws->slot_number > $worksheet->slot_number) {
-                    $ws->slot_number -= 1;
+                if ($ws->id !== $worksheet->id && $ws->{$slotField} > $currentSlot) {
+                    $ws->{$slotField} -= 1;
                     $ws->save();
                 }
             }
 
-            foreach ($user->worksheetsByStep($request->newStatus) as $ws) {
-                if ($ws->id !== $worksheet->id && $ws->slot_number >= $request->newSlot) {
-                    $ws->slot_number += 1;
+            foreach ($worksheets as $ws) {
+                if ($ws->{$slotField} >= $request->newSlot) {
+                    $ws->{$slotField} += 1;
                     $ws->save();
                 }
             }
 
             $worksheet->current_step = $request->newStatus;
-            $worksheet->slot_number = $request->newSlot;
+            $worksheet->{$slotField} = $request->newSlot;
             $worksheet->save();
         }
 
