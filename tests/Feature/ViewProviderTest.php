@@ -28,4 +28,28 @@ class ViewProviderTest extends TestCase
 
         $response->assertViewHas('navUrls');
     }
+
+    public function test_layouts_menu_view_receives_correct_nav_urls_based_on_role()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin);
+        $response = $this->get(route('home'));
+        $response->assertViewHas('userUrls', function ($urls) {
+            return collect($urls)->contains(fn($url) => str_contains($url['url'], 'register'));
+        });
+
+        $liable = User::factory()->create(['role' => 'liable']);
+        $this->actingAs($liable);
+        $response = $this->get(route('home'));
+        $response->assertViewHas('navUrls', function ($urls) {
+            return collect($urls)->contains(fn($url) => str_contains($url['url'], 'worksheet'));
+        });
+
+        $coworker = User::factory()->create(['role' => 'coworker']);
+        $this->actingAs($coworker);
+        $response = $this->get(route('home'));
+        $response->assertViewHas('navUrls', function ($urls) {
+            return collect($urls)->contains(fn($url) => str_contains($url['url'], 'ticket'));
+        });
+    }
 }
