@@ -114,7 +114,7 @@ class User extends Authenticatable
 
     public function tickets(): BelongsToMany
     {
-        return $this->belongsToMany(Ticket::class);
+        return $this->belongsToMany(Ticket::class)->withPivot('slot_number');
     }
 
     public function sortedTickets(): array
@@ -126,9 +126,9 @@ class User extends Authenticatable
         return $tickets;
     }
 
-    public function ticketsByStatus($status): Collection
+    public function ticketsByStatus(string $status)
     {
-        return $this->tickets()->where("status", $status)->orderBy('slot_number', 'asc')->get();
+        return $this->tickets->where('status', $status)->sortBy('pivot.slot_number');
     }
 
     public function sortedWorksheets(): array
