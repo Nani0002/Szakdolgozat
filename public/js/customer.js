@@ -22,6 +22,7 @@ function storeModal(e) {
     const companyId = e.target.id.split("-")[2];
     document.querySelector("#form-company").value = companyId;
     document.querySelector("#modal-send").innerHTML = "Hozzáadás";
+    document.querySelector("#customer-modal-label").innerHTML = "Új ügyfél felvétele";
     document.querySelector("#name").value = "";
     document.querySelector("#email").value = "";
     document.querySelector("#phone").value = "";
@@ -43,6 +44,7 @@ function updateModal(e) {
         .querySelector(`#customer-phone-${customerId}`)
         .innerHTML.trimStart();
     document.querySelector("#modal-send").innerHTML = "Szerkesztés";
+    document.querySelector("#customer-modal-label").innerHTML = "Ügyfél szerkesztése";
     document.querySelector("#form-customer").value = customerId;
 
     editMode = true;
