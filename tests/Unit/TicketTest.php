@@ -50,7 +50,6 @@ class TicketTest extends TestCase
         $ticket2 = Ticket::factory()->create(['status' => 'open']);
         $ticket3 = Ticket::factory()->create(['status' => 'open']);
 
-        // Attach with pivot data
         $user->tickets()->attach([
             $ticket1->id => ['slot_number' => 1],
             $ticket2->id => ['slot_number' => 3],
