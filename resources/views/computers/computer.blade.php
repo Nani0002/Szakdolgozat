@@ -47,21 +47,29 @@
                         Helye:
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-12">
-                        {{ $latest->customer->name ?? 'Friss eszköz' }}
+                @if (isset($latest->customer->name))
+                    <div class="row">
+                        <div class="col-12">
+                            {{ $latest->customer->name }}
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        {{ $latest->customer->mobile ?? 'Friss eszköz' }}
+                    <div class="row">
+                        <div class="col-12">
+                            {{ $latest->customer->mobile }}
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        {{ $latest->customer->email ?? 'Friss eszköz' }}
+                    <div class="row">
+                        <div class="col-12">
+                            {{ $latest->customer->email }}
+                        </div>
                     </div>
-                </div>
+                @else
+                    <div class="row">
+                        <div class="col-12">
+                            Friss eszköz
+                        </div>
+                    </div>
+                @endif
             </div>
             <div class="col-6">
                 @php

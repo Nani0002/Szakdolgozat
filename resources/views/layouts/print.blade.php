@@ -251,9 +251,9 @@
             <div class="wrapper">
                 <div class="row border border-dark border-bottom-0 bg-secondary-subtle fw-bold">
                     <div class="col-4">Külső munkalap</div>
-                    <div class="col-3">outsourced_price</div>
-                    <div class="col-3">our_price</div>
-                    <div class="col-2">finished</div>
+                    <div class="col-3">Külső árajánlat</div>
+                    <div class="col-3">Saját ajánlatunk</div>
+                    <div class="col-2">Státusz</div>
                 </div>
                 <div class="row border-bottom border-dark">
                     <div class="col-4">

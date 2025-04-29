@@ -9,11 +9,13 @@
                         <div class="row">
                             <div class="col-10">
                                 <h4 class="card-title">#{{ $key + 1 }} {{ $computer->serial_number }}</h4>
-                                <div class="row fw-bold">{{$computer->manufacturer}} - {{$computer->type}}</div>
+                                <div class="row fw-bold">{{ $computer->manufacturer }} - {{ $computer->type }}</div>
                             </div>
                             <div class="col-2">
-                                <img src="{{ Storage::url('images/' . $computer->latestInfo()->pivot->imagename_hash) }}"
-                                    alt="{{ $computer->latestInfo()->pivot->imagename }}" class="img-fluid">
+                                @isset($computer->latestInfo()->pivot)
+                                    <img src="{{ Storage::url('images/' . $computer->latestInfo()->pivot->imagename_hash) }}"
+                                        alt="{{ $computer->latestInfo()->pivot->imagename }}" class="img-fluid">
+                                @endisset
                             </div>
                         </div>
                         <div class="row">

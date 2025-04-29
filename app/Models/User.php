@@ -187,7 +187,7 @@ class User extends Authenticatable
         return $this->hasMany(Worksheet::class, "liable_id");
     }
 
-    public function comments()
+    public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
     }
