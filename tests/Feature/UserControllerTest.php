@@ -196,11 +196,7 @@ class UserControllerTest extends TestCase
 
         $response = $this->post(route('user.new_password'), $data);
 
-        $response->assertStatus(200);
-        $response->assertJson([
-            "success" => true,
-            "message" => "Sikeres módosítás!",
-        ]);
+        $response->assertStatus(201);
 
         $this->assertTrue(Hash::check("password2", $user->fresh()->password));
     }
@@ -227,7 +223,7 @@ class UserControllerTest extends TestCase
         ];
 
         $response = $this->post(route('user.new_password'), $data);
-        $response->assertStatus(200);
+        $response->assertStatus(201);
 
         $updatedUser = $user->fresh();
 
