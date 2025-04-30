@@ -28,7 +28,8 @@ class User extends Authenticatable
         'password',
         'role',
         'imagename',
-        'imagename_hash'
+        'imagename_hash',
+        'must_change_password '
     ];
 
     /**
@@ -37,6 +38,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
+        'must_change_password ',
         'password',
         'remember_token',
     ];
@@ -48,7 +50,8 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed'
+        'password' => 'hashed',
+        'must_change_password ' => 'boolean'
     ];
 
 

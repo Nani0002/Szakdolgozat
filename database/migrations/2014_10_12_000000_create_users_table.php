@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum("role", ["admin", "liable", "coworker"])->default("coworker");
             $table->string("imagename")->default('default_user.png');
             $table->string("imagename_hash")->default('default_user.png');
+            $table->boolean('must_change_password')->default(false);
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

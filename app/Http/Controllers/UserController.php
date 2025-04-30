@@ -122,14 +122,12 @@ class UserController extends Controller
             'password.confirmed' => 'A jelszavak nem egyeznek.',
         ]);
 
-        $user->password = $validated['password'];
+        $user->password = Hash::make($validated['password']);
+        $user->must_change_password = false;
 
         $user->save();
 
-        return response()->json([
-            "success" => true,
-            "message" => "Sikeres módosítás!"
-        ]);
+        return redirect(route('user'), 201);
     }
 
     /**
