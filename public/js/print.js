@@ -54,8 +54,6 @@ function submitForm(e) {
         error: function (xhr) {
             let response = JSON.parse(xhr.responseText);
             if (xhr.status === 422) {
-                console.log(xhr.responseJSON.errors);
-
                 handleAjaxErrors(xhr.responseJSON.errors);
             } else if (xhr.status === 401 && response.redirect) {
                 window.location.href = response.redirect;

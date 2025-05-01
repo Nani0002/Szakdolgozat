@@ -205,11 +205,13 @@
                             @endphp
                             <select class="form-select" id="company_id" name="company_id"
                                 data-update-url="{{ route('company.customers') }}">
-                                @foreach ($companies->where('type', 'customer') as $company)
-                                    <option value="{{ $company->id }}" id="company-id-{{ $company->id }}"
-                                        {{ $selected_company_id == $company->id ? 'selected' : '' }}>
-                                        {{ $company->name }}</option>
-                                @endforeach
+                                @if (count($companies) > 0)
+                                    @foreach ($companies->where('type', 'customer') as $company)
+                                        <option value="{{ $company->id }}" id="company-id-{{ $company->id }}"
+                                            {{ $selected_company_id == $company->id ? 'selected' : '' }}>
+                                            {{ $company->name }}</option>
+                                    @endforeach
+                                @endif
                             </select>
                             <label for="company_id">Ügyfél cég</label>
                             <div class="invalid-feedback d-none">
@@ -221,11 +223,13 @@
                                 $selected_customer_id = old('customer_id', $worksheet->customer_id ?? 1);
                             @endphp
                             <select class="form-select" id="customer_id" name="customer_id">
-                                @foreach ($companies->where('id', $selected_company_id)->first()->customers as $customer)
-                                    <option value="{{ $customer->id }}" id="customer-id-{{ $customer->id }}"
-                                        {{ $selected_customer_id == $customer->id ? 'selected' : '' }}>
-                                        {{ $customer->name }}</option>
-                                @endforeach
+                                @if (count($companies) > 0)
+                                    @foreach ($companies->where('id', $selected_company_id)->first()->customers as $customer)
+                                        <option value="{{ $customer->id }}" id="customer-id-{{ $customer->id }}"
+                                            {{ $selected_customer_id == $customer->id ? 'selected' : '' }}>
+                                            {{ $customer->name }}</option>
+                                    @endforeach
+                                @endif
                             </select>
                             <label for="customer_id">Ügyfél munkatárs</label>
                             <div class="invalid-feedback d-none">
@@ -284,7 +288,7 @@
                                 value="{{ $work_end_time }}" />
                         </div>
                         <div class="form-floating mb-3">
-                            <input class="form-control" id="work_time" name="work_time" type="number"
+                            <input class="form-control" id="work_time" name="work_time" type="number" min="0"
                                 placeholder="30 perces egység"
                                 value="{{ old('work_time', $worksheet->work_time ?? '') }}" />
                             <label for="work_time">30 perces egység</label>
@@ -311,7 +315,10 @@
                 <div class="row border-top pt-3">
                     <div class="col-12">
                         @php
-                            $isOutsourcingChecked = old('outsourcing', isset($worksheet) && $worksheet->outsourcing ? true : false);
+                            $isOutsourcingChecked = old(
+                                'outsourcing',
+                                isset($worksheet) && $worksheet->outsourcing ? true : false,
+                            );
                         @endphp
                         <div class="form-check form-switch fs-4 mb-3">
                             <input type="hidden" name="outsourcing"
@@ -383,15 +390,15 @@
                                 value="{{ old('outsourced_number', $worksheet->outsourcing->outsourced_number ?? '') }}" />
                             <label for="outsourced_number">Külső munkalapszám</label>
                             @isset($worksheet->outsourcing)
-                                <input type="hidden"
-                                    name="outsourced_number" value="{{ old('outsourced_number', $worksheet->outsourcing->outsourced_number) }}">
+                                <input type="hidden" name="outsourced_number"
+                                    value="{{ old('outsourced_number', $worksheet->outsourcing->outsourced_number) }}">
                             @endisset
                             <div class="invalid-feedback d-none">
                                 Munkalapszám megadása kötelező
                             </div>
                         </div>
                         <div class="form-floating mb-3">
-                            <input class="form-control" id="outsourced_price" name="outsourced_price" type="number"
+                            <input class="form-control" id="outsourced_price" name="outsourced_price" type="number" min="0" step="any"
                                 placeholder="Vállalt árajánlat"
                                 value="{{ old('outsourced_price', $worksheet->outsourcing->outsourced_price ?? '') }}" />
                             <label for="outsourced_price">Vállalt árajánlat</label>
@@ -400,7 +407,7 @@
                             </div>
                         </div>
                         <div class="form-floating mb-3">
-                            <input class="form-control" id="our_price" name="our_price" type="number"
+                            <input class="form-control" id="our_price" name="our_price" type="number" min="0" step="any"
                                 placeholder="Saját árajánlat"
                                 value="{{ old('our_price', $worksheet->outsourcing->our_price ?? '') }}" />
                             <label for="our_price">Saját árajánlat</label>

@@ -102,8 +102,10 @@ function move(id, newStatus, newSlot) {
     formData.append("_token", csrfToken);
     formData.append("id", id);
     formData.append("newStatus", newStatus);
-    formData.append("newSlot", newSlot);
-
+    formData.append("newSlot", newSlot == "" ? 0 : newSlot);
+    for (const pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
     $.ajax({
         url: updateUrl,
         type: "POST",
@@ -124,7 +126,10 @@ function move(id, newStatus, newSlot) {
                 } else if (xhr.status === 403) {
                     alert("Nincs jogosultságod.");
                 } else {
-                    alert("Hiba történt: " + (response.error || JSON.stringify(response)));
+                    alert(
+                        "Hiba történt: " +
+                            (response.error || JSON.stringify(response))
+                    );
                 }
             } catch (e) {
                 alert("Belső szerverhiba (500). Ellenőrizd a Laravel logokat.");

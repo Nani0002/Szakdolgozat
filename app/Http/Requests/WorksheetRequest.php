@@ -48,7 +48,7 @@ class WorksheetRequest extends FormRequest
             'work_start_hour' => 'required|date_format:H:i',
             'work_end' => 'nullable|date',
             'work_end_hour' => 'nullable|date_format:H:i',
-            'work_time' => 'nullable|integer',
+            'work_time' => 'nullable|integer|min:0',
             'comment' => 'nullable|string',
             'error_description' => 'required|string',
             'work_description' => 'nullable|string',
@@ -62,8 +62,8 @@ class WorksheetRequest extends FormRequest
                 'entry_time' => 'required|date',
                 'entry_time_hour' => 'required|date_format:H:i',
                 'finished' => 'required|in:ongoing,finished,brought',
-                'outsourced_price' => 'required|numeric',
-                'our_price' => 'required|numeric',
+                'outsourced_price' => 'required|numeric|min:0',
+                'our_price' => 'required|numeric|min:0',
                 'outsourced_number' => [
                     'required',
                     Rule::unique('outsourcings', 'outsourced_number')
@@ -108,6 +108,7 @@ class WorksheetRequest extends FormRequest
             'work_end.date' => 'A befejezés dátuma nem megfelelő.',
             'work_end_hour.date_format' => 'A befejezés időpontja nem megfelelő (HH:MM).',
             'work_time.integer' => 'A munkaidőnek egész számnak kell lennie (30 perces egységekben).',
+            'work_time.min' => 'Az érték nem lehet negatív.',
             'comment.string' => 'A hozzáadott komment formátuma nem megfelelő.',
             'error_description.required' => 'A hibaleírás megadása kötelező.',
             'error_description.string' => 'A hibaleírás formátuma nem megfelelő.',
@@ -130,8 +131,10 @@ class WorksheetRequest extends FormRequest
                 'finished.in' => 'A külsős státusz érvénytelen.',
                 'outsourced_price.required' => 'Kérlek add meg a partner árát.',
                 'outsourced_price.numeric' => 'A partner árának számnak kell lennie.',
+                'outsourced_price.min' => 'Az érték nem lehet negatív.',
                 'our_price.required' => 'Kérlek add meg a saját árat.',
                 'our_price.numeric' => 'A saját árnak számnak kell lennie.',
+                'our_price.min' => 'Az érték nem lehet negatív.',
                 'outsourced_number.required' => 'A külsős munkalapszám megadása kötelező.',
                 'outsourced_number.unique' => 'Ez a külsős munkalapszám már létezik.',
             ]);

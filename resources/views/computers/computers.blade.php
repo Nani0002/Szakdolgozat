@@ -1,7 +1,11 @@
 <div class="form-frame bg-light rounded-5">
     <div class="form-column">
-        <h3>{{ $title }}</h3>
-
+        <h3>
+            {{ $title }}
+            <a class="btn badge rounded-pill text-bg-primary company-pill ms-2" href="{{ route('computer.create') }}">
+                ➕
+            </a>
+        </h3>
         <div class="form-container container-fluid">
             @foreach ($computers as $key => $computer)
                 <div class="card mb-2 px-3">
