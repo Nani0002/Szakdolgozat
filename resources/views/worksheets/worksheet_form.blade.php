@@ -205,7 +205,7 @@
                             @endphp
                             <select class="form-select" id="company_id" name="company_id"
                                 data-update-url="{{ route('company.customers') }}">
-                                @if (count($companies)->where('type', 'customer') > 0)
+                                @if (count($companies->where('type', 'customer')) > 0)
                                     @foreach ($companies->where('type', 'customer') as $company)
                                         <option value="{{ $company->id }}" id="company-id-{{ $company->id }}"
                                             {{ $selected_company_id == $company->id ? 'selected' : '' }}>
@@ -223,13 +223,13 @@
                                 $selected_customer_id = old('customer_id', $worksheet->customer_id ?? 1);
                             @endphp
                             <select class="form-select" id="customer_id" name="customer_id">
-                                @if (count($companies)->where('type', 'customer') > 0)
-                                    @foreach ($companies->where('id', $selected_company_id)->first()->customers as $customer)
-                                        <option value="{{ $customer->id }}" id="customer-id-{{ $customer->id }}"
-                                            {{ $selected_customer_id == $customer->id ? 'selected' : '' }}>
-                                            {{ $customer->name }}</option>
-                                    @endforeach
-                                @endif
+                                    @if (count($companies->where('type', 'customer')) > 0)
+                                        @foreach ($companies->where('id', $selected_company_id)->first()->customers as $customer)
+                                            <option value="{{ $customer->id }}" id="customer-id-{{ $customer->id }}"
+                                                {{ $selected_customer_id == $customer->id ? 'selected' : '' }}>
+                                                {{ $customer->name }}</option>
+                                        @endforeach
+                                    @endif
                             </select>
                             <label for="customer_id">Ügyfél munkatárs</label>
                             <div class="invalid-feedback d-none">
