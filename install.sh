@@ -1,31 +1,53 @@
 #!/bin/bash
 
-set -e  # Exit on any error
+set -e
 
-echo "Running composer install..."
+echo "==== Laravel Project Setup ===="
+echo
+
+# Step 1: Composer install
+echo "[1/9] Running composer install..."
 composer install
+echo "Composer install completed."
 
-echo "Running npm install..."
+# Step 2: NPM install
+echo "[2/9] Running npm install..."
 npm install
+echo "NPM install completed."
 
-echo "Copying environment files..."
+# Step 3: Copy env files
+echo "[3/9] Copying environment files..."
 cp .env.example .env
 cp .env.testing.example .env.testing
+echo "Environment files copied."
 
-echo "Generating app key..."
+# Step 4: Generate app keys
+echo "[4/9] Generating app keys..."
 php artisan key:generate
+php artisan key:generate --env=testing
+echo "App keys generated."
 
-echo "Creating database file..."
+# Step 5: Create SQLite files
+echo "[5/9] Creating database directory and files..."
 mkdir -p database
-touch database/database.sqlite
+[ -f database/database.sqlite ] || touch database/database.sqlite
+[ -f database/testDatabase.sqlite ] || touch database/testDatabase.sqlite
+echo "SQLite files created."
 
-echo "Running fresh migrations..."
+# Step 6: Migrate database
+echo "[6/9] Running migrations..."
 php artisan migrate:fresh
+echo "Migrations complete."
 
-echo "Seeding database..."
+# Step 7: Seed database
+echo "[7/9] Seeding database..."
 php artisan db:seed --class=InstallSeeder
+echo "Database seeded."
 
-echo "Linking storage..."
+# Step 8: Link storage
+echo "[8/9] Linking storage..."
 php artisan storage:link
+echo "Storage linked."
 
-echo "Setup complete!"
+echo
+echo "✅ All steps completed successfully!"
