@@ -240,12 +240,17 @@
                     <div class="col-6">{{ $worksheet->work_time }}</div>
                 </div>
             </div>
-            <div class="col-6 d-flex align-items-stretch">
-                <div class="row">
-                    <div class="col-5 fw-bold">Belső munkaleírás:</div>
-                    <div class="col-7 border border-dark">{{ $worksheet->work_description }}</div>
+            @isset($worksheet->work_description)
+                <div class="col-6 d-flex align-items-stretch">
+                    <div class="row">
+                        <div class="col-5 fw-bold">Belső munkaleírás:</div>
+                        <div class="col-7 d-flex justify-content-end">
+                            <div class="border border-dark">{{ $worksheet->work_description }}</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            @endisset
+
         </div>
         @if (isset($worksheet->outsourcing))
             <div class="wrapper">

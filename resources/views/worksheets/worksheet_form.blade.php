@@ -199,43 +199,52 @@
                                 </div>
                             </div>
                         </div>
+                        @php
+                            $customerCompanies = $companies->where('type', 'customer');
+
+                            $selected_company_id =
+                                old('company_id') ??
+                                ($worksheet->customer->company->id ?? null ?? $customerCompanies->first()?->id);
+
+                            $selected_customer_id = old('customer_id') ?? ($worksheet->customer_id ?? null);
+
+                            $selectedCompany = $customerCompanies->where('id', $selected_company_id)->first();
+                        @endphp
+
                         <div class="form-floating mb-3">
-                            @php
-                                $selected_company_id = old('company_id', $worksheet->customer->company_id ?? 1);
-                            @endphp
-                            <select class="form-select" id="company_id" name="company_id"
-                                data-update-url="{{ route('company.customers') }}">
-                                @if (count($companies->where('type', 'customer')) > 0)
-                                    @foreach ($companies->where('type', 'customer') as $company)
-                                        <option value="{{ $company->id }}" id="company-id-{{ $company->id }}"
-                                            {{ $selected_company_id == $company->id ? 'selected' : '' }}>
-                                            {{ $company->name }}</option>
+                            <select class="form-select" id="company_id" name="company_id">
+                                @if ($customerCompanies->isNotEmpty())
+                                    @foreach ($customerCompanies->sortBy('id') as $company)
+                                        <option value="{{ $company->id }}"
+                                            {{ $company->id == $selected_company_id ? 'selected' : '' }}>
+                                            {{ $company->name }}
+                                        </option>
                                     @endforeach
                                 @endif
                             </select>
-                            <label for="company_id">Ügyfél cég</label>
+                            <label for="company_id">Cég</label>
                             <div class="invalid-feedback d-none">
-                                Nem megfelelő ügyfél cég
+                                Nem megfelelő cég
                             </div>
                         </div>
+
                         <div class="form-floating mb-3">
-                            @php
-                                $selected_customer_id = old('customer_id', $worksheet->customer_id ?? 1);
-                            @endphp
                             <select class="form-select" id="customer_id" name="customer_id">
-                                    @if (count($companies->where('type', 'customer')) > 0)
-                                        @foreach ($companies->where('id', $selected_company_id)->first()->customers as $customer)
-                                            <option value="{{ $customer->id }}" id="customer-id-{{ $customer->id }}"
-                                                {{ $selected_customer_id == $customer->id ? 'selected' : '' }}>
-                                                {{ $customer->name }}</option>
-                                        @endforeach
-                                    @endif
+                                @if ($selectedCompany && $selectedCompany->customers->isNotEmpty())
+                                    @foreach ($selectedCompany->customers as $customer)
+                                        <option value="{{ $customer->id }}"
+                                            {{ $customer->id == $selected_customer_id ? 'selected' : '' }}>
+                                            {{ $customer->name }}
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
                             <label for="customer_id">Ügyfél munkatárs</label>
                             <div class="invalid-feedback d-none">
                                 Nem megfelelő ügyfél munkatárs
                             </div>
                         </div>
+
                     </div>
                 </div>
                 <div class="row border-top pt-3">
