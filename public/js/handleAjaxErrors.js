@@ -1,4 +1,5 @@
 function handleAjaxErrors(errors) {
+
     document.querySelectorAll(".is-invalid").forEach((el) => {
         el.classList.remove("is-invalid");
     });

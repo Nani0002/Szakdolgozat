@@ -61,7 +61,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', 'min:8', Rules\Password::defaults()],
             'role' => 'string',
         ], [
             'name.required' => 'A név megadása kötelező.',
@@ -77,6 +77,7 @@ class UserController extends Controller
 
             'password.required' => 'A jelszó megadása kötelező.',
             'password.confirmed' => 'A jelszavak nem egyeznek.',
+            'password.min' => 'A jelszónak legalább 8 karakter hosszúnak kell lennie.',
 
             'role.string' => 'A szerepkör érvénytelen formátumban van.',
         ]);
@@ -116,10 +117,16 @@ class UserController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => [
+                'required',
+                'confirmed',
+                'min:8',
+                Rules\Password::defaults(),
+            ],
         ], [
             'password.required' => 'A jelszó megadása kötelező.',
             'password.confirmed' => 'A jelszavak nem egyeznek.',
+            'password.min' => 'A jelszónak legalább 8 karakter hosszúnak kell lennie.',
         ]);
 
         $user->password = Hash::make($validated['password']);

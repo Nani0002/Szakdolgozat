@@ -24,7 +24,6 @@ $(document).ready(function () {
                 success: function (response) {
                     if (response.success) {
                         profileImage.attr("src", response.new_image_url);
-                        alert("Image updated successfully!");
                     } else {
                         alert("Image update failed!");
                     }
