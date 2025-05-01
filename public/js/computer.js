@@ -63,14 +63,16 @@ function getComputers(e) {
                     computers[0]["type"];
 
                 document.querySelector("#condition").value =
-                    computers[0]["latest_info_pivot"]["condition"];
+                    computers[0].latest_info_pivot?.condition ?? "";
                 document.querySelector("#password").value =
-                    computers[0]["latest_info_pivot"]["password"];
+                    computers[0].latest_info_pivot?.password ?? "";
                 document.querySelector("#prewiew").src =
                     "/storage/images/" +
-                    computers[0]["latest_info_pivot"]["imagename_hash"];
+                    (computers[0].latest_info_pivot?.imagename_hash ??
+                        "default_computer.jpg");
                 document.querySelector("#prewiew").alt =
-                    computers[0]["latest_info_pivot"]["imagename"];
+                    computers[0].latest_info_pivot?.imagename ??
+                    "default_computer.jpg";
             } else {
                 alert("No customers found.");
             }

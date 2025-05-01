@@ -223,8 +223,6 @@ class ComputerController extends Controller
             return redirect(route('worksheet.show', $worksheet->id));
         }
 
-        $originalName = "default_computer.jpg";
-        $hashedName = "default_computer.jpg";
         if ($request->hasFile('imagefile')) {
 
             $originalName = $request->file('imagefile')->getClientOriginalName();
@@ -235,9 +233,7 @@ class ComputerController extends Controller
             }
 
             $request->file('imagefile')->storeAs('images', $hashedName, 'public');
-        }
-
-        DB::table('computer_worksheet')
+            DB::table('computer_worksheet')
             ->where('id', $request['pivot_id'])
             ->update([
                 'condition' => $validated['condition'],
@@ -246,18 +242,30 @@ class ComputerController extends Controller
                 'imagename_hash' => $hashedName,
                 'updated_at' => now(),
             ]);
+        }
+        else{
+            DB::table('computer_worksheet')
+            ->where('id', $request['pivot_id'])
+            ->update([
+                'condition' => $validated['condition'],
+                'password' => $validated['password'],
+                'updated_at' => now(),
+            ]);
+        }
 
-        $computer = Computer::findOrFail($pivot->computer_id);
+        $updatedPivot = DB::table('computer_worksheet')->where('id', $validated["pivot_id"])->first();
+
+        $computer = Computer::findOrFail($updatedPivot->computer_id);
         $computer->pivot = (object) [
-            'id' => $pivot->id,
-            'imagename' => $originalName,
-            'imagename_hash' => $hashedName,
-            'condition' => $validated['condition'],
-            'password' => $validated['password'],
-            'worksheet_id' => $pivot->worksheet_id,
-            'computer_id' => $pivot->computer_id,
-            'created_at' => $pivot->created_at,
-            'updated_at' => now(),
+            'id' => $updatedPivot->id,
+            'imagename' => $updatedPivot->imagename,
+            'imagename_hash' => $updatedPivot->imagename_hash,
+            'condition' => $updatedPivot->condition,
+            'password' => $updatedPivot->password,
+            'worksheet_id' => $updatedPivot->worksheet_id,
+            'computer_id' => $updatedPivot->computer_id,
+            'created_at' => $updatedPivot->created_at,
+            'updated_at' => $updatedPivot->updated_at,
         ];
 
         $key = $validated["key"];
