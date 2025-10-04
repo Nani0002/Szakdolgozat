@@ -1,4 +1,17 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ELTE IK BSC SZAKDOLGOZAT
+
+## **[Dokumentáció](https://docs.google.com/document/d/1kz9f9t6uE-A6s2XJLWzXboiGXPVdzsMV/edit?usp=sharing&ouid=111440245050635931665&rtpof=true&sd=true)**
+
+### A Feladat
+- Az alkalmazás legfőbb feladata a munkalapok létrehozása, módosítása, megtekintése, törlése, illetve egy nyomtatási lap előállítása, aminek segítségével a használt böngésző alapértelmezett nyomtatási módszerével könnyen, sablonosan nyomtathatóvá, vagy PDF formátumúvá állítható. 
+    - A program célja olyan munkalapok előállítása, amelyen látható, hogy mikor, melyik cég számára, milyen munkákat végzett el a cég. Szükséges a nyomon követhetőség érdekében eltárolni, hogy esetleg milyen számítógépbe milyen extra alkatrészek kerültek beszerelésre, illetve ennek az ellentétes irányú megoldására, hogy mikor dolgoztak az adott számítógéppel. A felhasználók feladatának megkönnyítése érdekében eltároljuk a céggel kapcsolatban lévő ügyfél cégeket és munkatársakat a könnyedt kitöltés érdekében, illetve egy esztétikus, könnyen használható, hiba esetén egyértelműen segítő programot kívántak használni. 
+    - A feladat leírásban még az szerepelt, hogy egy munkamenedzsment rendszer is elérhető legyen, ahol a felhasználók egymás között tudnak munkákat kiosztani, illetve megtekinteni, hogy egy feladat éppen milyen stádiumban jár, illetve ezekre a munkajegyekre legyen lehetőség válaszolni, ezzel is segítve a kommunikációt a munkatársak között.
+
+### Megvalósítás
+- A program jelenlegi fázisában egy laravel szerver oldali alkalmazásból áll amely blade lapokat jelenít meg a kliens oldalon. Később egy különálló klienst tervezek készíteni egy más különálló klienssel. 
+
+
+<!--<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
 <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
@@ -64,3 +77,6 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+-->
